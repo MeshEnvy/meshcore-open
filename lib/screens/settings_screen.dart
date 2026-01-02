@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../connector/meshcore_connector.dart';
 import '../connector/meshcore_protocol.dart';
@@ -17,6 +18,20 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _showBatteryVoltage = false;
+  String _appVersion = '...';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVersionInfo();
+  }
+
+  Future<void> _loadVersionInfo() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    setState(() {
+      _appVersion = packageInfo.version;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -240,7 +255,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: ListTile(
         leading: const Icon(Icons.info_outline),
         title: const Text('About'),
-        subtitle: const Text('MeshCore Open v0.1.0'),
+        subtitle: Text('MeshCore Open v$_appVersion'),
         onTap: () => _showAbout(context),
       ),
     );
@@ -533,7 +548,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showAboutDialog(
       context: context,
       applicationName: 'MeshCore Open',
-      applicationVersion: '0.1.0',
+      applicationVersion: _appVersion,
       applicationLegalese: '2024 MeshCore Open Source Project',
       children: [
         const SizedBox(height: 16),
