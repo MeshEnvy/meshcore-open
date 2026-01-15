@@ -759,13 +759,14 @@ class _ContactTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final shotPublicKey = "<${contact.publicKeyHex.substring(0, 8)}...${contact.publicKeyHex.substring(contact.publicKeyHex.length - 8)}>";
     return ListTile(
       leading: CircleAvatar(
         backgroundColor: _getTypeColor(contact.type),
         child: _buildContactAvatar(contact),
       ),
       title: Text(contact.name),
-      subtitle: Text('${contact.typeLabel} • ${contact.pathLabel}'),
+      subtitle: Text('${contact.typeLabel} • ${contact.pathLabel} $shotPublicKey'),
       trailing: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
