@@ -16,7 +16,9 @@ class BleDebugLogEntry {
 
   String get hexPreview {
     const maxBytes = 64;
-    final bytes = payload.length > maxBytes ? payload.sublist(0, maxBytes) : payload;
+    final bytes = payload.length > maxBytes
+        ? payload.sublist(0, maxBytes)
+        : payload;
     final hex = bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join(' ');
     return payload.length > maxBytes ? '$hex …' : hex;
   }
@@ -26,14 +28,13 @@ class BleRawLogRxEntry {
   final DateTime timestamp;
   final Uint8List payload;
 
-  BleRawLogRxEntry({
-    required this.timestamp,
-    required this.payload,
-  });
+  BleRawLogRxEntry({required this.timestamp, required this.payload});
 
   String get hexPreview {
     const maxBytes = 64;
-    final bytes = payload.length > maxBytes ? payload.sublist(0, maxBytes) : payload;
+    final bytes = payload.length > maxBytes
+        ? payload.sublist(0, maxBytes)
+        : payload;
     final hex = bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join(' ');
     return payload.length > maxBytes ? '$hex …' : hex;
   }
@@ -45,7 +46,8 @@ class BleDebugLogService extends ChangeNotifier {
   final List<BleRawLogRxEntry> _rawLogRxEntries = [];
 
   List<BleDebugLogEntry> get entries => List.unmodifiable(_entries);
-  List<BleRawLogRxEntry> get rawLogRxEntries => List.unmodifiable(_rawLogRxEntries);
+  List<BleRawLogRxEntry> get rawLogRxEntries =>
+      List.unmodifiable(_rawLogRxEntries);
 
   void logFrame(Uint8List frame, {required bool outgoing, String? note}) {
     if (frame.isEmpty) return;
@@ -85,7 +87,12 @@ class BleDebugLogService extends ChangeNotifier {
     notifyListeners();
   }
 
-  String _describeFrame(int code, Uint8List frame, bool outgoing, String? note) {
+  String _describeFrame(
+    int code,
+    Uint8List frame,
+    bool outgoing,
+    String? note,
+  ) {
     final label = _codeLabel(code, outgoing: outgoing);
     final prefix = outgoing ? 'TX' : 'RX';
     final extra = _frameDetail(code, frame);
@@ -147,6 +154,8 @@ class BleDebugLogService extends ChangeNotifier {
         return 'CMD_SET_CHANNEL';
       case cmdGetRadioSettings:
         return 'CMD_GET_RADIO_SETTINGS';
+      case cmdSetCustomVar:
+        return 'CMD_SET_CUSTOM_VAR';
       default:
         return null;
     }

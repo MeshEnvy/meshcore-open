@@ -559,7 +559,7 @@
   "chat_setCustomPath": "Nastaviť vlastnú cestu",
   "chat_setCustomPathSubtitle": "Ručne zadajte trasu.",
   "chat_clearPath": "Vyčistiš cestu",
-  "chat_clearPathSubtitle": "Znovu nájsť vynútene pri nasledujacej pošlite",
+  "chat_clearPathSubtitle": "Znovu nájsť vynútene pri nasledujúcej pošlite",
   "chat_pathCleared": "Cesta vyčistená. Nasledujúce prepočetné získa trasu znova.",
   "chat_floodModeSubtitle": "Použite prepínanie trasy v navigačnom paneli.",
   "chat_floodModeEnabled": "Odosporňovacia prevádzka je zapnutá. Vypnite ju znova cez ikonu routovania v navigačnom páse.",
@@ -1349,6 +1349,10 @@
   "channels_scanQrCodeComingSoon": "Čoskoro",
   "channels_enterHashtag": "Zadajte hashtag",
   "channels_hashtagHint": "napr. #tím",
-  "room_management": "Správa servera miestnosti",
-  "contacts_manageRoom": "Spravovať server miestnosti"
+  "settings_locationGPSEnable": "Aktivovať GPS",
+  "settings_locationGPSEnableSubtitle": "Povolí automatické aktualizovanie polohy pomocou GPS.",
+  "settings_locationIntervalSec": "Interval pre GPS (Sekundy)",
+  "settings_locationIntervalInvalid": "Interval musí byť aspoň 60 sekúnd a menej ako 86400 sekúnd.",
+  "contacts_manageRoom": "Spravovať server miestnosti",
+  "room_management": "Správa servera miestnosti"
 }

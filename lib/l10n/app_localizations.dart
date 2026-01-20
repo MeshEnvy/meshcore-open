@@ -465,7 +465,7 @@ abstract class AppLocalizations {
   /// No description provided for @settings_locationUpdated.
   ///
   /// In en, this message translates to:
-  /// **'Location updated'**
+  /// **'Location and GPS settings updated'**
   String get settings_locationUpdated;
 
   /// No description provided for @settings_locationBothRequired.
@@ -479,6 +479,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Invalid latitude or longitude.'**
   String get settings_locationInvalid;
+
+  /// No description provided for @settings_locationGPSEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'GPS Enable'**
+  String get settings_locationGPSEnable;
+
+  /// No description provided for @settings_locationGPSEnableSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enables GPS to automatically update location.'**
+  String get settings_locationGPSEnableSubtitle;
+
+  /// No description provided for @settings_locationIntervalSec.
+  ///
+  /// In en, this message translates to:
+  /// **'Interval for GPS (Seconds)'**
+  String get settings_locationIntervalSec;
+
+  /// No description provided for @settings_locationIntervalInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Interval must be at least 60 seconds, and less than 86400 seconds.'**
+  String get settings_locationIntervalInvalid;
 
   /// No description provided for @settings_latitude.
   ///

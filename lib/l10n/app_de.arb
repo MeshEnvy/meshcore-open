@@ -1348,7 +1348,5 @@
   "channels_scanQrCode": "Scannen Sie einen QR-Code",
   "channels_scanQrCodeComingSoon": "Bald verfügbar",
   "channels_enterHashtag": "Gib Hashtag ein",
-  "channels_hashtagHint": "z.B. #team",
-  "contacts_manageRoom": "Verwalten Sie den Raumserver",
-  "room_management": "Raumserververwaltung"
+  "channels_hashtagHint": "z.B. #team"
 }

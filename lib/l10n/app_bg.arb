@@ -1349,6 +1349,10 @@
   "channels_scanQrCodeComingSoon": "Ще излезе скоро",
   "channels_enterHashtag": "Въведете хаштаг",
   "channels_hashtagHint": "напр. #отбор",
+  "settings_locationIntervalSec": "Интервал за GPS (Секунди)",
+  "settings_locationGPSEnable": "Активиране на GPS",
+  "settings_locationGPSEnableSubtitle": "Активирайте автоматичното актуализиране на местоположението чрез GPS.",
+  "settings_locationIntervalInvalid": "Интервалът трябва да бъде поне 60 секунди и по-малко от 86400 секунди.",
   "room_management": "Управление на сървъра за стая",
   "contacts_manageRoom": "Управление на сървър за стая"
 }

@@ -176,7 +176,7 @@
   "appSettings_languageBg": "Български",
   "appSettings_notifications": "Obveščanja",
   "appSettings_enableNotifications": "Omogoči obveščanje",
-  "appSettings_enableNotificationsSubtitle": "Prejmujte obvestila o sporočilih in oglasih",
+  "appSettings_enableNotificationsSubtitle": "Prejmite obvestila o sporočilih in oglasih",
   "appSettings_notificationPermissionDenied": "Odobritev obvestila zavrnjena",
   "appSettings_notificationsEnabled": "Obvestila omogočena",
   "appSettings_notificationsDisabled": "Obvestila so izklopljena",
@@ -256,7 +256,7 @@
   "contacts_contactsWillAppear": "Kontakti se bodo prikazali, ko naprave oglasijo.",
   "contacts_searchContacts": "Iskanje kontaktov...",
   "contacts_noUnreadContacts": "Nerešeno kontaktov.",
-  "contacts_noContactsFound": "Niti ena osebe ali skupine ni najdena.",
+  "contacts_noContactsFound": "Niti ena oseba ali skupine ni najdena.",
   "contacts_deleteContact": "Izbrisati Kontakt",
   "contacts_removeConfirm": "Izbrisati {contactName} iz kontaktov?",
   "@contacts_removeConfirm": {
@@ -291,7 +291,7 @@
     }
   },
   "contacts_filterContacts": "Filtri kontakt\\,...",
-  "contacts_noContactsMatchFilter": "Niti ena osebe ne ustreza vašemu kriteriju.",
+  "contacts_noContactsMatchFilter": "Niti ena oseba ne ustreza vašemu kriteriju.",
   "contacts_noMembers": "Nič članov.",
   "contacts_lastSeenNow": "Datum zadnjega vpisa zdaj",
   "contacts_lastSeenMinsAgo": "Zadnjič videti {minutes} minut nazaj",
@@ -606,7 +606,7 @@
   },
   "map_title": "Mapa omrežja",
   "map_noNodesWithLocation": "Nihče od notranjih elementov nima podatkov o lokaciji.",
-  "map_nodesNeedGps": "Omrežje morajo deliti svoje GPS koordinate,\nda se prikazajo na zemljeobrazniku.",
+  "map_nodesNeedGps": "Omrežje morajo deliti svoje GPS koordinate,\nda se prikazao na zemljeobrazniku.",
   "map_nodesCount": "Omize: {count}",
   "@map_nodesCount": {
     "placeholders": {
@@ -1349,6 +1349,10 @@
   "channels_scanQrCodeComingSoon": "Prihajajoča",
   "channels_enterHashtag": "Vnesite hashtag",
   "channels_hashtagHint": "npr. #ekipa",
+  "settings_locationGPSEnable": "Omogoči GPS",
+  "settings_locationGPSEnableSubtitle": "Omogoči samodejno posodabljanje lokacije z GPS-jem.",
+  "settings_locationIntervalSec": "Interval za GPS (Sekunde)",
+  "settings_locationIntervalInvalid": "Intervallo mora biti vsaj 60 sekund in manj kot 86400 sekund.",
   "contacts_manageRoom": "Upravljajte strežnik sobe",
   "room_management": "Upravljanje stremlišča"
 }

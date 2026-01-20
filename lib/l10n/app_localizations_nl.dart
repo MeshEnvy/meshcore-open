@@ -201,6 +201,20 @@ class AppLocalizationsNl extends AppLocalizations {
       'Ongeldige breedtegraad of lengtegraad.';
 
   @override
+  String get settings_locationGPSEnable => 'GPS inschakelen';
+
+  @override
+  String get settings_locationGPSEnableSubtitle =>
+      'Activeer automatisch locatieupdates via GPS.';
+
+  @override
+  String get settings_locationIntervalSec => 'Interval voor GPS (Seconden)';
+
+  @override
+  String get settings_locationIntervalInvalid =>
+      'De intervallen moeten minstens 60 seconden zijn en minder dan 86400 seconden.';
+
+  @override
   String get settings_latitude => 'Breedtegraad';
 
   @override

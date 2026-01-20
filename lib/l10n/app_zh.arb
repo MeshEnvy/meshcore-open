@@ -1349,6 +1349,10 @@
   "channels_scanQrCodeComingSoon": "即将到来",
   "channels_enterHashtag": "输入标签",
   "channels_hashtagHint": "例如 #团队",
+  "settings_locationGPSEnable": "启用GPS",
+  "settings_locationGPSEnableSubtitle": "启用GPS自动更新位置。",
+  "settings_locationIntervalSec": "GPS 间隔（秒）",
+  "settings_locationIntervalInvalid": "时间间隔必须至少为60秒，且小于86400秒。",
   "contacts_manageRoom": "管理房间服务器",
   "room_management": "房间服务器管理"
 }

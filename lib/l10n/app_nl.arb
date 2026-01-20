@@ -1349,6 +1349,10 @@
   "channels_scanQrCodeComingSoon": "Komt later",
   "channels_enterHashtag": "Voer hashtag in",
   "channels_hashtagHint": "bijv. #team",
-  "room_management": "Beheer Server Kamer",
-  "contacts_manageRoom": "Beheer Ruimte Server"
+  "settings_locationGPSEnable": "GPS inschakelen",
+  "settings_locationGPSEnableSubtitle": "Activeer automatisch locatieupdates via GPS.",
+  "settings_locationIntervalSec": "Interval voor GPS (Seconden)",
+  "settings_locationIntervalInvalid": "De intervallen moeten minstens 60 seconden zijn en minder dan 86400 seconden.",
+  "contacts_manageRoom": "Beheer Ruimte Server",
+  "room_management": "Beheer Server Kamer"
 }
