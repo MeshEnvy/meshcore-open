@@ -900,41 +900,42 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                   children: [
                     // Only show type selection if user has communities
                     if (_communities.isNotEmpty) ...[
-                      RadioListTile<bool>(
-                        value: true,
+                      RadioGroup<bool>(
                         groupValue: isRegularHashtag,
                         onChanged: (v) => setDialogState(() {
-                          isRegularHashtag = v!;
+                          if (v == null) return;
+                          isRegularHashtag = v;
                           if (isRegularHashtag) {
                             selectedCommunity = null;
-                          }
-                        }),
-                        title: Text(
-                          dialogContext.l10n.community_regularHashtag,
-                        ),
-                        subtitle: Text(
-                          dialogContext.l10n.community_regularHashtagDesc,
-                        ),
-                        dense: true,
-                      ),
-                      RadioListTile<bool>(
-                        value: false,
-                        groupValue: isRegularHashtag,
-                        onChanged: (v) => setDialogState(() {
-                          isRegularHashtag = v!;
-                          if (!isRegularHashtag &&
-                              selectedCommunity == null &&
+                          } else if (selectedCommunity == null &&
                               _communities.isNotEmpty) {
                             selectedCommunity = _communities.first;
                           }
                         }),
-                        title: Text(
-                          dialogContext.l10n.community_communityHashtag,
+                        child: Column(
+                          children: [
+                            RadioListTile<bool>(
+                              value: true,
+                              title: Text(
+                                dialogContext.l10n.community_regularHashtag,
+                              ),
+                              subtitle: Text(
+                                dialogContext.l10n.community_regularHashtagDesc,
+                              ),
+                              dense: true,
+                            ),
+                            RadioListTile<bool>(
+                              value: false,
+                              title: Text(
+                                dialogContext.l10n.community_communityHashtag,
+                              ),
+                              subtitle: Text(
+                                dialogContext.l10n.community_communityHashtagDesc,
+                              ),
+                              dense: true,
+                            ),
+                          ],
                         ),
-                        subtitle: Text(
-                          dialogContext.l10n.community_communityHashtagDesc,
-                        ),
-                        dense: true,
                       ),
                     ],
                     // Community dropdown (only if community hashtag selected)
