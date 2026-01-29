@@ -959,7 +959,12 @@ class MeshCoreConnector extends ChangeNotifier {
     if (!isConnected) return;
     if (_batteryRequested && !force) return;
     _batteryRequested = true;
-    await sendFrame(buildGetBattAndStorageFrame());
+    try {
+      await sendFrame(buildGetBattAndStorageFrame());
+    } catch (e) {
+      // Connection likely lost - trigger disconnection handling
+      _handleDisconnection();
+    }
   }
 
   void _startBatteryPolling() {

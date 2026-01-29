@@ -8,8 +8,46 @@ import '../widgets/device_tile.dart';
 import 'contacts_screen.dart';
 
 /// Screen for scanning and connecting to MeshCore devices
-class ScannerScreen extends StatelessWidget {
+class ScannerScreen extends StatefulWidget {
   const ScannerScreen({super.key});
+
+  @override
+  State<ScannerScreen> createState() => _ScannerScreenState();
+}
+
+class _ScannerScreenState extends State<ScannerScreen> {
+  bool _changedNavigation = false;
+  late final VoidCallback _connectionListener;
+
+  @override
+  void initState() {
+    super.initState();
+    final connector = Provider.of<MeshCoreConnector>(context, listen: false);
+    
+    _connectionListener = () {
+      if (connector.state == MeshCoreConnectionState.disconnected) {
+        _changedNavigation = false;
+      } else if (connector.state == MeshCoreConnectionState.connected && !_changedNavigation) {
+        _changedNavigation = true;
+        if (mounted) {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const ContactsScreen(),
+            ),
+          );
+        }
+      }
+    };
+    
+    connector.addListener(_connectionListener);
+  }
+
+  @override
+  void dispose() {
+    final connector = Provider.of<MeshCoreConnector>(context, listen: false);
+    connector.removeListener(_connectionListener);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -161,15 +199,6 @@ final l10n = context.l10n;
           ? result.device.platformName
           : result.advertisementData.advName;
       await connector.connect(result.device, displayName: name);
-      
-      if (context.mounted && connector.isConnected) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const ContactsScreen(),
-          ),
-        );
-      }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
