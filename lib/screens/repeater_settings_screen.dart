@@ -1203,11 +1203,11 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
               subtitle: Text(
                 l10n.repeater_localAdvertIntervalMinutes(_advertInterval),
               ),
-              trailing: Checkbox(
+              trailing: Switch(
                 value: _advertEnable,
                 onChanged: (value) {
                   setState(() {
-                    _advertInterval = value! ? 60 : 0;
+                    _advertInterval = value ? 60 : 0;
                     _advertEnable = value;
                   });
                   _markChanged();
@@ -1237,11 +1237,11 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
               subtitle: Text(
                 l10n.repeater_floodAdvertIntervalHours(_floodAdvertInterval),
               ),
-              trailing: Checkbox(
+              trailing: Switch(
                 value: _floodAdvertEnable,
                 onChanged: (value) {
                   setState(() {
-                    _floodAdvertInterval = value! ? 3 : 0;
+                    _floodAdvertInterval = value ? 3 : 0;
                     _floodAdvertEnable = value;
                   });
                   _markChanged();
