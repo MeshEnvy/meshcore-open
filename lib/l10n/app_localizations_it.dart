@@ -2775,6 +2775,50 @@ class AppLocalizationsIt extends AppLocalizations {
       'Copia dell\'annuncio nella Clipboard non riuscita.';
 
   @override
+  String get notification_activityTitle => 'Attività MeshCore';
+
+  @override
+  String notification_messagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'messaggi',
+      one: 'messaggio',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_channelMessagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'messaggi del canale',
+      one: 'messaggio del canale',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_newNodesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'nuovi nodi',
+      one: 'nuovo nodo',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_newTypeDiscovered(String contactType) {
+    return 'Nuovo $contactType scoperto';
+  }
+
+  @override
+  String get notification_receivedNewMessage => 'Nuovo messaggio ricevuto';
+
+  @override
   String get settings_gpxExportRepeaters =>
       'Esporta ripetitori / server di stanza in GPX';
 

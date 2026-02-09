@@ -2626,6 +2626,32 @@ class AppLocalizationsZh extends AppLocalizations {
   String get contacts_contactAdvertCopyFailed => '将广告复制到剪贴板操作失败。';
 
   @override
+  String get notification_activityTitle => 'MeshCore 活动';
+
+  @override
+  String notification_messagesCount(int count) {
+    return '$count 条消息';
+  }
+
+  @override
+  String notification_channelMessagesCount(int count) {
+    return '$count 条频道消息';
+  }
+
+  @override
+  String notification_newNodesCount(int count) {
+    return '$count 个新节点';
+  }
+
+  @override
+  String notification_newTypeDiscovered(String contactType) {
+    return '发现新 $contactType';
+  }
+
+  @override
+  String get notification_receivedNewMessage => '收到新消息';
+
+  @override
   String get settings_gpxExportRepeaters => '导出重复器/房间服务器到GPX';
 
   @override

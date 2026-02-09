@@ -2779,6 +2779,56 @@ class AppLocalizationsRu extends AppLocalizations {
       'Копирование рекламы в буфер обмена не удалось.';
 
   @override
+  String get notification_activityTitle => 'Активность MeshCore';
+
+  @override
+  String notification_messagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'сообщений',
+      many: 'сообщений',
+      few: 'сообщения',
+      one: 'сообщение',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_channelMessagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'сообщений канала',
+      many: 'сообщений канала',
+      few: 'сообщения канала',
+      one: 'сообщение канала',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_newNodesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'новых узлов',
+      many: 'новых узлов',
+      few: 'новых узла',
+      one: 'новый узел',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_newTypeDiscovered(String contactType) {
+    return 'Обнаружен новый $contactType';
+  }
+
+  @override
+  String get notification_receivedNewMessage => 'Получено новое сообщение';
+
+  @override
   String get settings_gpxExportRepeaters =>
       'Экспортировать рипитеры / сервер комнаты в GPX';
 

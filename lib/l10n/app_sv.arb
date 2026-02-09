@@ -1569,6 +1569,13 @@
   "contacts_ShareContact": "Kopiera kontakt till Urklipp",
   "contacts_zeroHopContactAdvertFailed": "Misslyckades med att skicka kontakt.",
   "contacts_ShareContactZeroHop": "Dela kontakt via annons",
+  "notification_activityTitle": "MeshCore Aktivitet",
+  "notification_messagesCount": "{count} {count, plural, =1{meddelande} other{meddelanden}}",
+  "notification_channelMessagesCount": "{count} {count, plural, =1{kanalmeddelande} other{kanalmeddelanden}}",
+  "notification_newNodesCount": "{count} {count, plural, =1{ny nod} other{nya noder}}",
+  "notification_newTypeDiscovered": "Ny {contactType} upptäckt",
+  "notification_receivedNewMessage": "Nytt meddelande mottaget",
+  "contacts_ShareContactZeroHop": "Dela kontakt via annons",
   "settings_gpxExportAll": "Exportera alla kontakter till GPX",
   "settings_gpxExportRepeatersSubtitle": "Exporterar repeater / roomserver med plats till GPX-fil.",
   "settings_gpxExportSuccess": "Har exporterat GPX-fil med framgång",
@@ -1585,4 +1592,5 @@
   "settings_gpxExportShareSubject": "meshcore-open export av GPX-kartdata",
   "settings_gpxExportShareText": "Kartdata exporterad från meshcore-open",
   "pathTrace_someHopsNoLocation": "En eller flera av humlen saknar en plats!"
+
 }

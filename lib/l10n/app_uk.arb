@@ -1569,6 +1569,13 @@
   "contacts_zeroHopContactAdvertSent": "Відправлено контакт за оголошенням",
   "contacts_addContactFromClipboard": "Додати контакт з буфера обміну",
   "contacts_ShareContactZeroHop": "Поділитися контактом за оголошенням",
+  "notification_activityTitle": "Активність MeshCore",
+  "notification_messagesCount": "{count} {count, plural, =1{повідомлення} few{повідомлення} many{повідомлень} other{повідомлень}}",
+  "notification_channelMessagesCount": "{count} {count, plural, =1{повідомлення каналу} few{повідомлення каналу} many{повідомлень каналу} other{повідомлень каналу}}",
+  "notification_newNodesCount": "{count} {count, plural, =1{новий вузол} few{нових вузли} many{нових вузлів} other{нових вузлів}}",
+  "notification_newTypeDiscovered": "Виявлено новий {contactType}",
+  "notification_receivedNewMessage": "Отримано нове повідомлення",
+  "contacts_ShareContactZeroHop": "Поділитися контактом за оголошенням",
   "settings_gpxExportRepeaters": "Експортувати ретранслятори / сервер кімнати до GPX",
   "settings_gpxExportRepeatersSubtitle": "Експортує ретранслятори / сервер кімнати з місцезнаходженням у файл GPX.",
   "settings_gpxExportSuccess": "Успішно експортовано файл GPX.",
@@ -1585,4 +1592,5 @@
   "settings_gpxExportAllContacts": "Усі місця контактів",
   "settings_gpxExportShareSubject": "експорт даних карти meshcore-open у форматі GPX",
   "pathTrace_someHopsNoLocation": "Одне або більше хмелів відсутнє місце розташування!"
+
 }

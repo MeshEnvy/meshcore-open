@@ -2772,6 +2772,50 @@ class AppLocalizationsEs extends AppLocalizations {
       'Copiar anuncio al Portapapeles ha fallado.';
 
   @override
+  String get notification_activityTitle => 'Actividad de MeshCore';
+
+  @override
+  String notification_messagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'mensajes',
+      one: 'mensaje',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_channelMessagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'mensajes de canal',
+      one: 'mensaje de canal',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_newNodesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'nuevos nodos',
+      one: 'nuevo nodo',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_newTypeDiscovered(String contactType) {
+    return 'Nuevo $contactType descubierto';
+  }
+
+  @override
+  String get notification_receivedNewMessage => 'Nuevo mensaje recibido';
+
+  @override
   String get settings_gpxExportRepeaters =>
       'Exportar repetidores / servidor de sala a GPX';
 

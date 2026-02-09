@@ -2779,6 +2779,50 @@ class AppLocalizationsDe extends AppLocalizations {
       'Kopieren des Werbeinhalts in die Zwischenablage fehlgeschlagen.';
 
   @override
+  String get notification_activityTitle => 'MeshCore Aktivität';
+
+  @override
+  String notification_messagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Nachrichten',
+      one: 'Nachricht',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_channelMessagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Kanalnachrichten',
+      one: 'Kanalnachricht',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_newNodesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'neue Knoten',
+      one: 'neuer Knoten',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_newTypeDiscovered(String contactType) {
+    return 'Neuer $contactType entdeckt';
+  }
+
+  @override
+  String get notification_receivedNewMessage => 'Neue Nachricht empfangen';
+
+  @override
   String get settings_gpxExportRepeaters =>
       'Repeater und Raumserver nach GPX exportieren';
 

@@ -1569,6 +1569,13 @@
   "contacts_ShareContactZeroHop": "Udostępnij kontakt przez ogłoszenie",
   "contacts_ShareContact": "Kopiuj kontakt do schowka",
   "contacts_zeroHopContactAdvertFailed": "Nie udało się wysłać kontaktu.",
+  "notification_activityTitle": "Aktywność MeshCore",
+  "notification_messagesCount": "{count} {count, plural, =1{wiadomość} few{wiadomości} many{wiadomości} other{wiadomości}}",
+  "notification_channelMessagesCount": "{count} {count, plural, =1{wiadomość kanału} few{wiadomości kanału} many{wiadomości kanału} other{wiadomości kanału}}",
+  "notification_newNodesCount": "{count} {count, plural, =1{nowy węzeł} few{nowe węzły} many{nowych węzłów} other{nowych węzłów}}",
+  "notification_newTypeDiscovered": "Nowy {contactType} wykryty",
+  "notification_receivedNewMessage": "Otrzymano nową wiadomość",
+  "contacts_zeroHopContactAdvertFailed": "Nie udało się wysłać kontaktu.",
   "settings_gpxExportContacts": "Eksportuj towarzyszy do GPX",
   "settings_gpxExportRepeaters": "Eksportuj powtórki / serwer pokojowy do GPX",
   "settings_gpxExportRepeatersSubtitle": "Eksportuje powtarzacze / roomserver z lokalizacją do pliku GPX.",
@@ -1585,4 +1592,5 @@
   "settings_gpxExportShareText": "Dane mapy wyeksportowane z meshcore-open",
   "settings_gpxExportShareSubject": "Eksport danych mapy GPX meshcore-open",
   "pathTrace_someHopsNoLocation": "Jeden lub więcej z chmieli nie ma określonej lokalizacji!"
+
 }

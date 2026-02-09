@@ -2772,6 +2772,56 @@ class AppLocalizationsPl extends AppLocalizations {
       'Kopiowanie ogłoszenia do schowka nie powiodło się.';
 
   @override
+  String get notification_activityTitle => 'Aktywność MeshCore';
+
+  @override
+  String notification_messagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'wiadomości',
+      many: 'wiadomości',
+      few: 'wiadomości',
+      one: 'wiadomość',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_channelMessagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'wiadomości kanału',
+      many: 'wiadomości kanału',
+      few: 'wiadomości kanału',
+      one: 'wiadomość kanału',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_newNodesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'nowych węzłów',
+      many: 'nowych węzłów',
+      few: 'nowe węzły',
+      one: 'nowy węzeł',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_newTypeDiscovered(String contactType) {
+    return 'Nowy $contactType wykryty';
+  }
+
+  @override
+  String get notification_receivedNewMessage => 'Otrzymano nową wiadomość';
+
+  @override
   String get settings_gpxExportRepeaters =>
       'Eksportuj powtórki / serwer pokojowy do GPX';
 

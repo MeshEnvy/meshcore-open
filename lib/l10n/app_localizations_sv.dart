@@ -2745,6 +2745,50 @@ class AppLocalizationsSv extends AppLocalizations {
       'Kopiering av annons till Urklipp misslyckades.';
 
   @override
+  String get notification_activityTitle => 'MeshCore Aktivitet';
+
+  @override
+  String notification_messagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'meddelanden',
+      one: 'meddelande',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_channelMessagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'kanalmeddelanden',
+      one: 'kanalmeddelande',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_newNodesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'nya noder',
+      one: 'ny nod',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_newTypeDiscovered(String contactType) {
+    return 'Ny $contactType upptäckt';
+  }
+
+  @override
+  String get notification_receivedNewMessage => 'Nytt meddelande mottaget';
+
+  @override
   String get settings_gpxExportRepeaters =>
       'Exportera repeater / rumsservrar till GPX';
 

@@ -1569,6 +1569,13 @@
   "contacts_zeroHopContactAdvertFailed": "Zlyhalo odoslanie kontaktu.",
   "contacts_ShareContactZeroHop": "Zdieľať kontakt cez inzerát",
   "contacts_ShareContact": "Kopírovať kontakt do schránky",
+  "notification_activityTitle": "Aktivita MeshCore",
+  "notification_messagesCount": "{count} {count, plural, =1{správa} few{správy} other{správ}}",
+  "notification_channelMessagesCount": "{count} {count, plural, =1{správa kanálu} few{správy kanálu} other{správ kanálu}}",
+  "notification_newNodesCount": "{count} {count, plural, =1{nový uzol} few{nové uzly} other{nových uzlov}}",
+  "notification_newTypeDiscovered": "Nový {contactType} objavený",
+  "notification_receivedNewMessage": "Prijatá nová správa",
+  "contacts_ShareContact": "Kopírovať kontakt do schránky",
   "settings_gpxExportRepeatersSubtitle": "Exportuje repeater / roomserver s lokalitou do súboru GPX.",
   "settings_gpxExportContacts": "Export sprievodcov do GPX",
   "settings_gpxExportSuccess": "Úspešne exportovaný súbor GPX.",
@@ -1585,4 +1592,5 @@
   "settings_gpxExportShareText": "Mapové údaje exportované z meshcore-open",
   "settings_gpxExportShareSubject": "meshcore-open export dát GPX mapových údajov",
   "pathTrace_someHopsNoLocation": "Jedna alebo viac chmeľov chýba lokalita!"
+
 }

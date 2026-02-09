@@ -1569,6 +1569,13 @@
   "contacts_ShareContactZeroHop": "Condividi contatto tramite annuncio",
   "contacts_zeroHopContactAdvertFailed": "Invio del contatto non riuscito.",
   "contacts_contactAdvertCopied": "Annuncio copiato negli Appunti.",
+  "notification_activityTitle": "Attività MeshCore",
+  "notification_messagesCount": "{count} {count, plural, =1{messaggio} other{messaggi}}",
+  "notification_channelMessagesCount": "{count} {count, plural, =1{messaggio del canale} other{messaggi del canale}}",
+  "notification_newNodesCount": "{count} {count, plural, =1{nuovo nodo} other{nuovi nodi}}",
+  "notification_newTypeDiscovered": "Nuovo {contactType} scoperto",
+  "notification_receivedNewMessage": "Nuovo messaggio ricevuto",
+  "contacts_contactAdvertCopied": "Annuncio copiato negli Appunti.",
   "settings_gpxExportRepeaters": "Esporta ripetitori / server di stanza in GPX",
   "settings_gpxExportContacts": "Esporta compagni in GPX",
   "settings_gpxExportSuccess": "Esportazione del file GPX completata con successo.",
@@ -1585,4 +1592,5 @@
   "settings_gpxExportShareText": "Dati mappa esportati da meshcore-open",
   "settings_gpxExportShareSubject": "meshcore-open esportazione dati mappa GPX",
   "pathTrace_someHopsNoLocation": "Uno o più dei luppoli mancano di una posizione!"
+
 }

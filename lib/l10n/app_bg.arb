@@ -1569,6 +1569,13 @@
   "contacts_zeroHopContactAdvertFailed": "Неуспешно изпращане на контакт.",
   "contacts_zeroHopContactAdvertSent": "Изпратен контакт по обява.",
   "contacts_contactAdvertCopyFailed": "Копирането на обявата в клипборда не успя.",
+  "notification_activityTitle": "Активност на MeshCore",
+  "notification_messagesCount": "{count} {count, plural, =1{съобщение} other{съобщения}}",
+  "notification_channelMessagesCount": "{count} {count, plural, =1{съобщение в канал} other{съобщения в канали}}",
+  "notification_newNodesCount": "{count} {count, plural, =1{нов възел} other{нови възли}}",
+  "notification_newTypeDiscovered": "Открит нов {contactType}",
+  "notification_receivedNewMessage": "Получено ново съобщение",
+  "contacts_contactAdvertCopyFailed": "Копирането на обявата в клипборда не успя.",
   "settings_gpxExportContactsSubtitle": "Експортира спътници с местоположение в GPX файл.",
   "settings_gpxExportRepeatersSubtitle": "Изпраща повторители / roomserver с местоположение в GPX файл.",
   "settings_gpxExportAll": "Експортирай всички контакти в GPX",
@@ -1585,4 +1592,5 @@
   "settings_gpxExportShareText": "Картинни данни изнесени от meshcore-open",
   "settings_gpxExportShareSubject": "meshcore-open износ на данни за карта в формат GPX",
   "pathTrace_someHopsNoLocation": "Един или повече от хмелите липсва местоположение!"
+
 }

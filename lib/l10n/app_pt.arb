@@ -1569,6 +1569,13 @@
   "contacts_contactAdvertCopyFailed": "Cópia do anúncio para a Área de Transferência falhou.",
   "contacts_ShareContactZeroHop": "Compartilhar contato por anúncio",
   "contacts_zeroHopContactAdvertFailed": "Falha ao enviar contato.",
+  "notification_activityTitle": "Atividade MeshCore",
+  "notification_messagesCount": "{count} {count, plural, =1{mensagem} other{mensagens}}",
+  "notification_channelMessagesCount": "{count} {count, plural, =1{mensagem de canal} other{mensagens de canal}}",
+  "notification_newNodesCount": "{count} {count, plural, =1{novo nó} other{novos nós}}",
+  "notification_newTypeDiscovered": "Novo {contactType} descoberto",
+  "notification_receivedNewMessage": "Nova mensagem recebida",
+  "contacts_zeroHopContactAdvertFailed": "Falha ao enviar contato.",
   "settings_gpxExportRepeaters": "Exportar repetidores / servidor de sala para GPX",
   "settings_gpxExportRepeatersSubtitle": "Exporta repetidores / roomserver com localização para arquivo GPX.",
   "settings_gpxExportSuccess": "Arquivo GPX exportado com sucesso.",
@@ -1585,4 +1592,5 @@
   "settings_gpxExportShareText": "Dados do mapa exportados do meshcore-open",
   "settings_gpxExportShareSubject": "meshcore-open exportação de dados de mapa GPX",
   "pathTrace_someHopsNoLocation": "Um ou mais dos lúpulos estão sem localização!"
+
 }

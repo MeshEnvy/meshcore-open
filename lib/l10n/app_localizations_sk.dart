@@ -2758,6 +2758,53 @@ class AppLocalizationsSk extends AppLocalizations {
       'Kopírovanie inzerátu do schránky zlyhalo.';
 
   @override
+  String get notification_activityTitle => 'Aktivita MeshCore';
+
+  @override
+  String notification_messagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'správ',
+      few: 'správy',
+      one: 'správa',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_channelMessagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'správ kanálu',
+      few: 'správy kanálu',
+      one: 'správa kanálu',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_newNodesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'nových uzlov',
+      few: 'nové uzly',
+      one: 'nový uzol',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_newTypeDiscovered(String contactType) {
+    return 'Nový $contactType objavený';
+  }
+
+  @override
+  String get notification_receivedNewMessage => 'Prijatá nová správa';
+
+  @override
   String get settings_gpxExportRepeaters =>
       'Exportovať repeater / server miestnosti do GPX';
 

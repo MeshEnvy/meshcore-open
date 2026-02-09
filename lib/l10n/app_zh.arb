@@ -1569,6 +1569,13 @@
   "contacts_zeroHopContactAdvertFailed": "发送联系方式失败。",
   "contacts_contactAdvertCopied": "广告内容已复制到剪贴板。",
   "contacts_contactAdvertCopyFailed": "将广告复制到剪贴板操作失败。",
+  "notification_activityTitle": "MeshCore 活动",
+  "notification_messagesCount": "{count} 条消息",
+  "notification_channelMessagesCount": "{count} 条频道消息",
+  "notification_newNodesCount": "{count} 个新节点",
+  "notification_newTypeDiscovered": "发现新 {contactType}",
+  "notification_receivedNewMessage": "收到新消息",
+  "contacts_contactAdvertCopyFailed": "将广告复制到剪贴板操作失败。",
   "settings_gpxExportRepeaters": "导出重复器/房间服务器到GPX",
   "settings_gpxExportRepeatersSubtitle": "导出带有位置的重复器/房间服务器到GPX文件。",
   "settings_gpxExportContactsSubtitle": "导出带有位置的伙伴到GPX文件。",
@@ -1585,4 +1592,5 @@
   "settings_gpxExportShareText": "来自meshcore-open的导出地图数据",
   "settings_gpxExportShareSubject": "meshcore-open GPX 地图数据导出",
   "pathTrace_someHopsNoLocation": "其中一个或多个啤酒花缺少位置！"
+
 }

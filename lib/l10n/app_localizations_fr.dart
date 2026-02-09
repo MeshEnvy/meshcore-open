@@ -2793,6 +2793,50 @@ class AppLocalizationsFr extends AppLocalizations {
       'La copie de l\'annonce vers le presse-papiers a échoué.';
 
   @override
+  String get notification_activityTitle => 'Activité MeshCore';
+
+  @override
+  String notification_messagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'messages',
+      one: 'message',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_channelMessagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'messages de canal',
+      one: 'message de canal',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_newNodesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'nouveaux nœuds',
+      one: 'nouveau nœud',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_newTypeDiscovered(String contactType) {
+    return 'Nouveau $contactType découvert';
+  }
+
+  @override
+  String get notification_receivedNewMessage => 'Nouveau message reçu';
+
+  @override
   String get settings_gpxExportRepeaters =>
       'Exporter les répéteurs / serveur de salle au format GPX';
 

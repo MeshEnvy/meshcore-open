@@ -2760,6 +2760,56 @@ class AppLocalizationsSl extends AppLocalizations {
       'Kopiranje oglasa v odložišče je spodletelo.';
 
   @override
+  String get notification_activityTitle => 'Aktivnost MeshCore';
+
+  @override
+  String notification_messagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'sporočil',
+      few: 'sporočila',
+      two: 'sporočili',
+      one: 'sporočilo',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_channelMessagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'sporočil kanala',
+      few: 'sporočila kanala',
+      two: 'sporočili kanala',
+      one: 'sporočilo kanala',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_newNodesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'novih vozlišč',
+      few: 'nova vozlišča',
+      two: 'novi vozlišči',
+      one: 'novo vozlišče',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_newTypeDiscovered(String contactType) {
+    return 'Odkrito novo $contactType';
+  }
+
+  @override
+  String get notification_receivedNewMessage => 'Prejeto novo sporočilo';
+
+  @override
   String get settings_gpxExportRepeaters =>
       'Izvoz ponoviteljev / strežnika sobe v GPX';
 

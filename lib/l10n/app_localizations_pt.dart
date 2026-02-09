@@ -2774,6 +2774,50 @@ class AppLocalizationsPt extends AppLocalizations {
       'Cópia do anúncio para a Área de Transferência falhou.';
 
   @override
+  String get notification_activityTitle => 'Atividade MeshCore';
+
+  @override
+  String notification_messagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'mensagens',
+      one: 'mensagem',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_channelMessagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'mensagens de canal',
+      one: 'mensagem de canal',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_newNodesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'novos nós',
+      one: 'novo nó',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_newTypeDiscovered(String contactType) {
+    return 'Novo $contactType descoberto';
+  }
+
+  @override
+  String get notification_receivedNewMessage => 'Nova mensagem recebida';
+
+  @override
   String get settings_gpxExportRepeaters =>
       'Exportar repetidores / servidor de sala para GPX';
 

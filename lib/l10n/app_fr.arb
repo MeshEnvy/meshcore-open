@@ -1569,6 +1569,13 @@
   "contacts_contactAdvertCopyFailed": "La copie de l'annonce vers le presse-papiers a échoué.",
   "contacts_zeroHopContactAdvertSent": "Envoyer un contact par annonce.",
   "contacts_zeroHopContactAdvertFailed": "Échec de l'envoi du contact.",
+  "notification_activityTitle": "Activité MeshCore",
+  "notification_messagesCount": "{count} {count, plural, =1{message} other{messages}}",
+  "notification_channelMessagesCount": "{count} {count, plural, =1{message de canal} other{messages de canal}}",
+  "notification_newNodesCount": "{count} {count, plural, =1{nouveau nœud} other{nouveaux nœuds}}",
+  "notification_newTypeDiscovered": "Nouveau {contactType} découvert",
+  "notification_receivedNewMessage": "Nouveau message reçu",
+  "contacts_zeroHopContactAdvertFailed": "Échec de l'envoi du contact.",
   "settings_gpxExportRepeaters": "Exporter les répéteurs / serveur de salle au format GPX",
   "settings_gpxExportRepeatersSubtitle": "Exporte les répéteurs / roomserver avec une localisation vers un fichier GPX.",
   "settings_gpxExportNoContacts": "Aucun contact à exporter.",
@@ -1585,4 +1592,5 @@
   "settings_gpxExportShareText": "Données de carte exportées à partir de meshcore-open",
   "settings_gpxExportShareSubject": "meshcore-open exporter les données de carte GPX",
   "pathTrace_someHopsNoLocation": "Une ou plusieurs des houblons manquent d'une localisation !"
+
 }

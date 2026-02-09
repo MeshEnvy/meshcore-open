@@ -2772,6 +2772,50 @@ class AppLocalizationsBg extends AppLocalizations {
       'Копирането на обявата в клипборда не успя.';
 
   @override
+  String get notification_activityTitle => 'Активност на MeshCore';
+
+  @override
+  String notification_messagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'съобщения',
+      one: 'съобщение',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_channelMessagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'съобщения в канали',
+      one: 'съобщение в канал',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_newNodesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'нови възли',
+      one: 'нов възел',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String notification_newTypeDiscovered(String contactType) {
+    return 'Открит нов $contactType';
+  }
+
+  @override
+  String get notification_receivedNewMessage => 'Получено ново съобщение';
+
+  @override
   String get settings_gpxExportRepeaters =>
       'Експортиране на повтарящи се устройства / сървър на стаята до GPX';
 
