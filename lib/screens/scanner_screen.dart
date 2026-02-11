@@ -44,12 +44,16 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
     connector.addListener(_connectionListener);
 
-    _bluetoothStateSubscription =
-        FlutterBluePlus.adapterState.listen((state) {
+    _bluetoothStateSubscription = FlutterBluePlus.adapterState.listen((state) {
       if (mounted) {
         setState(() {
           _bluetoothState = state;
         });
+        // Cancel scan if Bluetooth turns off while scanning
+        if (state != BluetoothAdapterState.on &&
+            connector.state == MeshCoreConnectionState.scanning) {
+          connector.stopScan();
+        }
       }
     });
   }
@@ -94,15 +98,23 @@ class _ScannerScreenState extends State<ScannerScreen> {
         builder: (context, connector, child) {
           final isScanning =
               connector.state == MeshCoreConnectionState.scanning;
+          final isBluetoothOn = _bluetoothState == BluetoothAdapterState.on;
 
           return FloatingActionButton.extended(
-            onPressed: () {
-              if (isScanning) {
-                connector.stopScan();
-              } else {
-                connector.startScan();
-              }
-            },
+            onPressed: isBluetoothOn
+                ? () {
+                    if (isScanning) {
+                      connector.stopScan();
+                    } else {
+                      connector.startScan();
+                    }
+                  }
+                : null,
+            backgroundColor: isBluetoothOn ? null : Colors.grey,
+            foregroundColor: isBluetoothOn ? null : Colors.white,
+            mouseCursor: isBluetoothOn
+                ? SystemMouseCursors.click
+                : SystemMouseCursors.forbidden,
             icon: isScanning
                 ? const SizedBox(
                     width: 20,
