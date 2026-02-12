@@ -242,7 +242,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
       color: Colors.red.withValues(alpha: 0.15),
       child: Row(
         children: [
-          Icon(Icons.bluetooth_disabled, size: 24, color: Colors.red),
+          const Icon(Icons.bluetooth_disabled, size: 24, color: Colors.red),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
