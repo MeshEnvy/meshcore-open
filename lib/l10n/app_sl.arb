@@ -131,9 +131,6 @@
   "settings_infoContactsCount": "Število stikov",
   "settings_infoChannelCount": "Število kanalov",
   "settings_presets": "Prednastavitve",
-  "settings_preset915Mhz": "915 MHz",
-  "settings_preset868Mhz": "868 MHz",
-  "settings_preset433Mhz": "433 MHz",
   "settings_frequency": "Frekvenca (MHz)",
   "settings_frequencyHelper": "300,00 - 2500,00",
   "settings_frequencyInvalid": "Neveljavna frekvenca (300-2500 MHz)",
@@ -143,8 +140,6 @@
   "settings_txPower": "TX Moč (dBm)",
   "settings_txPowerHelper": "0 - 22",
   "settings_txPowerInvalid": "Neveljavna TX moč (0-22 dBm)",
-  "settings_longRange": "DDolg doseg",
-  "settings_fastSpeed": "Visoka hitrost",
   "settings_error": "Napaka: {message}",
   "@settings_error": {
     "placeholders": {
@@ -1598,5 +1593,8 @@
   "map_pathTraceCancelled": "Spremljanje poti je prekinjeno.",
   "scanner_enableBluetooth": "Omogočite Bluetooth",
   "scanner_bluetoothOffMessage": "Prosimo, vklopite Bluetooth, da lahko poiščete naprave.",
-  "scanner_bluetoothOff": "Bluetooth je izklopljen"
+  "scanner_bluetoothOff": "Bluetooth je izklopljen",
+  "settings_clientRepeatFreqWarning": "Za ponovni prenos na brezžični način so potrebne frekvence 433, 869 ali 918 MHz.",
+  "settings_clientRepeatSubtitle": "Omogočite temu naprave, da ponavlja paketne sporočila za druge.",
+  "settings_clientRepeat": "Neovadno ponavljanje"
 }

@@ -90,6 +90,8 @@ class MeshCoreConnector extends ChangeNotifier {
   int? _currentBwHz;
   int? _currentSf;
   int? _currentCr;
+  bool? _clientRepeat;
+  int? _firmwareVerCode;
   int? _batteryMillivolts;
   double? _selfLatitude;
   double? _selfLongitude;
@@ -200,6 +202,8 @@ class MeshCoreConnector extends ChangeNotifier {
   int? get currentBwHz => _currentBwHz;
   int? get currentSf => _currentSf;
   int? get currentCr => _currentCr;
+  bool? get clientRepeat => _clientRepeat;
+  int? get firmwareVerCode => _firmwareVerCode;
   Map<String, String>? get currentCustomVars => _currentCustomVars;
   int? get batteryMillivolts => _batteryMillivolts;
   int get maxContacts => _maxContacts;
@@ -916,6 +920,8 @@ class MeshCoreConnector extends ChangeNotifier {
     _selfName = null;
     _selfLatitude = null;
     _selfLongitude = null;
+    _clientRepeat = null;
+    _firmwareVerCode = null;
     _batteryMillivolts = null;
     _batteryRequested = false;
     _awaitingSelfInfo = false;
@@ -1820,6 +1826,13 @@ class MeshCoreConnector extends ChangeNotifier {
 
   void _handleDeviceInfo(Uint8List frame) {
     if (frame.length < 4) return;
+    _firmwareVerCode = frame[1];
+
+    // Parse client_repeat from firmware v9+ (byte 80)
+    if (frame.length >= 81) {
+      _clientRepeat = frame[80] != 0;
+    }
+
     // Firmware reports MAX_CONTACTS / 2 for v3+ device info.
     final reportedContacts = frame[2];
     final reportedChannels = frame[3];
@@ -1840,8 +1853,8 @@ class MeshCoreConnector extends ChangeNotifier {
           unawaited(getChannels(maxChannels: nextMaxChannels));
         }
       }
-      notifyListeners();
     }
+    notifyListeners();
   }
 
   void _handleNoMoreMessages() {

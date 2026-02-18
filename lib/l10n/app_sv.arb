@@ -131,9 +131,6 @@
   "settings_infoContactsCount": "Kontakterantal",
   "settings_infoChannelCount": "Kanalantal",
   "settings_presets": "Fördefinierade inställningar",
-  "settings_preset915Mhz": "915 MHz",
-  "settings_preset868Mhz": "868 MHz",
-  "settings_preset433Mhz": "433 MHz",
   "settings_frequency": "Frekvens (MHz)",
   "settings_frequencyHelper": "300,0 - 2500,0",
   "settings_frequencyInvalid": "Ogiltig frekvens (300-2500 MHz)",
@@ -143,8 +140,6 @@
   "settings_txPower": "TX-effekt (dBm)",
   "settings_txPowerHelper": "0 - 22",
   "settings_txPowerInvalid": "Ogiltig TX-effekt (0-22 dBm)",
-  "settings_longRange": "Lång räckvidd",
-  "settings_fastSpeed": "Snabb hastighet",
   "settings_error": "Fel: {message}",
   "@settings_error": {
     "placeholders": {
@@ -1598,5 +1593,8 @@
   "map_removeLast": "Ta bort sista",
   "scanner_enableBluetooth": "Aktivera Bluetooth",
   "scanner_bluetoothOffMessage": "Vänligen aktivera Bluetooth för att söka efter enheter.",
-  "scanner_bluetoothOff": "Bluetooth är avstängt"
+  "scanner_bluetoothOff": "Bluetooth är avstängt",
+  "settings_clientRepeatSubtitle": "Låt enheten repetera nätpaket för andra användare.",
+  "settings_clientRepeat": "Upprepa utan elnät",
+  "settings_clientRepeatFreqWarning": "För att kunna kommunicera utanför elnätet krävs frekvenserna 433, 869 eller 918 MHz."
 }
