@@ -1845,6 +1845,7 @@ class MeshCoreConnector extends ChangeNotifier {
     if (frame.length >= 81) {
       _clientRepeat = frame[80] != 0;
     }
+
     // Firmware reports MAX_CONTACTS / 2 for v3+ device info.
     final reportedContacts = frame[2];
     final reportedChannels = frame[3];
