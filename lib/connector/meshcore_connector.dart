@@ -105,6 +105,8 @@ class MeshCoreConnector extends ChangeNotifier {
   static const int _defaultMaxChannels = 8;
   int _maxContacts = _defaultMaxContacts;
   int _maxChannels = _defaultMaxChannels;
+  int? _deviceProtocolVersion;
+  String? _activeFloodScopeTag;
   bool _isSyncingQueuedMessages = false;
   bool _queuedMessageSyncInFlight = false;
   bool _didInitialQueueSync = false;
@@ -208,6 +210,8 @@ class MeshCoreConnector extends ChangeNotifier {
   int? get batteryMillivolts => _batteryMillivolts;
   int get maxContacts => _maxContacts;
   int get maxChannels => _maxChannels;
+  int? get deviceProtocolVersion => _deviceProtocolVersion;
+  bool get supportsFloodScope => (_deviceProtocolVersion ?? 0) >= 8;
   bool get isSyncingQueuedMessages => _isSyncingQueuedMessages;
   bool get isSyncingChannels => _isSyncingChannels;
   int get channelSyncProgress =>
@@ -927,6 +931,8 @@ class MeshCoreConnector extends ChangeNotifier {
     _awaitingSelfInfo = false;
     _maxContacts = _defaultMaxContacts;
     _maxChannels = _defaultMaxChannels;
+    _deviceProtocolVersion = null;
+    _activeFloodScopeTag = null;
     _isSyncingQueuedMessages = false;
     _queuedMessageSyncInFlight = false;
     _didInitialQueueSync = false;
@@ -1753,9 +1759,21 @@ class MeshCoreConnector extends ChangeNotifier {
         break;
       case respCodeCustomVars:
         _handleCustomVars(frame);
+        break;
+      case respCodeErr:
+        _handleErrorFrame(frame);
+        break;
       default:
         debugPrint('Unknown frame code: $code');
     }
+  }
+
+  void _handleErrorFrame(Uint8List frame) {
+    final errCode = frame.length > 1 ? frame[1] : -1;
+    _appDebugLogService?.warn(
+      'Firmware responded with error code: $errCode',
+      tag: 'Protocol',
+    );
   }
 
   void _handlePathUpdated(Uint8List frame) {
@@ -1827,12 +1845,12 @@ class MeshCoreConnector extends ChangeNotifier {
   void _handleDeviceInfo(Uint8List frame) {
     if (frame.length < 4) return;
     _firmwareVerCode = frame[1];
+    _deviceProtocolVersion = frame[1];
 
     // Parse client_repeat from firmware v9+ (byte 80)
     if (frame.length >= 81) {
       _clientRepeat = frame[80] != 0;
     }
-
     // Firmware reports MAX_CONTACTS / 2 for v3+ device info.
     final reportedContacts = frame[2];
     final reportedChannels = frame[3];
@@ -3240,6 +3258,8 @@ class MeshCoreConnector extends ChangeNotifier {
     // They're only cleared on manual disconnect via disconnect() method
     _maxContacts = _defaultMaxContacts;
     _maxChannels = _defaultMaxChannels;
+    _deviceProtocolVersion = null;
+    _activeFloodScopeTag = null;
     _isSyncingQueuedMessages = false;
     _queuedMessageSyncInFlight = false;
     _isSyncingChannels = false;
