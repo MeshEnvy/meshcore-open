@@ -131,9 +131,6 @@
   "settings_infoContactsCount": "Брой контакти",
   "settings_infoChannelCount": "Брой канали",
   "settings_presets": "Предварителни настройки",
-  "settings_preset915Mhz": "915 MHz",
-  "settings_preset868Mhz": "868 MHz",
-  "settings_preset433Mhz": "433 MHz",
   "settings_frequency": "Честота (MHz)",
   "settings_frequencyHelper": "300.0 - 2500.0",
   "settings_frequencyInvalid": "Невалидна честота (300-2500 MHz)",
@@ -143,8 +140,6 @@
   "settings_txPower": "TX Мощност (dBm)",
   "settings_txPowerHelper": "0 - 22",
   "settings_txPowerInvalid": "Невалидна мощност на TX (0-22 dBm)",
-  "settings_longRange": "Дълъг обхват",
-  "settings_fastSpeed": "Бърза скорост",
   "settings_error": "Грешка: {message}",
   "@settings_error": {
     "placeholders": {
@@ -1598,5 +1593,8 @@
   "map_tapToAdd": "Натиснете върху възлите, за да ги добавите към пътя.",
   "scanner_bluetoothOff": "Bluetooth е изключен.",
   "scanner_enableBluetooth": "Активирайте Bluetooth",
-  "scanner_bluetoothOffMessage": "Моля, активирайте Bluetooth, за да сканирате за устройства."
+  "scanner_bluetoothOffMessage": "Моля, активирайте Bluetooth, за да сканирате за устройства.",
+  "settings_clientRepeatSubtitle": "Позволете на това устройство да предава пакети към мрежата за други устройства.",
+  "settings_clientRepeatFreqWarning": "За повторение извън мрежата са необходими честоти от 433, 869 или 918 MHz.",
+  "settings_clientRepeat": "Без електричество – повторение"
 }

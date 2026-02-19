@@ -1598,5 +1598,8 @@
   "map_runTrace": "运行路径追踪",
   "scanner_bluetoothOffMessage": "请开启蓝牙以搜索设备",
   "scanner_bluetoothOff": "蓝牙已关闭",
-  "scanner_enableBluetooth": "启用蓝牙"
+  "scanner_enableBluetooth": "启用蓝牙",
+  "settings_clientRepeat": "离网重复",
+  "settings_clientRepeatSubtitle": "允许此设备重复发送网状数据包给其他设备",
+  "settings_clientRepeatFreqWarning": "离网重复通信需要使用 433、869 或 918 兆赫兹的频率。"
 }
