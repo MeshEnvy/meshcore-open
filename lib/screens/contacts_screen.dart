@@ -183,14 +183,17 @@ class _ContactsScreenState extends State<ContactsScreen>
     final connector = Provider.of<MeshCoreConnector>(context, listen: false);
     final exportContactFrame = buildExportContactFrame(pubKey);
     _pendingOperations.add(ContactOperationType.export);
-    await connector.sendFrame(exportContactFrame);
+    await connector.sendFrame(exportContactFrame, expectsGenericAck: true);
   }
 
   Future<void> _contactZeroHop(Uint8List pubKey) async {
     final connector = Provider.of<MeshCoreConnector>(context, listen: false);
     final exportContactZeroHopFrame = buildZeroHopContact(pubKey);
     _pendingOperations.add(ContactOperationType.zeroHopShare);
-    await connector.sendFrame(exportContactZeroHopFrame);
+    await connector.sendFrame(
+      exportContactZeroHopFrame,
+      expectsGenericAck: true,
+    );
   }
 
   Future<void> _contactImport() async {
@@ -217,7 +220,7 @@ class _ContactsScreenState extends State<ContactsScreen>
     try {
       final importContactFrame = buildImportContactFrame(hexString);
       _pendingOperations.add(ContactOperationType.import);
-      await connector.sendFrame(importContactFrame);
+      await connector.sendFrame(importContactFrame, expectsGenericAck: true);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
