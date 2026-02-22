@@ -686,64 +686,96 @@ class MeshCoreConnector extends ChangeNotifier {
   }) async {
     if (_state == MeshCoreConnectionState.scanning) return;
 
-    _scanResults.clear();
-    _setState(MeshCoreConnectionState.scanning);
-
-    // Ensure any previous scan is fully stopped
-    await FlutterBluePlus.stopScan();
-    await _scanSubscription?.cancel();
-
-    // On iOS/macOS, wait for Bluetooth to be powered on before scanning
-    if (PlatformInfo.isIOS || PlatformInfo.isMacOS) {
-      // Wait for adapter state to be powered on
-      final adapterState = await FlutterBluePlus.adapterState.first;
-      if (adapterState != BluetoothAdapterState.on) {
-        // Wait for the adapter to turn on, with timeout
-        await FlutterBluePlus.adapterState
-            .firstWhere((state) => state == BluetoothAdapterState.on)
-            .timeout(
-              const Duration(seconds: 5),
-              onTimeout: () {
-                _setState(MeshCoreConnectionState.disconnected);
-                throw Exception('Bluetooth adapter not available');
-              },
-            );
-      }
-
-      // Add a small delay to allow BLE stack to fully initialize
-      await Future.delayed(const Duration(milliseconds: 300));
-    }
-
-    _scanSubscription = FlutterBluePlus.scanResults.listen((results) {
+    try {
       _scanResults.clear();
-      for (var result in results) {
-        if (result.device.platformName.startsWith("MeshCore-") ||
-            result.advertisementData.advName.startsWith("MeshCore-") ||
-            result.advertisementData.advName.startsWith("Whisper-")) {
-          _scanResults.add(result);
+      _setState(MeshCoreConnectionState.scanning);
+
+      // Ensure any previous scan is fully stopped
+      try {
+        await FlutterBluePlus.stopScan();
+      } catch (_) {}
+      
+      try {
+        await _scanSubscription?.cancel();
+      } catch (_) {}
+      _scanSubscription = null;
+
+      // On iOS/macOS, wait for Bluetooth to be powered on before scanning
+      if (PlatformInfo.isIOS || PlatformInfo.isMacOS) {
+        // Wait for adapter state to be powered on
+        final adapterState = await FlutterBluePlus.adapterState.first;
+        if (adapterState != BluetoothAdapterState.on) {
+          // Wait for the adapter to turn on, with timeout
+          await FlutterBluePlus.adapterState
+              .firstWhere((state) => state == BluetoothAdapterState.on)
+              .timeout(
+                const Duration(seconds: 5),
+                onTimeout: () {
+                  _setState(MeshCoreConnectionState.disconnected);
+                  throw Exception('Bluetooth adapter not available');
+                },
+              );
         }
+
+        // Add a small delay to allow BLE stack to fully initialize
+        await Future.delayed(const Duration(milliseconds: 300));
       }
-      notifyListeners();
-    });
 
-    await FlutterBluePlus.startScan(
-      withServices: [Guid(MeshCoreUuids.service)],
-      timeout: timeout,
-      androidScanMode: AndroidScanMode.lowLatency,
-    );
+      _scanSubscription = FlutterBluePlus.scanResults.listen(
+        (results) {
+          _scanResults.clear();
+          for (var result in results) {
+            if (result.device.platformName.startsWith("MeshCore-") ||
+                result.advertisementData.advName.startsWith("MeshCore-") ||
+                result.advertisementData.advName.startsWith("Whisper-")) {
+              _scanResults.add(result);
+            }
+          }
+          notifyListeners();
+        },
+        onError: (Object e) {
+          debugPrint("scanResults stream error: $e");
+          stopScan();
+        },
+      );
 
-    await Future.delayed(timeout);
-    await stopScan();
+      await FlutterBluePlus.startScan(
+        withServices: [Guid(MeshCoreUuids.service)],
+        timeout: timeout,
+        androidScanMode: AndroidScanMode.lowLatency,
+      );
+
+      await Future.delayed(timeout);
+    } catch (e) {
+      debugPrint("Scan error: $e");
+      // On web, suppress common cancellation and chooser errors
+      if (kIsWeb) return;
+      
+      if (!PlatformInfo.isWeb) {
+        rethrow;
+      }
+    } finally {
+      await stopScan();
+    }
   }
 
   Future<void> stopScan() async {
-    await FlutterBluePlus.stopScan();
-    await _scanSubscription?.cancel();
-    _scanSubscription = null;
-
     if (_state == MeshCoreConnectionState.scanning) {
       _setState(MeshCoreConnectionState.disconnected);
     }
+
+    try {
+      await FlutterBluePlus.stopScan();
+    } catch (e) {
+      debugPrint("stopScan error: $e");
+    }
+
+    try {
+      if (_scanSubscription != null) {
+        await _scanSubscription!.cancel();
+      }
+    } catch (_) {}
+    _scanSubscription = null;
   }
 
   Future<void> connect(BluetoothDevice device, {String? displayName}) async {
@@ -770,11 +802,17 @@ class MeshCoreConnector extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _connectionSubscription = device.connectionState.listen((state) {
-        if (state == BluetoothConnectionState.disconnected && isConnected) {
-          _handleDisconnection();
-        }
-      });
+      _connectionSubscription = device.connectionState.listen(
+        (state) {
+          if (state == BluetoothConnectionState.disconnected && isConnected) {
+            _handleDisconnection();
+          }
+        },
+        onError: (Object e) {
+          debugPrint("connectionState stream error: $e");
+          if (isConnected) _handleDisconnection();
+        },
+      );
 
       await device.connect(
         timeout: const Duration(seconds: 15),
@@ -833,6 +871,9 @@ class MeshCoreConnector extends ChangeNotifier {
       }
       _notifySubscription = _txCharacteristic!.onValueReceived.listen(
         _handleFrame,
+        onError: (Object e) {
+          debugPrint("onValueReceived stream error: $e");
+        },
       );
 
       _setState(MeshCoreConnectionState.connected);

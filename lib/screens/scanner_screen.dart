@@ -45,17 +45,22 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
     connector.addListener(_connectionListener);
 
-    _bluetoothStateSubscription = FlutterBluePlus.adapterState.listen((state) {
-      if (mounted) {
-        setState(() {
-          _bluetoothState = state;
-        });
-        // Cancel scan if Bluetooth turns off while scanning
-        if (state != BluetoothAdapterState.on) {
-          unawaited(connector.stopScan());
+    _bluetoothStateSubscription = FlutterBluePlus.adapterState.listen(
+      (state) {
+        if (mounted) {
+          setState(() {
+            _bluetoothState = state;
+          });
+          // Cancel scan if Bluetooth turns off while scanning
+          if (state != BluetoothAdapterState.on) {
+            unawaited(connector.stopScan());
+          }
         }
-      }
-    });
+      },
+      onError: (Object e) {
+        debugPrint("Scanner adapterState stream error: $e");
+      },
+    );
   }
 
   @override
@@ -107,7 +112,9 @@ class _ScannerScreenState extends State<ScannerScreen> {
                     if (isScanning) {
                       connector.stopScan();
                     } else {
-                      connector.startScan();
+                      unawaited(connector.startScan().catchError((e) {
+                        debugPrint("Scanner screen startScan error: $e");
+                      }));
                     }
                   },
             icon: isScanning
