@@ -262,7 +262,7 @@
     }
   },
   "contacts_manageRepeater": "Gérer le répéteur",
-  "contacts_roomLogin": "Connexion Salle",
+  "contacts_roomLogin": "Connexion Room Server",
   "contacts_openChat": "Ouverture du Chat",
   "contacts_editGroup": "Modifier le groupe",
   "contacts_deleteGroup": "Supprimer le groupe",
@@ -798,7 +798,7 @@
   "dialog_disconnect": "Déconnecter",
   "dialog_disconnectConfirm": "Êtes-vous sûr de vouloir vous déconnecter de cet appareil ?",
   "login_repeaterLogin": "Connexion au répéteur",
-  "login_roomLogin": "Connexion Salle",
+  "login_roomLogin": "Connexion Room Server",
   "login_password": "Mot de passe",
   "login_enterPassword": "Entrez votre mot de passe",
   "login_savePassword": "Sauvegarder le mot de passe",
@@ -1393,7 +1393,7 @@
   "settings_locationIntervalSec": "Intervalle de mise-à-jour du GPS (Secondes)",
   "settings_locationIntervalInvalid": "L'intervalle doit être compris entre 60 et 86400 secondes.",
   "contacts_manageRoom": "Gérer le Room Server",
-  "room_management": "Administración del Servidor de Habitación",
+  "room_management": "Administrattion Room Server",
   "@community_joinConfirmation": {
     "placeholders": {
       "name": {
