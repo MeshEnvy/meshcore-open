@@ -893,6 +893,7 @@ class MeshCoreConnector extends ChangeNotifier {
         // ignore: unawaited_futures
         _txCharacteristic!.setNotifyValue(true, timeout: 2).catchError((e) {
           debugPrint('Web setNotifyValue error (ignoring): $e');
+          return false; // catchError must return a bool to match Future<bool>
         });
         // Give the browser a moment to process the underlying startNotifications call
         await Future.delayed(const Duration(milliseconds: 500));
