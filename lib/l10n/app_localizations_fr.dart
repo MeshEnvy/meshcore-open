@@ -151,6 +151,13 @@ class AppLocalizationsFr extends AppLocalizations {
       'Veuillez activer le Bluetooth pour rechercher des appareils.';
 
   @override
+  String get scanner_chromeRequired => 'Navigateur Chrome requis';
+
+  @override
+  String get scanner_chromeRequiredMessage =>
+      'Cette application web nécessite Google Chrome ou un navigateur basé sur Chromium pour le support Bluetooth.';
+
+  @override
   String get scanner_enableBluetooth => 'Activer le Bluetooth';
 
   @override

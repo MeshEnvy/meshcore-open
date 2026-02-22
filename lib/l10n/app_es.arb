@@ -1622,6 +1622,8 @@
   "map_removeLast": "Eliminar último",
   "map_pathTraceCancelled": "Rastreo de ruta cancelado.",
   "scanner_bluetoothOffMessage": "Por favor, active el Bluetooth para escanear dispositivos.",
+  "scanner_chromeRequired": "Navegador Chrome requerido",
+  "scanner_chromeRequiredMessage": "Esta aplicación web requiere Google Chrome o un navegador basado en Chromium para el soporte de Bluetooth.",
   "scanner_bluetoothOff": "Bluetooth está desactivado.",
   "scanner_enableBluetooth": "Habilitar Bluetooth",
   "snrIndicator_nearByRepeaters": "Repetidores cercanos",

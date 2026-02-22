@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'dart:io' show Platform;
+import 'browser_detection.dart';
 
 /// Utility class to safely check the current platform across web and native.
 ///
@@ -8,6 +9,9 @@ import 'dart:io' show Platform;
 class PlatformInfo {
   /// Whether the app is running in a web browser.
   static bool get isWeb => kIsWeb;
+
+  /// Whether the app is running in the Chrome browser (only relevant if [isWeb] is true).
+  static bool get isChrome => isWeb && BrowserDetection.isChrome;
 
   /// Whether the app is running on Android.
   static bool get isAndroid => !kIsWeb && Platform.isAndroid;

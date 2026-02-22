@@ -4,6 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
+import 'screens/chrome_required_screen.dart';
+import 'utils/platform_info.dart';
+
 import 'connector/meshcore_connector.dart';
 import 'screens/scanner_screen.dart';
 import 'services/storage_service.dart';
@@ -179,7 +182,9 @@ class MeshCoreApp extends StatelessWidget {
               NotificationService().setLocale(locale);
               return child ?? const SizedBox.shrink();
             },
-            home: const ScannerScreen(),
+            home: (PlatformInfo.isWeb && !PlatformInfo.isChrome)
+                ? const ChromeRequiredScreen()
+                : const ScannerScreen(),
           );
         },
       ),

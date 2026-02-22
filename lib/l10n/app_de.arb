@@ -1622,6 +1622,8 @@
   "pathTrace_clearTooltip": "Pfad löschen",
   "map_pathTraceCancelled": "Pfadverfolgung abgebrochen.",
   "scanner_bluetoothOffMessage": "Bitte aktivieren Sie Bluetooth, um nach Geräten zu suchen.",
+  "scanner_chromeRequired": "Chrome Browser erforderlich",
+  "scanner_chromeRequiredMessage": "Diese Webanwendung erfordert Google Chrome oder einen Chromium-basierten Browser für die Bluetooth-Unterstützung.",
   "scanner_bluetoothOff": "Bluetooth ist deaktiviert.",
   "scanner_enableBluetooth": "Bluetooth aktivieren",
   "snrIndicator_lastSeen": "Zuletzt gesehen",

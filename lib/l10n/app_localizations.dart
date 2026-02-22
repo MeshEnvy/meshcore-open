@@ -388,6 +388,18 @@ abstract class AppLocalizations {
   /// **'Please turn on Bluetooth to scan for devices'**
   String get scanner_bluetoothOffMessage;
 
+  /// No description provided for @scanner_chromeRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Chrome Browser Required'**
+  String get scanner_chromeRequired;
+
+  /// No description provided for @scanner_chromeRequiredMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This web application requires Google Chrome or a Chromium-based browser for Bluetooth support.'**
+  String get scanner_chromeRequiredMessage;
+
   /// No description provided for @scanner_enableBluetooth.
   ///
   /// In en, this message translates to:

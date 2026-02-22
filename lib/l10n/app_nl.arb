@@ -1595,6 +1595,8 @@
   "map_runTrace": "Padeshulp traceren",
   "scanner_enableBluetooth": "Activeer Bluetooth",
   "scanner_bluetoothOffMessage": "Zorg ervoor dat Bluetooth is ingeschakeld om naar apparaten te zoeken.",
+  "scanner_chromeRequired": "Chrome-browser vereist",
+  "scanner_chromeRequiredMessage": "Deze webapplicatie vereist Google Chrome of een op Chromium gebaseerde browser voor Bluetooth-ondersteuning.",
   "scanner_bluetoothOff": "Bluetooth is uitgeschakeld",
   "snrIndicator_lastSeen": "Laatst gezien",
   "snrIndicator_nearByRepeaters": "Nabije herhalingseenheden",

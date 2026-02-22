@@ -151,6 +151,13 @@ class AppLocalizationsSl extends AppLocalizations {
       'Prosimo, vklopite Bluetooth, da lahko poiščete naprave.';
 
   @override
+  String get scanner_chromeRequired => 'Zahtevan brskalnik Chrome';
+
+  @override
+  String get scanner_chromeRequiredMessage =>
+      'Ta spletna aplikacija za podporo Bluetooth zahteva Google Chrome ali brskalnik na osnovi Chromiuma.';
+
+  @override
   String get scanner_enableBluetooth => 'Omogočite Bluetooth';
 
   @override

@@ -149,6 +149,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get scanner_bluetoothOffMessage => '请打开蓝牙功能，以便搜索设备。';
 
   @override
+  String get scanner_chromeRequired => '需要 Chrome 浏览器';
+
+  @override
+  String get scanner_chromeRequiredMessage =>
+      '此 Web 应用程序需要 Google Chrome 或基于 Chromium 的浏览器以支持蓝牙。';
+
+  @override
   String get scanner_enableBluetooth => '启用蓝牙';
 
   @override

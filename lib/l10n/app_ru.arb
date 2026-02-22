@@ -836,6 +836,8 @@
   "scanner_enableBluetooth": "Включите Bluetooth",
   "scanner_bluetoothOff": "Bluetooth выключен",
   "scanner_bluetoothOffMessage": "Пожалуйста, включите Bluetooth, чтобы найти устройства.",
+  "scanner_chromeRequired": "Требуется браузер Chrome",
+  "scanner_chromeRequiredMessage": "Для поддержки Bluetooth в этом веб-приложении требуется Google Chrome или браузер на базе Chromium.",
   "snrIndicator_nearByRepeaters": "Ближайшие ретрансляторы",
   "snrIndicator_lastSeen": "Последний раз видели",
   "chat_ShowAllPaths": "Показать все пути",

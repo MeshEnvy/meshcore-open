@@ -1595,6 +1595,8 @@
   "map_pathTraceCancelled": "Відмінується трасування шляху",
   "scanner_enableBluetooth": "Увімкніть Bluetooth",
   "scanner_bluetoothOffMessage": "Будь ласка, увімкніть Bluetooth, щоб сканувати пристрої.",
+  "scanner_chromeRequired": "Потрібен браузер Chrome",
+  "scanner_chromeRequiredMessage": "Для підтримки Bluetooth у цьому веб-додатку потрібен Google Chrome або браузер на базі Chromium.",
   "scanner_bluetoothOff": "Bluetooth вимкнено",
   "snrIndicator_lastSeen": "Останній раз бачили",
   "snrIndicator_nearByRepeaters": "Ближні ретранслятори",

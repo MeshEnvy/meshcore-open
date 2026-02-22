@@ -150,6 +150,13 @@ class AppLocalizationsRu extends AppLocalizations {
       'Пожалуйста, включите Bluetooth, чтобы найти устройства.';
 
   @override
+  String get scanner_chromeRequired => 'Требуется браузер Chrome';
+
+  @override
+  String get scanner_chromeRequiredMessage =>
+      'Для поддержки Bluetooth в этом веб-приложении требуется Google Chrome или браузер на базе Chromium.';
+
+  @override
   String get scanner_enableBluetooth => 'Включите Bluetooth';
 
   @override

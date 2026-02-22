@@ -1594,6 +1594,8 @@
   "map_removeLast": "Supprimer le dernier",
   "map_runTrace": "Exécuter la traçage de chemin",
   "scanner_bluetoothOffMessage": "Veuillez activer le Bluetooth pour rechercher des appareils.",
+  "scanner_chromeRequired": "Navigateur Chrome requis",
+  "scanner_chromeRequiredMessage": "Cette application web nécessite Google Chrome ou un navigateur basé sur Chromium pour le support Bluetooth.",
   "scanner_bluetoothOff": "Le Bluetooth est désactivé.",
   "scanner_enableBluetooth": "Activer le Bluetooth",
   "snrIndicator_lastSeen": "Dernière fois vu",

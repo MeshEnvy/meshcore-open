@@ -150,6 +150,13 @@ class AppLocalizationsNl extends AppLocalizations {
       'Zorg ervoor dat Bluetooth is ingeschakeld om naar apparaten te zoeken.';
 
   @override
+  String get scanner_chromeRequired => 'Chrome-browser vereist';
+
+  @override
+  String get scanner_chromeRequiredMessage =>
+      'Deze webapplicatie vereist Google Chrome of een op Chromium gebaseerde browser voor Bluetooth-ondersteuning.';
+
+  @override
   String get scanner_enableBluetooth => 'Activeer Bluetooth';
 
   @override

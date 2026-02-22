@@ -1596,6 +1596,8 @@
   "scanner_enableBluetooth": "Ative o Bluetooth",
   "scanner_bluetoothOff": "Bluetooth está desativado",
   "scanner_bluetoothOffMessage": "Por favor, ative o Bluetooth para escanear por dispositivos.",
+  "scanner_chromeRequired": "Navegador Chrome necessário",
+  "scanner_chromeRequiredMessage": "Esta aplicação web requer o Google Chrome ou um navegador baseado no Chromium para suporte de Bluetooth.",
   "snrIndicator_nearByRepeaters": "Repetidores Próximos",
   "snrIndicator_lastSeen": "Visto pela última vez",
   "chat_ShowAllPaths": "Mostrar todos os caminhos",

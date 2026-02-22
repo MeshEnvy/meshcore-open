@@ -1594,6 +1594,8 @@
   "map_runTrace": "Spustiť trasovaním cesty",
   "map_pathTraceCancelled": "Zrušenie stopáže cesty bolo zrušené.",
   "scanner_bluetoothOffMessage": "Prosím, zapnite Bluetooth, aby ste mohli skenovať pre zariadenia.",
+  "scanner_chromeRequired": "Vyžaduje sa prehliadač Chrome",
+  "scanner_chromeRequiredMessage": "Táto webová aplikácia vyžaduje Google Chrome alebo prehliadač založený na Chromium pre podporu Bluetooth.",
   "scanner_bluetoothOff": "Bluetooth je vypnutý",
   "scanner_enableBluetooth": "Povolte Bluetooth",
   "snrIndicator_lastSeen": "Naposledy videný",

@@ -151,6 +151,13 @@ class AppLocalizationsSk extends AppLocalizations {
       'Prosím, zapnite Bluetooth, aby ste mohli skenovať pre zariadenia.';
 
   @override
+  String get scanner_chromeRequired => 'Vyžaduje sa prehliadač Chrome';
+
+  @override
+  String get scanner_chromeRequiredMessage =>
+      'Táto webová aplikácia vyžaduje Google Chrome alebo prehliadač založený na Chromium pre podporu Bluetooth.';
+
+  @override
   String get scanner_enableBluetooth => 'Povolte Bluetooth';
 
   @override

@@ -1596,6 +1596,8 @@
   "scanner_bluetoothOff": "Bluetooth е изключен.",
   "scanner_enableBluetooth": "Активирайте Bluetooth",
   "scanner_bluetoothOffMessage": "Моля, активирайте Bluetooth, за да сканирате за устройства.",
+  "scanner_chromeRequired": "Изисква се браузър Chrome",
+  "scanner_chromeRequiredMessage": "Това уеб приложение изисква Google Chrome или браузър, базиран на Chromium, за поддръжка на Bluetooth.",
   "snrIndicator_lastSeen": "Последно видян",
   "snrIndicator_nearByRepeaters": "Близки повтарящи се устройства",
   "chat_ShowAllPaths": "Покажи всички пътища",

@@ -1594,6 +1594,8 @@
   "map_removeLast": "Usuń ostatni",
   "map_tapToAdd": "Kliknij na węzły, aby dodać je do ścieżki.",
   "scanner_bluetoothOffMessage": "Prosimy włączyć Bluetooth, aby przeskanować urządzenia.",
+  "scanner_chromeRequired": "Wymagana przeglądarka Chrome",
+  "scanner_chromeRequiredMessage": "Ta aplikacja internetowa wymaga przeglądarki Google Chrome lub opartej na Chromium do obsługi Bluetooth.",
   "scanner_bluetoothOff": "Bluetooth jest wyłączony",
   "scanner_enableBluetooth": "Włącz Bluetooth",
   "snrIndicator_lastSeen": "Ostatnio widziany",

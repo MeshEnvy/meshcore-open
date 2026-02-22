@@ -1595,6 +1595,8 @@
   "map_tapToAdd": "Tocca i nodi per aggiungerli al percorso.",
   "scanner_bluetoothOff": "Il Bluetooth è disattivato.",
   "scanner_bluetoothOffMessage": "Si prega di attivare il Bluetooth per effettuare la scansione dei dispositivi.",
+  "scanner_chromeRequired": "Browser Chrome richiesto",
+  "scanner_chromeRequiredMessage": "Questa applicazione web richiede Google Chrome o un browser basato su Chromium per il supporto Bluetooth.",
   "scanner_enableBluetooth": "Abilita il Bluetooth",
   "snrIndicator_nearByRepeaters": "Ripetitori vicini",
   "snrIndicator_lastSeen": "Ultimo accesso",

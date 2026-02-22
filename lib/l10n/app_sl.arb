@@ -1595,6 +1595,8 @@
   "map_pathTraceCancelled": "Spremljanje poti je prekinjeno.",
   "scanner_enableBluetooth": "Omogočite Bluetooth",
   "scanner_bluetoothOffMessage": "Prosimo, vklopite Bluetooth, da lahko poiščete naprave.",
+  "scanner_chromeRequired": "Zahtevan brskalnik Chrome",
+  "scanner_chromeRequiredMessage": "Ta spletna aplikacija za podporo Bluetooth zahteva Google Chrome ali brskalnik na osnovi Chromiuma.",
   "scanner_bluetoothOff": "Bluetooth je izklopljen",
   "snrIndicator_lastSeen": "Zadnjič videno",
   "snrIndicator_nearByRepeaters": "Bližnji ponovitelji",
