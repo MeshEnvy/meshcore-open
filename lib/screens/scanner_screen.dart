@@ -1,7 +1,6 @@
 import 'dart:async';
-import 'dart:io' show Platform;
-
 import 'package:flutter/material.dart';
+import '../utils/platform_info.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:provider/provider.dart';
 
@@ -265,7 +264,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
               ],
             ),
           ),
-          if (Platform.isAndroid)
+          if (PlatformInfo.isAndroid)
             TextButton(
               onPressed: () => FlutterBluePlus.turnOn(),
               child: Text(context.l10n.scanner_enableBluetooth),

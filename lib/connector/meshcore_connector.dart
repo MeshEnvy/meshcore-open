@@ -30,6 +30,7 @@ import '../storage/message_store.dart';
 import '../storage/unread_store.dart';
 import '../utils/app_logger.dart';
 import '../utils/battery_utils.dart';
+import '../utils/platform_info.dart';
 import 'meshcore_protocol.dart';
 
 class MeshCoreUuids {
@@ -693,8 +694,7 @@ class MeshCoreConnector extends ChangeNotifier {
     await _scanSubscription?.cancel();
 
     // On iOS/macOS, wait for Bluetooth to be powered on before scanning
-    if (defaultTargetPlatform == TargetPlatform.iOS ||
-        defaultTargetPlatform == TargetPlatform.macOS) {
+    if (PlatformInfo.isIOS || PlatformInfo.isMacOS) {
       // Wait for adapter state to be powered on
       final adapterState = await FlutterBluePlus.adapterState.first;
       if (adapterState != BluetoothAdapterState.on) {
