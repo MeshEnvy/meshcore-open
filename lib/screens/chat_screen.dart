@@ -340,28 +340,43 @@ class _ChatScreenState extends State<ChatScreen> {
                 builder: (context, value, child) {
                   final gifId = _parseGifId(value.text);
                   if (gifId != null) {
-                    return Row(
-                      children: [
-                        Expanded(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: GifMessage(
-                              url:
-                                  'https://media.giphy.com/media/$gifId/giphy.gif',
-                              backgroundColor:
-                                  colorScheme.surfaceContainerHighest,
-                              fallbackTextColor: colorScheme.onSurface
-                                  .withValues(alpha: 0.6),
-                              maxSize: 160,
+                    return Focus(
+                      autofocus: true,
+                      onKeyEvent: (node, event) {
+                        if (event is KeyDownEvent &&
+                            (event.logicalKey == LogicalKeyboardKey.enter ||
+                                event.logicalKey == LogicalKeyboardKey.numpadEnter)) {
+                          _sendMessage(connector);
+                          return KeyEventResult.handled;
+                        }
+                        return KeyEventResult.ignored;
+                      },
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: GifMessage(
+                                url:
+                                    'https://media.giphy.com/media/$gifId/giphy.gif',
+                                backgroundColor:
+                                    colorScheme.surfaceContainerHighest,
+                                fallbackTextColor: colorScheme.onSurface
+                                    .withValues(alpha: 0.6),
+                                maxSize: 160,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        IconButton(
-                          icon: const Icon(Icons.close),
-                          onPressed: () => _textController.clear(),
-                        ),
-                      ],
+                          const SizedBox(width: 8),
+                          IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () {
+                              _textController.clear();
+                              _textFieldFocusNode.requestFocus();
+                            },
+                          ),
+                        ],
+                      ),
                     );
                   }
 
