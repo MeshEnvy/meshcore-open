@@ -20,6 +20,7 @@ import '../models/channel_message.dart';
 import '../models/contact.dart';
 import '../models/message.dart';
 import '../models/path_history.dart';
+import '../services/app_settings_service.dart';
 import '../services/path_history_service.dart';
 import '../widgets/elements_ui.dart';
 import 'channel_message_path_screen.dart';
@@ -1188,6 +1189,8 @@ class _MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settingsService = context.watch<AppSettingsService>();
+    final enableTracing = settingsService.settings.enableMessageTracing;
     final isOutgoing = message.isOutgoing;
     final colorScheme = Theme.of(context).colorScheme;
     final gifId = _parseGifId(message.text);
@@ -1267,100 +1270,158 @@ class _MessageBubble extends StatelessWidget {
                         if (poi != null)
                           _buildPoiMessage(context, poi, textColor, metaColor)
                         else if (gifId != null)
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: GifMessage(
-                              url:
-                                  'https://media.giphy.com/media/$gifId/giphy.gif',
-                              backgroundColor: Colors.transparent,
-                              fallbackTextColor: textColor.withValues(
-                                alpha: 0.7,
+                          Stack(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: GifMessage(
+                                  url:
+                                      'https://media.giphy.com/media/$gifId/giphy.gif',
+                                  backgroundColor: Colors.transparent,
+                                  fallbackTextColor: textColor.withValues(
+                                    alpha: 0.7,
+                                  ),
+                                ),
                               ),
-                            ),
+                              if (!enableTracing && isOutgoing)
+                                Positioned(
+                                  top: 4,
+                                  right: 4,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(2),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withValues(alpha: 0.3),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      (message.status == MessageStatus.delivered && message.pathBytes.isNotEmpty)
+                                          ? Icons.check_circle
+                                          : message.status == MessageStatus.failed
+                                              ? Icons.cancel
+                                              : Icons.cloud,
+                                      size: 14,
+                                      color: (message.status == MessageStatus.delivered && message.pathBytes.isNotEmpty)
+                                          ? Colors.green
+                                          : message.status == MessageStatus.failed
+                                              ? Colors.red
+                                              : Colors.white70,
+                                    ),
+                                  ),
+                                ),
+                            ],
                           )
                         else
-                          Linkify(
-                            text: messageText,
-                            style: TextStyle(color: textColor),
-                            linkStyle: const TextStyle(
-                              color: Colors.green,
-                              decoration: TextDecoration.underline,
-                            ),
-                            options: const LinkifyOptions(
-                              humanize: false,
-                              defaultToHttps: false,
-                            ),
-                            linkifiers: const [UrlLinkifier()],
-                            onOpen: (link) =>
-                                LinkHandler.handleLinkTap(context, link.url),
-                          ),
-                        if (isOutgoing && message.retryCount > 0) ...[
-                          const SizedBox(height: 4),
-                          Padding(
-                            padding: gifId != null
-                                ? const EdgeInsets.symmetric(horizontal: 8)
-                                : EdgeInsets.zero,
-                            child: Text(
-                              context.l10n.chat_retryCount(
-                                message.retryCount,
-                                4,
-                              ),
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: metaColor,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ],
-                        const SizedBox(height: 4),
-                        Padding(
-                          padding: gifId != null
-                              ? const EdgeInsets.only(
-                                  left: 8,
-                                  right: 8,
-                                  bottom: 4,
-                                )
-                              : EdgeInsets.zero,
-                          child: Wrap(
-                            spacing: 4,
-                            crossAxisAlignment: WrapCrossAlignment.center,
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Text(
-                                _formatTime(message.timestamp),
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: metaColor,
+                              Flexible(
+                                child: Linkify(
+                                  text: messageText,
+                                  style: TextStyle(color: textColor),
+                                  linkStyle: const TextStyle(
+                                    color: Colors.green,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                  options: const LinkifyOptions(
+                                    humanize: false,
+                                    defaultToHttps: false,
+                                  ),
+                                  linkifiers: const [UrlLinkifier()],
+                                  onOpen: (link) =>
+                                      LinkHandler.handleLinkTap(context, link.url),
                                 ),
                               ),
-                              if (isOutgoing) ...[
+                              if (!enableTracing && isOutgoing) ...[
                                 const SizedBox(width: 4),
-                                _buildStatusIcon(metaColor),
-                              ],
-                              if (message.tripTimeMs != null &&
-                                  message.status ==
-                                      MessageStatus.delivered) ...[
-                                const SizedBox(width: 4),
-                                Icon(
-                                  Icons.speed,
-                                  size: 10,
-                                  color: isOutgoing
-                                      ? metaColor
-                                      : Colors.green[700],
-                                ),
-                                Text(
-                                  '${(message.tripTimeMs! / 1000).toStringAsFixed(1)}s',
-                                  style: TextStyle(
-                                    fontSize: 9,
-                                    color: isOutgoing
-                                        ? metaColor
-                                        : Colors.green[700],
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 2),
+                                  child: Icon(
+                                    (message.status == MessageStatus.delivered && message.pathBytes.isNotEmpty)
+                                        ? Icons.check_circle
+                                        : message.status == MessageStatus.failed
+                                            ? Icons.cancel
+                                            : Icons.cloud,
+                                    size: 14,
+                                    color: (message.status == MessageStatus.delivered && message.pathBytes.isNotEmpty)
+                                        ? Colors.green
+                                        : message.status == MessageStatus.failed
+                                            ? Colors.red
+                                            : Colors.grey,
                                   ),
                                 ),
                               ],
                             ],
                           ),
-                        ),
+                        if (enableTracing) ...[
+                          if (isOutgoing && message.retryCount > 0) ...[
+                            const SizedBox(height: 4),
+                            Padding(
+                              padding: gifId != null
+                                  ? const EdgeInsets.symmetric(horizontal: 8)
+                                  : EdgeInsets.zero,
+                              child: Text(
+                                context.l10n.chat_retryCount(
+                                  message.retryCount,
+                                  4,
+                                ),
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: metaColor,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: 4),
+                          Padding(
+                            padding: gifId != null
+                                ? const EdgeInsets.only(
+                                    left: 8,
+                                    right: 8,
+                                    bottom: 4,
+                                  )
+                                : EdgeInsets.zero,
+                            child: Wrap(
+                              spacing: 4,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                Text(
+                                  _formatTime(message.timestamp),
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: metaColor,
+                                  ),
+                                ),
+                                if (isOutgoing) ...[
+                                  const SizedBox(width: 4),
+                                  _buildStatusIcon(metaColor),
+                                ],
+                                if (message.tripTimeMs != null &&
+                                    message.status ==
+                                        MessageStatus.delivered) ...[
+                                  const SizedBox(width: 4),
+                                  Icon(
+                                    Icons.speed,
+                                    size: 10,
+                                    color: isOutgoing
+                                        ? metaColor
+                                        : Colors.green[700],
+                                  ),
+                                  Text(
+                                    '${(message.tripTimeMs! / 1000).toStringAsFixed(1)}s',
+                                    style: TextStyle(
+                                      fontSize: 9,
+                                      color: isOutgoing
+                                          ? metaColor
+                                          : Colors.green[700],
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),
