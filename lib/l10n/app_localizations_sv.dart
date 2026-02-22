@@ -802,7 +802,7 @@ class AppLocalizationsSv extends AppLocalizations {
 
   @override
   String channels_channelDeleteFailed(String name) {
-    return 'Failed to delete channel \"$name\"';
+    return 'Det gick inte att ta bort kanalen \"$name\"';
   }
 
   @override

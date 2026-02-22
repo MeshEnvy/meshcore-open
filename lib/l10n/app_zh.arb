@@ -1,4 +1,6 @@
-{
+﻿{
+  "channels_channelDeleteFailed": "无法删除频道 \"{name}\"",
+  "@channels_channelDeleteFailed": { "placeholders": { "name": { "type": "String" } } },
   "@@locale": "zh",
   "appTitle": "MeshCore Open",
   "nav_contacts": "联系方式",

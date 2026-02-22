@@ -808,7 +808,7 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String channels_channelDeleteFailed(String name) {
-    return 'Failed to delete channel \"$name\"';
+    return 'Kan kanaal $name niet verwijderen';
   }
 
   @override

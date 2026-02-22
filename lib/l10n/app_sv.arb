@@ -1,4 +1,6 @@
-{
+﻿{
+  "channels_channelDeleteFailed": "Det gick inte att ta bort kanalen \"{name}\"",
+  "@channels_channelDeleteFailed": { "placeholders": { "name": { "type": "String" } } },
   "@@locale": "sv",
   "appTitle": "MeshCore Open",
   "nav_contacts": "Kontakter",

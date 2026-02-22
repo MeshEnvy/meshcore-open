@@ -1,4 +1,6 @@
-{
+﻿{
+  "channels_channelDeleteFailed": "Kan kanaal {name} niet verwijderen",
+  "@channels_channelDeleteFailed": { "placeholders": { "name": { "type": "String" } } },
   "@@locale": "nl",
   "appTitle": "MeshCore Open",
   "nav_contacts": "Contacten",

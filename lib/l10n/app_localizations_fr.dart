@@ -814,7 +814,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String channels_channelDeleteFailed(String name) {
-    return 'Failed to delete channel \"$name\"';
+    return 'Échec de la suppression de la chaîne \"$name\"';
   }
 
   @override

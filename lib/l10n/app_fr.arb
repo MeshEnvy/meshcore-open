@@ -1,4 +1,6 @@
-{
+﻿{
+  "channels_channelDeleteFailed": "Échec de la suppression de la chaîne \"{name}\"",
+  "@channels_channelDeleteFailed": { "placeholders": { "name": { "type": "String" } } },
   "@@locale": "fr",
   "appTitle": "MeshCore Open",
   "nav_contacts": "Contacts",

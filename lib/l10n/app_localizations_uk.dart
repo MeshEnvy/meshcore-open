@@ -809,7 +809,7 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String channels_channelDeleteFailed(String name) {
-    return 'Failed to delete channel \"$name\"';
+    return 'Не вдалося видалити канал \"$name\"';
   }
 
   @override
