@@ -367,17 +367,24 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                                     shape: BoxShape.circle,
                                   ),
                                   child: Icon(
-                                    (message.status == ChannelMessageStatus.sent && displayPath.isNotEmpty)
+                                    (message.status ==
+                                                ChannelMessageStatus.sent &&
+                                            displayPath.isNotEmpty)
                                         ? Icons.check_circle
-                                        : message.status == ChannelMessageStatus.failed
-                                            ? Icons.cancel
-                                            : Icons.cloud,
+                                        : message.status ==
+                                              ChannelMessageStatus.failed
+                                        ? Icons.cancel
+                                        : Icons.cloud,
                                     size: 14,
-                                    color: (message.status == ChannelMessageStatus.sent && displayPath.isNotEmpty)
+                                    color:
+                                        (message.status ==
+                                                ChannelMessageStatus.sent &&
+                                            displayPath.isNotEmpty)
                                         ? Colors.green
-                                        : message.status == ChannelMessageStatus.failed
-                                            ? Colors.red
-                                            : Colors.white70,
+                                        : message.status ==
+                                              ChannelMessageStatus.failed
+                                        ? Colors.red
+                                        : Colors.white70,
                                   ),
                                 ),
                               ),
@@ -402,8 +409,10 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                                   defaultToHttps: false,
                                 ),
                                 linkifiers: const [UrlLinkifier()],
-                                onOpen: (link) =>
-                                    LinkHandler.handleLinkTap(context, link.url),
+                                onOpen: (link) => LinkHandler.handleLinkTap(
+                                  context,
+                                  link.url,
+                                ),
                               ),
                             ),
                             if (!enableTracing && isOutgoing) ...[
@@ -411,17 +420,24 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                               Padding(
                                 padding: const EdgeInsets.only(bottom: 2),
                                 child: Icon(
-                                  (message.status == ChannelMessageStatus.sent && displayPath.isNotEmpty)
+                                  (message.status ==
+                                              ChannelMessageStatus.sent &&
+                                          displayPath.isNotEmpty)
                                       ? Icons.check_circle
-                                      : message.status == ChannelMessageStatus.failed
-                                          ? Icons.cancel
-                                          : Icons.cloud,
+                                      : message.status ==
+                                            ChannelMessageStatus.failed
+                                      ? Icons.cancel
+                                      : Icons.cloud,
                                   size: 14,
-                                  color: (message.status == ChannelMessageStatus.sent && displayPath.isNotEmpty)
+                                  color:
+                                      (message.status ==
+                                              ChannelMessageStatus.sent &&
+                                          displayPath.isNotEmpty)
                                       ? Colors.green
-                                      : message.status == ChannelMessageStatus.failed
-                                          ? Colors.red
-                                          : Colors.grey,
+                                      : message.status ==
+                                            ChannelMessageStatus.failed
+                                      ? Colors.red
+                                      : Colors.grey,
                                 ),
                               ),
                             ],

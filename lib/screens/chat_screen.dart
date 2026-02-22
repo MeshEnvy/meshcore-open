@@ -1274,21 +1274,30 @@ class _MessageBubble extends StatelessWidget {
                                   child: Container(
                                     padding: const EdgeInsets.all(2),
                                     decoration: BoxDecoration(
-                                      color: Colors.black.withValues(alpha: 0.3),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.3,
+                                      ),
                                       shape: BoxShape.circle,
                                     ),
                                     child: Icon(
-                                      (message.status == MessageStatus.delivered && message.pathBytes.isNotEmpty)
+                                      (message.status ==
+                                                  MessageStatus.delivered &&
+                                              message.pathBytes.isNotEmpty)
                                           ? Icons.check_circle
-                                          : message.status == MessageStatus.failed
-                                              ? Icons.cancel
-                                              : Icons.cloud,
+                                          : message.status ==
+                                                MessageStatus.failed
+                                          ? Icons.cancel
+                                          : Icons.cloud,
                                       size: 14,
-                                      color: (message.status == MessageStatus.delivered && message.pathBytes.isNotEmpty)
+                                      color:
+                                          (message.status ==
+                                                  MessageStatus.delivered &&
+                                              message.pathBytes.isNotEmpty)
                                           ? Colors.green
-                                          : message.status == MessageStatus.failed
-                                              ? Colors.red
-                                              : Colors.white70,
+                                          : message.status ==
+                                                MessageStatus.failed
+                                          ? Colors.red
+                                          : Colors.white70,
                                     ),
                                   ),
                                 ),
@@ -1312,8 +1321,10 @@ class _MessageBubble extends StatelessWidget {
                                     defaultToHttps: false,
                                   ),
                                   linkifiers: const [UrlLinkifier()],
-                                  onOpen: (link) =>
-                                      LinkHandler.handleLinkTap(context, link.url),
+                                  onOpen: (link) => LinkHandler.handleLinkTap(
+                                    context,
+                                    link.url,
+                                  ),
                                 ),
                               ),
                               if (!enableTracing && isOutgoing) ...[
@@ -1321,17 +1332,22 @@ class _MessageBubble extends StatelessWidget {
                                 Padding(
                                   padding: const EdgeInsets.only(bottom: 2),
                                   child: Icon(
-                                    (message.status == MessageStatus.delivered && message.pathBytes.isNotEmpty)
+                                    (message.status ==
+                                                MessageStatus.delivered &&
+                                            message.pathBytes.isNotEmpty)
                                         ? Icons.check_circle
                                         : message.status == MessageStatus.failed
-                                            ? Icons.cancel
-                                            : Icons.cloud,
+                                        ? Icons.cancel
+                                        : Icons.cloud,
                                     size: 14,
-                                    color: (message.status == MessageStatus.delivered && message.pathBytes.isNotEmpty)
+                                    color:
+                                        (message.status ==
+                                                MessageStatus.delivered &&
+                                            message.pathBytes.isNotEmpty)
                                         ? Colors.green
                                         : message.status == MessageStatus.failed
-                                            ? Colors.red
-                                            : Colors.grey,
+                                        ? Colors.red
+                                        : Colors.grey,
                                   ),
                                 ),
                               ],
