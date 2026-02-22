@@ -82,3 +82,6 @@ keystore.properties
 # IDE
 .vscode/launch.json
 .vscode/settings.json
+
+# Cloudflare Wrangler
+.wrangler
