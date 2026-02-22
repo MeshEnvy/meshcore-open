@@ -429,6 +429,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     connector.sendMessage(widget.contact, text);
     _textController.clear();
+    _textFieldFocusNode.requestFocus();
   }
 
   void _showPathHistory(BuildContext context) {
