@@ -48,6 +48,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get common_add => 'Dodaj';
 
   @override
+  String get common_done => 'Gotowe';
+
+  @override
   String get common_settings => 'Ustawienia';
 
   @override
@@ -1270,6 +1273,30 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get chat_invalidLink => 'Nieprawidłowy format linku';
+
+  @override
+  String get chat_dropImageToUpload => 'Upuść obraz, aby przesłać';
+
+  @override
+  String get chat_sendImage => 'Wyślij obraz';
+
+  @override
+  String get chat_image => 'Obraz';
+
+  @override
+  String chat_via(String path) {
+    return 'przez $path';
+  }
+
+  @override
+  String get chat_failedToLoadImage => 'Nie udało się załadować obrazu';
+
+  @override
+  String get chat_cantLoadGifTapToRetry =>
+      'Nie można заładować GIF-a\nDotknij, aby ponowić';
+
+  @override
+  String get chat_tapToLoadGif => 'Dotknij, aby заładować GIF';
 
   @override
   String get map_title => 'Mapa węzłów';

@@ -1720,5 +1720,13 @@
   "losPointName": "Názov bodu",
   "losShowPanelTooltip": "Zobraziť panel LOS",
   "losHidePanelTooltip": "Skryť panel LOS",
-  "losElevationAttribution": "Údaje o nadmorskej výške: Open-Meteo (CC BY 4.0)"
+  "losElevationAttribution": "Údaje o nadmorskej výške: Open-Meteo (CC BY 4.0)",
+  "chat_dropImageToUpload": "Presuňte obrázok na nahranie",
+  "chat_sendImage": "Odoslať obrázok",
+  "chat_image": "Obrázok",
+  "chat_via": "cez {path}",
+  "chat_failedToLoadImage": "Nepodarilo sa начитать obrázok",
+  "chat_cantLoadGifTapToRetry": "Nemožno начитать GIF\nKlepnite pre opakovanie",
+  "chat_tapToLoadGif": "Klepnite pre начитанние GIF",
+  "common_done": "Hotovo"
 }

@@ -1720,5 +1720,13 @@
   "losPointName": "Nome del punto",
   "losShowPanelTooltip": "Mostra il pannello LOS",
   "losHidePanelTooltip": "Nascondi il pannello LOS",
-  "losElevationAttribution": "Dati di elevazione: Open-Meteo (CC BY 4.0)"
+  "losElevationAttribution": "Dati di elevazione: Open-Meteo (CC BY 4.0)",
+  "chat_dropImageToUpload": "Trascina l'immagine per caricarla",
+  "chat_sendImage": "Invia immagine",
+  "chat_image": "Immagine",
+  "chat_via": "via {path}",
+  "chat_failedToLoadImage": "Impossibile caricare l'immagine",
+  "chat_cantLoadGifTapToRetry": "Impossibile caricare la GIF\nTocca per riprovare",
+  "chat_tapToLoadGif": "Tocca per caricare la GIF",
+  "common_done": "Fatto"
 }

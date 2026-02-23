@@ -1720,5 +1720,13 @@
   "losPointName": "Ime točke",
   "losShowPanelTooltip": "Pokaži ploščo LOS",
   "losHidePanelTooltip": "Skrij ploščo LOS",
-  "losElevationAttribution": "Podatki o višini: Open-Meteo (CC BY 4.0)"
+  "losElevationAttribution": "Podatki o višini: Open-Meteo (CC BY 4.0)",
+  "chat_dropImageToUpload": "Spustite sliko za prenos",
+  "chat_sendImage": "Pošlji sliko",
+  "chat_image": "Slika",
+  "chat_via": "prek {path}",
+  "chat_failedToLoadImage": "Nalaganje slike ni uspelo",
+  "chat_cantLoadGifTapToRetry": "GIF-a ni mogoče naložiti\nTapnite za ponovni poskus",
+  "chat_tapToLoadGif": "Tapnite za nalaganje GIF-a",
+  "common_done": "Končano"
 }

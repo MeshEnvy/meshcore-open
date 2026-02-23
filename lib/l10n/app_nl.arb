@@ -1720,5 +1720,13 @@
   "losPointName": "Puntnaam",
   "losShowPanelTooltip": "Toon LOS-paneel",
   "losHidePanelTooltip": "LOS-paneel verbergen",
-  "losElevationAttribution": "Hoogtegegevens: Open-Meteo (CC BY 4.0)"
+  "losElevationAttribution": "Hoogtegegevens: Open-Meteo (CC BY 4.0)",
+  "chat_dropImageToUpload": "Sleep afbeelding hierheen om te uploaden",
+  "chat_sendImage": "Afbeelding verzenden",
+  "chat_image": "Afbeelding",
+  "chat_via": "via {path}",
+  "chat_failedToLoadImage": "Afbeelding laden mislukt",
+  "chat_cantLoadGifTapToRetry": "Kan GIF niet laden\nTik om opnieuw te proberen",
+  "chat_tapToLoadGif": "Tik om GIF te laden",
+  "common_done": "Klaar"
 }

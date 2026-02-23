@@ -1720,5 +1720,13 @@
   "losPointName": "Име на точката",
   "losShowPanelTooltip": "Показване на LOS панел",
   "losHidePanelTooltip": "Скриване на LOS панела",
-  "losElevationAttribution": "Данни за надморска височина: Open-Meteo (CC BY 4.0)"
+  "losElevationAttribution": "Данни за надморска височина: Open-Meteo (CC BY 4.0)",
+  "chat_dropImageToUpload": "Пуснете изображението за качване",
+  "chat_sendImage": "Изпрати изображение",
+  "chat_image": "Изображение",
+  "chat_via": "чрез {path}",
+  "chat_failedToLoadImage": "Неуспешно зареждане на изображението",
+  "chat_cantLoadGifTapToRetry": "GIF не може да се зареди\nДокоснете за повторен опит",
+  "chat_tapToLoadGif": "Докоснете за зареждане на GIF",
+  "common_done": "Готово"
 }

@@ -1720,5 +1720,13 @@
   "losPointName": "Punktnamn",
   "losShowPanelTooltip": "Visa LOS-panelen",
   "losHidePanelTooltip": "Dölj LOS-panelen",
-  "losElevationAttribution": "Höjddata: Open-Meteo (CC BY 4.0)"
+  "losElevationAttribution": "Höjddata: Open-Meteo (CC BY 4.0)",
+  "chat_dropImageToUpload": "Släpp bild för att ladda upp",
+  "chat_sendImage": "Skicka bild",
+  "chat_image": "Bild",
+  "chat_via": "via {path}",
+  "chat_failedToLoadImage": "Misslyckades med att ladda bilden",
+  "chat_cantLoadGifTapToRetry": "Kan inte ladda GIF\nTryck för att försöka igen",
+  "chat_tapToLoadGif": "Tryck för att ladda GIF",
+  "common_done": "Klar"
 }

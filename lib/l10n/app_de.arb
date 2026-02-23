@@ -1748,5 +1748,13 @@
   "losPointName": "Punktname",
   "losShowPanelTooltip": "LOS-Panel anzeigen",
   "losHidePanelTooltip": "LOS-Panel ausblenden",
-  "losElevationAttribution": "Höhendaten: Open-Meteo (CC BY 4.0)"
+  "losElevationAttribution": "Höhendaten: Open-Meteo (CC BY 4.0)",
+  "chat_dropImageToUpload": "Bild zum Hochladen hier ablegen",
+  "chat_sendImage": "Bild senden",
+  "chat_image": "Bild",
+  "chat_via": "über {path}",
+  "chat_failedToLoadImage": "Bild konnte nicht geladen werden",
+  "chat_cantLoadGifTapToRetry": "GIF kann nicht geladen werden\nZum Wiederholen tippen",
+  "chat_tapToLoadGif": "Zum Laden des GIFs tippen",
+  "common_done": "Fertig"
 }

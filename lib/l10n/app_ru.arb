@@ -960,5 +960,13 @@
   "losPointName": "Имя точки",
   "losShowPanelTooltip": "Показать панель LOS",
   "losHidePanelTooltip": "Скрыть панель LOS",
-  "losElevationAttribution": "Данные о высоте: Open-Meteo (CC BY 4.0)"
+  "losElevationAttribution": "Данные о высоте: Open-Meteo (CC BY 4.0)",
+  "chat_dropImageToUpload": "Перетащите изображение для загрузки",
+  "chat_sendImage": "Отправить изображение",
+  "chat_image": "Изображение",
+  "chat_via": "через {path}",
+  "chat_failedToLoadImage": "Не удалось загрузить изображение",
+  "chat_cantLoadGifTapToRetry": "Не удалось загрузить GIF\nНажмите, чтобы повторить",
+  "chat_tapToLoadGif": "Нажмите, чтобы загрузить GIF",
+  "common_done": "Готово"
 }
