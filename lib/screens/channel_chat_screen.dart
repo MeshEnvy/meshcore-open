@@ -332,7 +332,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Drop Image to Upload',
+                          context.l10n.chat_dropImageToUpload,
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -605,7 +605,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                                 ? const EdgeInsets.symmetric(horizontal: 8)
                                 : EdgeInsets.zero,
                             child: Text(
-                              'via ${_formatPathPrefixes(displayPath)}',
+                              context.l10n.chat_via(_formatPathPrefixes(displayPath)),
                               style: TextStyle(
                                 fontSize: 11,
                                 color: Colors.grey[600],
@@ -774,7 +774,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
           Icon(Icons.image_outlined, size: 14, color: previewTextColor),
           const SizedBox(width: 4),
           Text(
-            'Image',
+            context.l10n.chat_image,
             style: TextStyle(fontSize: 12, color: previewTextColor),
           ),
         ],

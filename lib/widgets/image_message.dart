@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../services/image_upload_service.dart';
+import '../l10n/l10n.dart';
 
 class ImageMessage extends StatelessWidget {
   final String hash;
@@ -58,7 +59,7 @@ class ImageMessage extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Failed to load image',
+                          context.l10n.chat_failedToLoadImage,
                           style: TextStyle(
                             color: fallbackTextColor,
                             fontSize: 10,

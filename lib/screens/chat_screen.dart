@@ -301,7 +301,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'Drop Image to Upload',
+                            context.l10n.chat_dropImageToUpload,
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -427,7 +427,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 : IconButton(
                     icon: const Icon(Icons.image),
                     onPressed: () => _pickAndUploadImage(connector),
-                    tooltip: 'Send Image',
+                    tooltip: context.l10n.chat_sendImage,
                   ),
             IconButton(
               icon: const Icon(Icons.gif_box),
