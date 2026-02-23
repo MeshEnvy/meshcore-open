@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
@@ -23,6 +24,7 @@ import '../widgets/emoji_picker.dart';
 import '../widgets/gif_message.dart';
 import '../widgets/jump_to_bottom_button.dart';
 import '../widgets/gif_picker.dart';
+import '../widgets/message_status_icon.dart';
 import 'channel_message_path_screen.dart';
 import 'map_screen.dart';
 
@@ -337,7 +339,23 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                         const SizedBox(height: 8),
                       ],
                       if (poi != null)
-                        _buildPoiMessage(context, poi, isOutgoing)
+                        _buildPoiMessage(
+                          context,
+                          poi,
+                          isOutgoing,
+                          trailing: (!enableTracing && isOutgoing)
+                              ? Padding(
+                                  padding: const EdgeInsets.only(bottom: 2),
+                                  child: MessageStatusIcon(
+                                    isAcked: message.status ==
+                                            ChannelMessageStatus.sent &&
+                                        displayPath.isNotEmpty,
+                                    isFailed: message.status ==
+                                        ChannelMessageStatus.failed,
+                                  ),
+                                )
+                              : null,
+                        )
                       else if (gifId != null)
                         Stack(
                           children: [
@@ -358,33 +376,31 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                             ),
                             if (!enableTracing && isOutgoing)
                               Positioned(
-                                top: 4,
-                                right: 4,
+                                top: 0,
+                                right: 0,
                                 child: Container(
-                                  padding: const EdgeInsets.all(2),
+                                  padding: const EdgeInsets.all(3),
                                   decoration: BoxDecoration(
-                                    color: Colors.black.withValues(alpha: 0.3),
-                                    shape: BoxShape.circle,
+                                    color: isOutgoing
+                                        ? Theme.of(
+                                            context,
+                                          ).colorScheme.primaryContainer
+                                        : Theme.of(
+                                            context,
+                                          ).colorScheme.surfaceContainerHighest,
+                                    borderRadius: const BorderRadius.only(
+                                      bottomLeft: Radius.circular(10),
+                                      topRight: Radius.circular(8),
+                                    ),
                                   ),
-                                  child: Icon(
-                                    (message.status ==
-                                                ChannelMessageStatus.sent &&
-                                            displayPath.isNotEmpty)
-                                        ? Icons.check_circle
-                                        : message.status ==
-                                              ChannelMessageStatus.failed
-                                        ? Icons.cancel
-                                        : Icons.cloud,
-                                    size: 14,
-                                    color:
-                                        (message.status ==
-                                                ChannelMessageStatus.sent &&
-                                            displayPath.isNotEmpty)
-                                        ? Colors.green
-                                        : message.status ==
-                                              ChannelMessageStatus.failed
-                                        ? Colors.red
-                                        : Colors.white70,
+                                  child: MessageStatusIcon(
+                                    isAcked:
+                                        message.status ==
+                                            ChannelMessageStatus.sent &&
+                                        displayPath.isNotEmpty,
+                                    isFailed:
+                                        message.status ==
+                                        ChannelMessageStatus.failed,
                                   ),
                                 ),
                               ),
@@ -419,25 +435,14 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                               const SizedBox(width: 4),
                               Padding(
                                 padding: const EdgeInsets.only(bottom: 2),
-                                child: Icon(
-                                  (message.status ==
-                                              ChannelMessageStatus.sent &&
-                                          displayPath.isNotEmpty)
-                                      ? Icons.check_circle
-                                      : message.status ==
-                                            ChannelMessageStatus.failed
-                                      ? Icons.cancel
-                                      : Icons.cloud,
-                                  size: 14,
-                                  color:
-                                      (message.status ==
-                                              ChannelMessageStatus.sent &&
-                                          displayPath.isNotEmpty)
-                                      ? Colors.green
-                                      : message.status ==
-                                            ChannelMessageStatus.failed
-                                      ? Colors.red
-                                      : Colors.grey,
+                                child: MessageStatusIcon(
+                                  isAcked:
+                                      message.status ==
+                                          ChannelMessageStatus.sent &&
+                                      displayPath.isNotEmpty,
+                                  isFailed:
+                                      message.status ==
+                                      ChannelMessageStatus.failed,
                                 ),
                               ),
                             ],
@@ -727,7 +732,12 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
     return _PoiInfo(lat: lat, lon: lon, label: label);
   }
 
-  Widget _buildPoiMessage(BuildContext context, _PoiInfo poi, bool isOutgoing) {
+  Widget _buildPoiMessage(
+    BuildContext context,
+    _PoiInfo poi,
+    bool isOutgoing, {
+    Widget? trailing,
+  }) {
     final colorScheme = Theme.of(context).colorScheme;
     final textColor = isOutgoing
         ? colorScheme.onPrimaryContainer
@@ -773,6 +783,10 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
             ],
           ),
         ),
+        if (trailing != null) ...[
+          const SizedBox(width: 4),
+          trailing,
+        ],
       ],
     );
   }

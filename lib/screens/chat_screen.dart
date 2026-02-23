@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:meshcore_open/screens/path_trace_map.dart';
 import 'package:provider/provider.dart';
@@ -13,6 +14,7 @@ import 'package:latlong2/latlong.dart';
 import '../connector/meshcore_connector.dart';
 import '../connector/meshcore_protocol.dart';
 import '../helpers/reaction_helper.dart';
+import '../widgets/message_status_icon.dart';
 import '../helpers/chat_scroll_controller.dart';
 import '../helpers/link_handler.dart';
 import '../helpers/utf8_length_limiter.dart';
@@ -1269,7 +1271,24 @@ class _MessageBubble extends StatelessWidget {
                           if (gifId == null) const SizedBox(height: 4),
                         ],
                         if (poi != null)
-                          _buildPoiMessage(context, poi, textColor, metaColor)
+                          _buildPoiMessage(
+                            context,
+                            poi,
+                            textColor,
+                            metaColor,
+                            trailing: (!enableTracing && isOutgoing)
+                                ? Padding(
+                                    padding: const EdgeInsets.only(bottom: 2),
+                                    child: MessageStatusIcon(
+                                      isAcked: message.status ==
+                                              MessageStatus.delivered &&
+                                          message.pathBytes.isNotEmpty,
+                                      isFailed: message.status ==
+                                          MessageStatus.failed,
+                                    ),
+                                  )
+                                : null,
+                          )
                         else if (gifId != null)
                           Stack(
                             children: [
@@ -1286,35 +1305,25 @@ class _MessageBubble extends StatelessWidget {
                               ),
                               if (!enableTracing && isOutgoing)
                                 Positioned(
-                                  top: 4,
-                                  right: 4,
+                                  top: 0,
+                                  right: 0,
                                   child: Container(
-                                    padding: const EdgeInsets.all(2),
+                                    padding: const EdgeInsets.all(3),
                                     decoration: BoxDecoration(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.3,
+                                      color: bubbleColor,
+                                      borderRadius: const BorderRadius.only(
+                                        bottomLeft: Radius.circular(10),
+                                        topRight: Radius.circular(12),
                                       ),
-                                      shape: BoxShape.circle,
                                     ),
-                                    child: Icon(
-                                      (message.status ==
-                                                  MessageStatus.delivered &&
-                                              message.pathBytes.isNotEmpty)
-                                          ? Icons.check_circle
-                                          : message.status ==
-                                                MessageStatus.failed
-                                          ? Icons.cancel
-                                          : Icons.cloud,
-                                      size: 14,
-                                      color:
-                                          (message.status ==
-                                                  MessageStatus.delivered &&
-                                              message.pathBytes.isNotEmpty)
-                                          ? Colors.green
-                                          : message.status ==
-                                                MessageStatus.failed
-                                          ? Colors.red
-                                          : Colors.white70,
+                                    child: MessageStatusIcon(
+                                      isAcked:
+                                          message.status ==
+                                              MessageStatus.delivered &&
+                                          message.pathBytes.isNotEmpty,
+                                      isFailed:
+                                          message.status ==
+                                          MessageStatus.failed,
                                     ),
                                   ),
                                 ),
@@ -1348,23 +1357,13 @@ class _MessageBubble extends StatelessWidget {
                                 const SizedBox(width: 4),
                                 Padding(
                                   padding: const EdgeInsets.only(bottom: 2),
-                                  child: Icon(
-                                    (message.status ==
-                                                MessageStatus.delivered &&
-                                            message.pathBytes.isNotEmpty)
-                                        ? Icons.check_circle
-                                        : message.status == MessageStatus.failed
-                                        ? Icons.cancel
-                                        : Icons.cloud,
-                                    size: 14,
-                                    color:
-                                        (message.status ==
-                                                MessageStatus.delivered &&
-                                            message.pathBytes.isNotEmpty)
-                                        ? Colors.green
-                                        : message.status == MessageStatus.failed
-                                        ? Colors.red
-                                        : Colors.grey,
+                                  child: MessageStatusIcon(
+                                    isAcked:
+                                        message.status ==
+                                            MessageStatus.delivered &&
+                                        message.pathBytes.isNotEmpty,
+                                    isFailed:
+                                        message.status == MessageStatus.failed,
                                   ),
                                 ),
                               ],
@@ -1481,8 +1480,9 @@ class _MessageBubble extends StatelessWidget {
     BuildContext context,
     _PoiInfo poi,
     Color textColor,
-    Color metaColor,
-  ) {
+    Color metaColor, {
+    Widget? trailing,
+  }) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -1519,6 +1519,10 @@ class _MessageBubble extends StatelessWidget {
             ],
           ),
         ),
+        if (trailing != null) ...[
+          const SizedBox(width: 4),
+          trailing,
+        ],
       ],
     );
   }
