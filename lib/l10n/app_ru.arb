@@ -965,14 +965,22 @@
   "losFrequencyLabel": "Частота",
   "losFrequencyInfoTooltip": "Просмотреть детали расчёта",
   "losFrequencyDialogTitle": "Расчёт радиогоризонта",
-  "losFrequencyDialogDescription": "Начиная с k={baselineK} при {baselineFreq} MHz, расчёт умножает 0.15 × (frequency − {baselineFreq}) / {baselineFreq}, чтобы получить k примерно {kFactor} для текущего диапазона {frequencyMHz} MHz, что определяет изогнутую границу радиогоризонта.",
+  "losFrequencyDialogDescription": "Начиная с k={baselineK} на частоте {frequencyMHz} МГц, расчет корректирует коэффициент k для текущего диапазона {frequencyMHz} МГц, который определяет изогнутую границу радиогоризонта.",
   "@losFrequencyDialogDescription": {
     "description": "Explain how the calculation uses the baseline frequency and derived k-factor.",
     "placeholders": {
-      "baselineK": { "type": "double" },
-      "baselineFreq": { "type": "double" },
-      "frequencyMHz": { "type": "double" },
-      "kFactor": { "type": "double" }
+      "baselineK": {
+        "type": "double"
+      },
+      "baselineFreq": {
+        "type": "double"
+      },
+      "frequencyMHz": {
+        "type": "double"
+      },
+      "kFactor": {
+        "type": "double"
+      }
     }
   }
 }

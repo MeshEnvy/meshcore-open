@@ -2740,7 +2740,7 @@ class AppLocalizationsZh extends AppLocalizations {
     double frequencyMHz,
     double kFactor,
   ) {
-    return '从 $baselineFreq MHz 的 k=$baselineK 开始，计算将 0.15 × (frequency − $baselineFreq) / $baselineFreq 相乘，以在当前频段 $frequencyMHz MHz 下得到约 k=$kFactor，从而定义弯曲的无线电地平线边界。';
+    return '从 $frequencyMHz MHz 处的 k=$baselineK 开始，计算调整当前 $frequencyMHz MHz 频段的 k 因子，该因子定义了弯曲的无线电范围上限。';
   }
 
   @override

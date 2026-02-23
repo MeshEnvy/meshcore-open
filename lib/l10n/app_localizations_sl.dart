@@ -2879,7 +2879,7 @@ class AppLocalizationsSl extends AppLocalizations {
     double frequencyMHz,
     double kFactor,
   ) {
-    return 'Začenši z k=$baselineK pri $baselineFreq MHz izračun množi 0.15 × (frequency − $baselineFreq) / $baselineFreq, da doseže k približno $kFactor za trenutni pas $frequencyMHz MHz, kar določa ukrivljeno mejo radijskega horizonta.';
+    return 'Začenši od k=$baselineK pri $frequencyMHz MHz, izračun prilagodi k-faktor za trenutni pas $frequencyMHz MHz, ki določa ukrivljeno zgornjo mejo radijskega horizonta.';
   }
 
   @override

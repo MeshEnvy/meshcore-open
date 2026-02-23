@@ -1725,14 +1725,22 @@
   "losFrequencyLabel": "频率",
   "losFrequencyInfoTooltip": "查看计算详情",
   "losFrequencyDialogTitle": "无线电地平线计算",
-  "losFrequencyDialogDescription": "从 {baselineFreq} MHz 的 k={baselineK} 开始，计算将 0.15 × (frequency − {baselineFreq}) / {baselineFreq} 相乘，以在当前频段 {frequencyMHz} MHz 下得到约 k={kFactor}，从而定义弯曲的无线电地平线边界。",
+  "losFrequencyDialogDescription": "从 {frequencyMHz} MHz 处的 k={baselineK} 开始，计算调整当前 {frequencyMHz} MHz 频段的 k 因子，该因子定义了弯曲的无线电范围上限。",
   "@losFrequencyDialogDescription": {
     "description": "Explain how the calculation uses the baseline frequency and derived k-factor.",
     "placeholders": {
-      "baselineK": { "type": "double" },
-      "baselineFreq": { "type": "double" },
-      "frequencyMHz": { "type": "double" },
-      "kFactor": { "type": "double" }
+      "baselineK": {
+        "type": "double"
+      },
+      "baselineFreq": {
+        "type": "double"
+      },
+      "frequencyMHz": {
+        "type": "double"
+      },
+      "kFactor": {
+        "type": "double"
+      }
     }
   }
 }

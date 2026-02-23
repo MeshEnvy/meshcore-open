@@ -2862,7 +2862,7 @@ class AppLocalizationsSv extends AppLocalizations {
     double frequencyMHz,
     double kFactor,
   ) {
-    return 'Med utgångspunkt från k=$baselineK vid $baselineFreq MHz multiplicerar beräkningen 0.15 × (frequency − $baselineFreq) / $baselineFreq för att nå k cirka $kFactor för det aktuella bandet $frequencyMHz MHz, vilket definierar den krökta radiohorisontgränsen.';
+    return 'Med start från k=$baselineK vid $frequencyMHz MHz, justerar beräkningen k-faktorn för det aktuella $frequencyMHz MHz-bandet, som definierar den böjda radiohorisonten.';
   }
 
   @override

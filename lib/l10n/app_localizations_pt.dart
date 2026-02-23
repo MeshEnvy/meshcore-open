@@ -2891,7 +2891,7 @@ class AppLocalizationsPt extends AppLocalizations {
     double frequencyMHz,
     double kFactor,
   ) {
-    return 'Partindo de k=$baselineK a $baselineFreq MHz, o cálculo multiplica 0.15 × (frequency − $baselineFreq) / $baselineFreq para atingir k aprox $kFactor para a banda atual $frequencyMHz MHz, o que define o limite curvo do horizonte de rádio.';
+    return 'Começando em k=$baselineK em $frequencyMHz MHz, o cálculo ajusta o fator k para a banda atual de $frequencyMHz MHz, que define o limite do horizonte de rádio curvo.';
   }
 
   @override

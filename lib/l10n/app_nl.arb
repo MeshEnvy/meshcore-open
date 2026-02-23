@@ -1725,14 +1725,22 @@
   "losFrequencyLabel": "Frequentie",
   "losFrequencyInfoTooltip": "Bekijk details van de berekening",
   "losFrequencyDialogTitle": "Berekening van de radiohorizon",
-  "losFrequencyDialogDescription": "Uitgaande van k={baselineK} bij {baselineFreq} MHz vermenigvuldigt de berekening 0.15 × (frequency − {baselineFreq}) / {baselineFreq} om k ongeveer {kFactor} te bereiken voor de huidige band {frequencyMHz} MHz, wat de gebogen radiohorizon-grens definieert.",
+  "losFrequencyDialogDescription": "Beginnend met k={baselineK} bij {frequencyMHz} MHz, wordt bij de berekening de k-factor aangepast voor de huidige {frequencyMHz} MHz-band, die de gebogen radiohorizonkap definieert.",
   "@losFrequencyDialogDescription": {
     "description": "Explain how the calculation uses the baseline frequency and derived k-factor.",
     "placeholders": {
-      "baselineK": { "type": "double" },
-      "baselineFreq": { "type": "double" },
-      "frequencyMHz": { "type": "double" },
-      "kFactor": { "type": "double" }
+      "baselineK": {
+        "type": "double"
+      },
+      "baselineFreq": {
+        "type": "double"
+      },
+      "frequencyMHz": {
+        "type": "double"
+      },
+      "kFactor": {
+        "type": "double"
+      }
     }
   }
 }

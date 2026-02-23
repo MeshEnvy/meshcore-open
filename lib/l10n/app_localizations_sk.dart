@@ -2876,7 +2876,7 @@ class AppLocalizationsSk extends AppLocalizations {
     double frequencyMHz,
     double kFactor,
   ) {
-    return 'Vychádzajúc z k=$baselineK pri $baselineFreq MHz výpočet násobí 0.15 × (frequency − $baselineFreq) / $baselineFreq, aby dosiahol k približne $kFactor pre aktuálne pásmo $frequencyMHz MHz, čo definuje zakrivenú hranicu rádiového horizontu.';
+    return 'Počnúc od k=$baselineK pri $frequencyMHz MHz výpočet upraví k-faktor pre aktuálne pásmo $frequencyMHz MHz, ktorý definuje zakrivený strop rádiového horizontu.';
   }
 
   @override

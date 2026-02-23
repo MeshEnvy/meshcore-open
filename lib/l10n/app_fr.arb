@@ -1725,14 +1725,22 @@
   "losFrequencyLabel": "Fréquence",
   "losFrequencyInfoTooltip": "Voir les détails du calcul",
   "losFrequencyDialogTitle": "Calcul de l’horizon radio",
-  "losFrequencyDialogDescription": "En partant de k={baselineK} à {baselineFreq} MHz, le calcul multiplie 0.15 × (frequency − {baselineFreq}) / {baselineFreq} pour atteindre k env {kFactor} pour la bande actuelle {frequencyMHz} MHz, ce qui définit la limite courbe de l’horizon radio.",
+  "losFrequencyDialogDescription": "À partir de k={baselineK} à {frequencyMHz} MHz, le calcul ajuste le facteur k pour la bande actuelle de {frequencyMHz} MHz, ce qui définit la limite incurvée de l'horizon radio.",
   "@losFrequencyDialogDescription": {
     "description": "Explain how the calculation uses the baseline frequency and derived k-factor.",
     "placeholders": {
-      "baselineK": { "type": "double" },
-      "baselineFreq": { "type": "double" },
-      "frequencyMHz": { "type": "double" },
-      "kFactor": { "type": "double" }
+      "baselineK": {
+        "type": "double"
+      },
+      "baselineFreq": {
+        "type": "double"
+      },
+      "frequencyMHz": {
+        "type": "double"
+      },
+      "kFactor": {
+        "type": "double"
+      }
     }
   }
 }

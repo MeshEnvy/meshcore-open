@@ -2888,7 +2888,7 @@ class AppLocalizationsPl extends AppLocalizations {
     double frequencyMHz,
     double kFactor,
   ) {
-    return 'Zaczynając od k=$baselineK przy $baselineFreq MHz, obliczenie mnoży 0.15 × (frequency − $baselineFreq) / $baselineFreq, aby osiągnąć k około $kFactor dla bieżącego pasma $frequencyMHz MHz, co definiuje zakrzywioną granicę horyzontu radiowego.';
+    return 'Zaczynając od k=$baselineK przy $frequencyMHz MHz, obliczenia korygują współczynnik k dla bieżącego pasma $frequencyMHz MHz, które definiuje zakrzywiony limit horyzontu radiowego.';
   }
 
   @override

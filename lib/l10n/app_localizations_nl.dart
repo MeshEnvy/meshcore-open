@@ -2882,7 +2882,7 @@ class AppLocalizationsNl extends AppLocalizations {
     double frequencyMHz,
     double kFactor,
   ) {
-    return 'Uitgaande van k=$baselineK bij $baselineFreq MHz vermenigvuldigt de berekening 0.15 × (frequency − $baselineFreq) / $baselineFreq om k ongeveer $kFactor te bereiken voor de huidige band $frequencyMHz MHz, wat de gebogen radiohorizon-grens definieert.';
+    return 'Beginnend met k=$baselineK bij $frequencyMHz MHz, wordt bij de berekening de k-factor aangepast voor de huidige $frequencyMHz MHz-band, die de gebogen radiohorizonkap definieert.';
   }
 
   @override

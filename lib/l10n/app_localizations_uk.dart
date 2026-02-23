@@ -2902,7 +2902,7 @@ class AppLocalizationsUk extends AppLocalizations {
     double frequencyMHz,
     double kFactor,
   ) {
-    return 'Починаючи з k=$baselineK при $baselineFreq MHz, розрахунок множить 0.15 × (frequency − $baselineFreq) / $baselineFreq, щоб досягти k приблизно $kFactor для поточного діапазону $frequencyMHz MHz, що визначає вигнуту межу радіогоризонту.';
+    return 'Починаючи з k=$baselineK на $frequencyMHz МГц, обчислення коригує k-фактор для поточного діапазону $frequencyMHz МГц, який визначає викривлену межу радіогоризонту.';
   }
 
   @override

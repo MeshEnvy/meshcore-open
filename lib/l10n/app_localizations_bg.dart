@@ -2892,7 +2892,7 @@ class AppLocalizationsBg extends AppLocalizations {
     double frequencyMHz,
     double kFactor,
   ) {
-    return 'Започвайки от k=$baselineK при $baselineFreq MHz, изчислението умножава 0.15 × (frequency − $baselineFreq) / $baselineFreq, за да достигне k приблизително $kFactor за текущата лента $frequencyMHz MHz, което определя извитата граница на радиохоризонта.';
+    return 'Започвайки от k=$baselineK при $frequencyMHz MHz, изчислението коригира k-фактора за текущата $frequencyMHz MHz лента, която определя границата на извития радиохоризонт.';
   }
 
   @override

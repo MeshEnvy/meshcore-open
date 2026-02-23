@@ -1725,14 +1725,22 @@
   "losFrequencyLabel": "Частота",
   "losFrequencyInfoTooltip": "Переглянути деталі розрахунку",
   "losFrequencyDialogTitle": "Розрахунок радіогоризонту",
-  "losFrequencyDialogDescription": "Починаючи з k={baselineK} при {baselineFreq} MHz, розрахунок множить 0.15 × (frequency − {baselineFreq}) / {baselineFreq}, щоб досягти k приблизно {kFactor} для поточного діапазону {frequencyMHz} MHz, що визначає вигнуту межу радіогоризонту.",
+  "losFrequencyDialogDescription": "Починаючи з k={baselineK} на {frequencyMHz} МГц, обчислення коригує k-фактор для поточного діапазону {frequencyMHz} МГц, який визначає викривлену межу радіогоризонту.",
   "@losFrequencyDialogDescription": {
     "description": "Explain how the calculation uses the baseline frequency and derived k-factor.",
     "placeholders": {
-      "baselineK": { "type": "double" },
-      "baselineFreq": { "type": "double" },
-      "frequencyMHz": { "type": "double" },
-      "kFactor": { "type": "double" }
+      "baselineK": {
+        "type": "double"
+      },
+      "baselineFreq": {
+        "type": "double"
+      },
+      "frequencyMHz": {
+        "type": "double"
+      },
+      "kFactor": {
+        "type": "double"
+      }
     }
   }
 }
