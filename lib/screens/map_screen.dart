@@ -20,7 +20,6 @@ import '../services/map_tile_cache_service.dart';
 import '../utils/contact_search.dart';
 import '../utils/route_transitions.dart';
 import '../widgets/quick_switch_bar.dart';
-import '../icons/los_icon.dart';
 import 'channels_screen.dart';
 import 'chat_screen.dart';
 import 'contacts_screen.dart';
@@ -281,7 +280,7 @@ class _MapScreenState extends State<MapScreen> {
                   ),
                 if (!_isBuildingPathTrace)
                   IconButton(
-                    icon: const LosIcon(),
+                    icon: const Icon(Icons.visibility),
                     onPressed: () {
                       final candidates = <LineOfSightEndpoint>[];
                       if (connector.selfLatitude != null &&
