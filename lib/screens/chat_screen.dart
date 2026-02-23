@@ -10,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:meshcore_open/screens/path_trace_map.dart';
 import 'package:provider/provider.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:desktop_drop/desktop_drop.dart';
 
 import '../connector/meshcore_connector.dart';
 import '../connector/meshcore_protocol.dart';
@@ -52,6 +53,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final _textFieldFocusNode = FocusNode();
   bool _isLoadingOlder = false;
   bool _isImageUploading = false;
+  bool _isDragging = false;
   Uint8List? _stagedImageBytes;
   String? _stagedImageMimeType;
   MeshCoreConnector? _connector;
@@ -221,20 +223,97 @@ class _ChatScreenState extends State<ChatScreen> {
       body: Consumer<MeshCoreConnector>(
         builder: (context, connector, child) {
           final messages = connector.getMessages(widget.contact);
-          return Column(
-            children: [
-              Expanded(
-                child: Stack(
+          return DropTarget(
+            onDragEntered: (details) {
+              setState(() {
+                _isDragging = true;
+              });
+            },
+            onDragExited: (details) {
+              setState(() {
+                _isDragging = false;
+              });
+            },
+            onDragDone: (details) async {
+              if (details.files.isNotEmpty) {
+                final file = details.files.first;
+                // Check if it's an image
+                final mimeType = file.mimeType ?? '';
+                if (mimeType.startsWith('image/') ||
+                    file.name.toLowerCase().endsWith('.png') ||
+                    file.name.toLowerCase().endsWith('.jpg') ||
+                    file.name.toLowerCase().endsWith('.jpeg') ||
+                    file.name.toLowerCase().endsWith('.gif') ||
+                    file.name.toLowerCase().endsWith('.webp')) {
+                  final bytes = await file.readAsBytes();
+                  setState(() {
+                    _stagedImageBytes = bytes;
+                    _stagedImageMimeType = file.mimeType;
+                  });
+                }
+              }
+            },
+            child: Stack(
+              children: [
+                Column(
                   children: [
-                    messages.isEmpty
-                        ? _buildEmptyState()
-                        : _buildMessageList(messages, connector),
-                    JumpToBottomButton(scrollController: _scrollController),
+                    Expanded(
+                      child: Stack(
+                        children: [
+                          messages.isEmpty
+                              ? _buildEmptyState()
+                              : _buildMessageList(messages, connector),
+                          JumpToBottomButton(
+                            scrollController: _scrollController,
+                          ),
+                        ],
+                      ),
+                    ),
+                    _buildInputBar(connector),
                   ],
                 ),
-              ),
-              _buildInputBar(connector),
-            ],
+                if (_isDragging)
+                  Container(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surface.withValues(alpha: 0.8),
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.primaryContainer,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Theme.of(context).colorScheme.primary,
+                                width: 2,
+                              ),
+                            ),
+                            child: Icon(
+                              Icons.image,
+                              size: 48,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Drop Image to Upload',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           );
         },
       ),

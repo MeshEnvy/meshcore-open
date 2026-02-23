@@ -8,6 +8,7 @@ import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
+import 'package:desktop_drop/desktop_drop.dart';
 
 import '../connector/meshcore_connector.dart';
 import '../helpers/chat_scroll_controller.dart';
@@ -46,6 +47,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
   final Map<String, GlobalKey> _messageKeys = {};
   bool _isLoadingOlder = false;
   bool _isImageUploading = false;
+  bool _isDragging = false;
   Uint8List? _stagedImageBytes;
   String? _stagedImageMimeType;
 
@@ -172,98 +174,177 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
       ),
       body: SafeArea(
         top: false,
-        child: Column(
-          children: [
-            Expanded(
-              child: Consumer<MeshCoreConnector>(
-                builder: (context, connector, child) {
-                  final messages = connector.getChannelMessages(widget.channel);
+        child: DropTarget(
+          onDragEntered: (details) {
+            setState(() {
+              _isDragging = true;
+            });
+          },
+          onDragExited: (details) {
+            setState(() {
+              _isDragging = false;
+            });
+          },
+          onDragDone: (details) async {
+            if (details.files.isNotEmpty) {
+              final file = details.files.first;
+              // Check if it's an image
+              final mimeType = file.mimeType ?? '';
+              if (mimeType.startsWith('image/') ||
+                  file.name.toLowerCase().endsWith('.png') ||
+                  file.name.toLowerCase().endsWith('.jpg') ||
+                  file.name.toLowerCase().endsWith('.jpeg') ||
+                  file.name.toLowerCase().endsWith('.gif') ||
+                  file.name.toLowerCase().endsWith('.webp')) {
+                final bytes = await file.readAsBytes();
+                setState(() {
+                  _stagedImageBytes = bytes;
+                  _stagedImageMimeType = file.mimeType;
+                });
+              }
+            }
+          },
+          child: Stack(
+            children: [
+              Column(
+                children: [
+                  Expanded(
+                    child: Consumer<MeshCoreConnector>(
+                      builder: (context, connector, child) {
+                        final messages =
+                            connector.getChannelMessages(widget.channel);
 
-                  if (messages.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            widget.channel.isPublicChannel
-                                ? Icons.public
-                                : Icons.tag,
-                            size: 64,
-                            color: Colors.grey[400],
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            context.l10n.chat_noMessages,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            context.l10n.chat_sendMessageToStart,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[500],
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  // Reverse messages so newest appear at bottom with reverse: true
-                  final reversedMessages = messages.reversed.toList();
-                  final itemCount =
-                      reversedMessages.length + (_isLoadingOlder ? 1 : 0);
-
-                  // Auto-scroll to bottom if user is already at bottom
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    _scrollController.scrollToBottomIfAtBottom();
-                  });
-
-                  return Stack(
-                    children: [
-                      ListView.builder(
-                        reverse: true, // List grows from bottom up
-                        controller: _scrollController,
-                        padding: const EdgeInsets.all(8),
-                        itemCount: itemCount,
-                        itemBuilder: (context, index) {
-                          // Loading indicator now appears at end (bottom) of reversed list
-                          if (_isLoadingOlder && index == itemCount - 1) {
-                            return const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                              child: Center(
-                                child: SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
+                        if (messages.isEmpty) {
+                          return Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  widget.channel.isPublicChannel
+                                      ? Icons.public
+                                      : Icons.tag,
+                                  size: 64,
+                                  color: Colors.grey[400],
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  context.l10n.chat_noMessages,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey[600],
                                   ),
                                 ),
-                              ),
-                            );
-                          }
-                          final messageIndex = index;
-                          final message = reversedMessages[messageIndex];
-                          if (!_messageKeys.containsKey(message.messageId)) {
-                            _messageKeys[message.messageId] = GlobalKey();
-                          }
-                          return Container(
-                            key: _messageKeys[message.messageId]!,
-                            child: _buildMessageBubble(message),
+                                const SizedBox(height: 8),
+                                Text(
+                                  context.l10n.chat_sendMessageToStart,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[500],
+                                  ),
+                                ),
+                              ],
+                            ),
                           );
-                        },
-                      ),
-                      JumpToBottomButton(scrollController: _scrollController),
-                    ],
-                  );
-                },
+                        }
+
+                        // Reverse messages so newest appear at bottom with reverse: true
+                        final reversedMessages = messages.reversed.toList();
+                        final itemCount =
+                            reversedMessages.length + (_isLoadingOlder ? 1 : 0);
+
+                        // Auto-scroll to bottom if user is already at bottom
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          _scrollController.scrollToBottomIfAtBottom();
+                        });
+
+                        return Stack(
+                          children: [
+                            ListView.builder(
+                              reverse: true, // List grows from bottom up
+                              controller: _scrollController,
+                              padding: const EdgeInsets.all(8),
+                              itemCount: itemCount,
+                              itemBuilder: (context, index) {
+                                // Loading indicator now appears at end (bottom) of reversed list
+                                if (_isLoadingOlder && index == itemCount - 1) {
+                                  return const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 16),
+                                    child: Center(
+                                      child: SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }
+                                final messageIndex = index;
+                                final message = reversedMessages[messageIndex];
+                                if (!_messageKeys.containsKey(
+                                  message.messageId,
+                                )) {
+                                  _messageKeys[message.messageId] = GlobalKey();
+                                }
+                                return Container(
+                                  key: _messageKeys[message.messageId]!,
+                                  child: _buildMessageBubble(message),
+                                );
+                              },
+                            ),
+                            JumpToBottomButton(
+                              scrollController: _scrollController,
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                  _buildMessageComposer(),
+                ],
               ),
-            ),
-            _buildMessageComposer(),
-          ],
+              if (_isDragging)
+                Container(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.surface.withValues(alpha: 0.8),
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color:
+                                Theme.of(context).colorScheme.primaryContainer,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Theme.of(context).colorScheme.primary,
+                              width: 2,
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.image,
+                            size: 48,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Drop Image to Upload',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
