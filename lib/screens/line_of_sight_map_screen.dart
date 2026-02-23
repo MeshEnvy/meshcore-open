@@ -487,6 +487,14 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                     ),
                   ),
                 ),
+              if (segment != null) ...[
+                const SizedBox(height: 8),
+                _LosLegend(
+                  terrainLabel: context.l10n.losLegendTerrain,
+                  losBeamLabel: context.l10n.losLegendLosBeam,
+                  radioHorizonLabel: context.l10n.losLegendRadioHorizon,
+                ),
+              ],
               const SizedBox(height: 8),
               Text(
                 segment != null
@@ -1038,36 +1046,85 @@ class _LosProfilePainter extends CustomPainter {
         .reduce(math.max);
     final ySpan = math.max(1.0, maxY - minY);
     final maxDist = math.max(1.0, samples.last.distanceMeters);
+    const horizontalPadding = 12.0;
+    const verticalPadding = 12.0;
+    final chartWidth = math.max(1.0, size.width - horizontalPadding * 2);
+    final chartHeight = math.max(1.0, size.height - verticalPadding * 2);
 
     Offset mapPoint(double x, double y) {
-      final px = (x / maxDist) * size.width;
-      final py = size.height - ((y - minY) / ySpan) * size.height;
+      final px = horizontalPadding + (x / maxDist) * chartWidth;
+      final py =
+          size.height - verticalPadding - ((y - minY) / ySpan) * chartHeight;
       return Offset(px, py);
     }
 
-    final terrainPath = ui.Path();
-    terrainPath.moveTo(0, size.height);
-    for (final s in samples) {
-      final p = mapPoint(s.distanceMeters, s.terrainMeters);
+    final firstTerrainPoint = mapPoint(
+      samples.first.distanceMeters,
+      samples.first.terrainMeters,
+    );
+    final lastTerrainPoint = mapPoint(
+      samples.last.distanceMeters,
+      samples.last.terrainMeters,
+    );
+
+    double distanceForCanvasX(double x) =>
+        ((x - horizontalPadding) / chartWidth) * maxDist;
+
+    double elevationToPixel(double elevation) =>
+        size.height -
+        verticalPadding -
+        ((elevation - minY) / ySpan) * chartHeight;
+
+    double extrapolateTerrain(double distance, bool isLeft) {
+      final samplesForSlope = isLeft
+          ? samples.sublist(0, math.min(2, samples.length))
+          : samples.sublist(samples.length - math.min(2, samples.length));
+      if (samplesForSlope.length < 2) {
+        return samplesForSlope.first.terrainMeters;
+      }
+      final a = samplesForSlope.first;
+      final b = samplesForSlope.last;
+      final dx = b.distanceMeters - a.distanceMeters;
+      if (dx.abs() < 1e-6) return a.terrainMeters;
+      final slope = (b.terrainMeters - a.terrainMeters) / dx;
+      return a.terrainMeters + slope * (distance - a.distanceMeters);
+    }
+
+    final leftDistance = distanceForCanvasX(0.0);
+    final rightDistance = distanceForCanvasX(size.width);
+    final leftEdgeTerrain = extrapolateTerrain(leftDistance, true);
+    final rightEdgeTerrain = extrapolateTerrain(rightDistance, false);
+    final leftEdgePoint = Offset(0.0, elevationToPixel(leftEdgeTerrain));
+    final rightEdgePoint = Offset(
+      size.width,
+      elevationToPixel(rightEdgeTerrain),
+    );
+
+    final terrainPath = ui.Path()
+      ..moveTo(0, size.height)
+      ..lineTo(leftEdgePoint.dx, leftEdgePoint.dy)
+      ..lineTo(firstTerrainPoint.dx, firstTerrainPoint.dy);
+    for (final sample in samples) {
+      final p = mapPoint(sample.distanceMeters, sample.terrainMeters);
       terrainPath.lineTo(p.dx, p.dy);
     }
-    terrainPath.lineTo(size.width, size.height);
-    terrainPath.close();
+    terrainPath
+      ..lineTo(lastTerrainPoint.dx, lastTerrainPoint.dy)
+      ..lineTo(rightEdgePoint.dx, rightEdgePoint.dy)
+      ..lineTo(size.width, size.height)
+      ..close();
 
     const terrainFillColor = Color(0xCC7C6F5D);
     const terrainLineColor = Color(0xFF9FE870);
     const losLineColor = Color(0xFFE0E7FF);
     canvas.drawPath(terrainPath, Paint()..color = terrainFillColor);
 
-    final terrainLine = ui.Path();
-    for (int i = 0; i < samples.length; i++) {
-      final p = mapPoint(samples[i].distanceMeters, samples[i].terrainMeters);
-      if (i == 0) {
-        terrainLine.moveTo(p.dx, p.dy);
-      } else {
-        terrainLine.lineTo(p.dx, p.dy);
-      }
+    final terrainLine = ui.Path()..moveTo(leftEdgePoint.dx, leftEdgePoint.dy);
+    for (final sample in samples) {
+      final p = mapPoint(sample.distanceMeters, sample.terrainMeters);
+      terrainLine.lineTo(p.dx, p.dy);
     }
+    terrainLine.lineTo(rightEdgePoint.dx, rightEdgePoint.dy);
     canvas.drawPath(
       terrainLine,
       Paint()
@@ -1144,8 +1201,6 @@ class _LosProfilePainter extends CustomPainter {
         ..color = horizonFillColor
         ..style = PaintingStyle.fill,
     );
-
-    _drawLegend(canvas, refractedLineColor, losLineColor, terrainLineColor);
   }
 
   @override
@@ -1168,84 +1223,68 @@ class _LosProfilePainter extends CustomPainter {
       ..layout();
     painter.paint(canvas, Offset(size.width - painter.width - 8, 8));
   }
+}
 
-  void _drawLegend(
-    Canvas canvas,
-    Color horizonColor,
-    Color losColor,
-    Color terrainColor,
-  ) {
-    const legendX = 8.0;
-    const legendY = 8.0;
-    const swatchSize = 10.0;
-    const swatchTextGap = 6.0;
-    const entrySpacing = 4.0;
-    const legendPadding = 6.0;
+class _LosLegend extends StatelessWidget {
+  static const _terrainColor = Color(0xFF9FE870);
+  static const _losColor = Color(0xFFE0E7FF);
+  static const _radioColor = Color(0xFFFFD57F);
+
+  final String terrainLabel;
+  final String losBeamLabel;
+  final String radioHorizonLabel;
+
+  const _LosLegend({
+    required this.terrainLabel,
+    required this.losBeamLabel,
+    required this.radioHorizonLabel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textStyle =
+        Theme.of(context).textTheme.labelSmall?.copyWith(
+          color: Colors.white70,
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+        ) ??
+        const TextStyle(
+          color: Colors.white70,
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+        );
 
     final entries = [
-      _LegendEntry(terrainLabel, terrainColor),
-      _LegendEntry(losBeamLabel, losColor),
-      _LegendEntry(radioHorizonLabel, horizonColor),
+      _LegendEntry(terrainLabel, _terrainColor),
+      _LegendEntry(losBeamLabel, _losColor),
+      _LegendEntry(radioHorizonLabel, _radioColor),
     ];
 
-    final textStyle = badgeTextStyle.copyWith(
-      fontSize: 10,
-      fontWeight: FontWeight.w500,
+    const swatchSize = 10.0;
+
+    return Wrap(
+      spacing: 16,
+      runSpacing: 6,
+      children: entries
+          .map(
+            (entry) => Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: swatchSize,
+                  height: swatchSize,
+                  decoration: BoxDecoration(
+                    color: entry.color,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(entry.label, style: textStyle),
+              ],
+            ),
+          )
+          .toList(),
     );
-
-    final painters = entries.map<TextPainter>((entry) {
-      final painter = TextPainter(
-        text: TextSpan(text: entry.label, style: textStyle),
-        textDirection: TextDirection.ltr,
-      )..layout();
-      return painter;
-    }).toList();
-
-    final maxTextWidth = painters.map((p) => p.width).fold<double>(0, math.max);
-
-    final legendWidth =
-        legendPadding * 2 + swatchSize + swatchTextGap + maxTextWidth;
-
-    final legendHeight =
-        legendPadding * 2 +
-        entries.length * swatchSize +
-        (entries.length - 1) * entrySpacing;
-
-    final legendRect = RRect.fromLTRBR(
-      legendX,
-      legendY,
-      legendX + legendWidth,
-      legendY + legendHeight,
-      const Radius.circular(10),
-    );
-
-    canvas.drawRRect(
-      legendRect,
-      Paint()..color = const Color.fromARGB(90, 0, 0, 0),
-    );
-
-    var yOffset = legendY + legendPadding;
-    for (int i = 0; i < entries.length; i++) {
-      final entry = entries[i];
-      final painter = painters[i];
-      final swatchRect = Rect.fromLTWH(
-        legendX + legendPadding,
-        yOffset,
-        swatchSize,
-        swatchSize,
-      );
-      canvas.drawRect(swatchRect, Paint()..color = entry.color);
-
-      painter.paint(
-        canvas,
-        Offset(
-          swatchRect.right + swatchTextGap,
-          yOffset + (swatchSize - painter.height) / 2,
-        ),
-      );
-
-      yOffset += swatchSize + entrySpacing;
-    }
   }
 }
 
