@@ -2866,6 +2866,34 @@ class AppLocalizationsDe extends AppLocalizations {
   String get losElevationAttribution => 'Höhendaten: Open-Meteo (CC BY 4.0)';
 
   @override
+  String get losLegendRadioHorizon => 'Funkhorizont';
+
+  @override
+  String get losLegendLosBeam => 'LOS-Strahl';
+
+  @override
+  String get losLegendTerrain => 'Gelände';
+
+  @override
+  String get losFrequencyLabel => 'Frequenz';
+
+  @override
+  String get losFrequencyInfoTooltip => 'Berechnungsdetails anzeigen';
+
+  @override
+  String get losFrequencyDialogTitle => 'Funkhorizont-Berechnung';
+
+  @override
+  String losFrequencyDialogDescription(
+    double baselineK,
+    double baselineFreq,
+    double frequencyMHz,
+    double kFactor,
+  ) {
+    return 'Ausgehend von k=$baselineK bei $baselineFreq MHz multipliziert die Berechnung 0.15 × (frequency − $baselineFreq) / $baselineFreq, um k approx $kFactor für das aktuelle $frequencyMHz-MHz-Band zu erreichen, das die gekrümmte Funkhorizont-Grenze definiert.';
+  }
+
+  @override
   String get contacts_pathTrace => 'Pfadverfolgung';
 
   @override

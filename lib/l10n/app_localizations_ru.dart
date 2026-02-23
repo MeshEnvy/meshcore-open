@@ -2862,6 +2862,34 @@ class AppLocalizationsRu extends AppLocalizations {
       'Данные о высоте: Open-Meteo (CC BY 4.0)';
 
   @override
+  String get losLegendRadioHorizon => 'Радиогоризонт';
+
+  @override
+  String get losLegendLosBeam => 'Луч LOS';
+
+  @override
+  String get losLegendTerrain => 'Рельеф';
+
+  @override
+  String get losFrequencyLabel => 'Частота';
+
+  @override
+  String get losFrequencyInfoTooltip => 'Просмотреть детали расчёта';
+
+  @override
+  String get losFrequencyDialogTitle => 'Расчёт радиогоризонта';
+
+  @override
+  String losFrequencyDialogDescription(
+    double baselineK,
+    double baselineFreq,
+    double frequencyMHz,
+    double kFactor,
+  ) {
+    return 'Исходя из k=$baselineK при $baselineFreq MHz, расчёт умножает 0.15 × (frequency − $baselineFreq) / $baselineFreq, чтобы получить k approx $kFactor для текущего диапазона $frequencyMHz MHz, который определяет изогнутую границу радиогоризонта.';
+  }
+
+  @override
   String get contacts_pathTrace => 'Трассировка пути';
 
   @override

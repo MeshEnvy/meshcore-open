@@ -2860,6 +2860,34 @@ class AppLocalizationsIt extends AppLocalizations {
       'Dati di elevazione: Open-Meteo (CC BY 4.0)';
 
   @override
+  String get losLegendRadioHorizon => 'Orizzonte radio';
+
+  @override
+  String get losLegendLosBeam => 'Raggio LOS';
+
+  @override
+  String get losLegendTerrain => 'Terreno';
+
+  @override
+  String get losFrequencyLabel => 'Frequenza';
+
+  @override
+  String get losFrequencyInfoTooltip => 'Visualizza i dettagli del calcolo';
+
+  @override
+  String get losFrequencyDialogTitle => 'Calcolo dell’orizzonte radio';
+
+  @override
+  String losFrequencyDialogDescription(
+    double baselineK,
+    double baselineFreq,
+    double frequencyMHz,
+    double kFactor,
+  ) {
+    return 'Partendo da k=$baselineK a $baselineFreq MHz, il calcolo moltiplica 0.15 × (frequency − $baselineFreq) / $baselineFreq per raggiungere k approx $kFactor per la banda corrente di $frequencyMHz MHz, che definisce il limite curvo dell’orizzonte radio.';
+  }
+
+  @override
   String get contacts_pathTrace => 'Traccia Percorso';
 
   @override

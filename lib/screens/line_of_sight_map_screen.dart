@@ -471,6 +471,9 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
                           ),
+                      terrainLabel: context.l10n.losLegendTerrain,
+                      losBeamLabel: context.l10n.losLegendLosBeam,
+                      radioHorizonLabel: context.l10n.losLegendRadioHorizon,
                     ),
                   ),
                 )
@@ -504,7 +507,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                   child: Row(
                     children: [
                       Text(
-                        'Frequency',
+                        context.l10n.losFrequencyLabel,
                         style: TextStyle(
                           fontSize: 11,
                           color: Colors.grey[700],
@@ -531,7 +534,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                           constraints: const BoxConstraints(),
                           icon: const Icon(Icons.info_outline, size: 16),
                           color: Colors.grey[600],
-                          tooltip: 'View calculation details',
+                          tooltip: context.l10n.losFrequencyInfoTooltip,
                           onPressed: () {
                             _showFrequencyInfoDialog(
                               context,
@@ -963,27 +966,13 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
     showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Radio horizon calculation'),
-        content: Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text:
-                    'Starting from k=$baselineK at ${baselineFreq.toStringAsFixed(3)} MHz, ',
-              ),
-              const TextSpan(text: 'the calculation multiplies the offset by '),
-              TextSpan(
-                text:
-                    '0.15 × (frequency − ${baselineFreq.toStringAsFixed(3)}) / ${baselineFreq.toStringAsFixed(3)} ',
-              ),
-              TextSpan(
-                text:
-                    'to get k ≈ ${kFactor.toStringAsFixed(3)} for the current ${frequencyMHz.toStringAsFixed(3)} MHz band, ',
-              ),
-              const TextSpan(
-                text: 'which defines the curved radio horizon cap.',
-              ),
-            ],
+        title: Text(context.l10n.losFrequencyDialogTitle),
+        content: Text(
+          context.l10n.losFrequencyDialogDescription(
+            baselineK,
+            baselineFreq,
+            frequencyMHz,
+            kFactor,
           ),
         ),
         actions: [
@@ -1009,12 +998,18 @@ class _LosProfilePainter extends CustomPainter {
   final String distanceUnit;
   final String heightUnit;
   final TextStyle badgeTextStyle;
+  final String terrainLabel;
+  final String losBeamLabel;
+  final String radioHorizonLabel;
 
   const _LosProfilePainter({
     required this.samples,
     required this.distanceUnit,
     required this.heightUnit,
     required this.badgeTextStyle,
+    required this.terrainLabel,
+    required this.losBeamLabel,
+    required this.radioHorizonLabel,
   });
 
   @override
@@ -1148,7 +1143,10 @@ class _LosProfilePainter extends CustomPainter {
     return oldDelegate.samples != samples ||
         oldDelegate.distanceUnit != distanceUnit ||
         oldDelegate.heightUnit != heightUnit ||
-        oldDelegate.badgeTextStyle != badgeTextStyle;
+        oldDelegate.badgeTextStyle != badgeTextStyle ||
+        oldDelegate.terrainLabel != terrainLabel ||
+        oldDelegate.losBeamLabel != losBeamLabel ||
+        oldDelegate.radioHorizonLabel != radioHorizonLabel;
   }
 
   void _drawUnitBadge(Canvas canvas, Size size) {
@@ -1175,9 +1173,9 @@ class _LosProfilePainter extends CustomPainter {
     const legendPadding = 6.0;
 
     final entries = [
-      _LegendEntry('Terrain', terrainColor),
-      _LegendEntry('LOS beam', losColor),
-      _LegendEntry('Radio horizon', horizonColor),
+      _LegendEntry(terrainLabel, terrainColor),
+      _LegendEntry(losBeamLabel, losColor),
+      _LegendEntry(radioHorizonLabel, horizonColor),
     ];
 
     final textStyle = badgeTextStyle.copyWith(

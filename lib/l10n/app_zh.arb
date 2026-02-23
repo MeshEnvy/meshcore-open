@@ -1716,5 +1716,21 @@
   "losPointName": "点名称",
   "losShowPanelTooltip": "显示 LOS 面板",
   "losHidePanelTooltip": "隐藏 LOS 面板",
-  "losElevationAttribution": "高程数据：Open-Meteo (CC BY 4.0)"
+  "losElevationAttribution": "高程数据：Open-Meteo (CC BY 4.0)",
+  "losLegendRadioHorizon": "无线电地平线",
+  "losLegendLosBeam": "LOS 波束",
+  "losLegendTerrain": "地形",
+  "losFrequencyLabel": "频率",
+  "losFrequencyInfoTooltip": "查看计算详情",
+  "losFrequencyDialogTitle": "无线电地平线计算",
+  "losFrequencyDialogDescription": "从 k={baselineK}（{baselineFreq} MHz）开始，计算将 0.15 × (frequency − {baselineFreq}) / {baselineFreq}，以得到当前 {frequencyMHz} MHz 频段的 k approx {kFactor}，从而定义弯曲的无线电地平线边界。",
+  "@losFrequencyDialogDescription": {
+    "description": "Explain how the calculation uses the baseline frequency and derived k-factor.",
+    "placeholders": {
+      "baselineK": { "type": "double" },
+      "baselineFreq": { "type": "double" },
+      "frequencyMHz": { "type": "double" },
+      "kFactor": { "type": "double" }
+    }
+  }
 }

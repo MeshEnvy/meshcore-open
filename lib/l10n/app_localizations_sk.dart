@@ -2845,6 +2845,34 @@ class AppLocalizationsSk extends AppLocalizations {
       'Údaje o nadmorskej výške: Open-Meteo (CC BY 4.0)';
 
   @override
+  String get losLegendRadioHorizon => 'Rádiový horizont';
+
+  @override
+  String get losLegendLosBeam => 'LOS lúč';
+
+  @override
+  String get losLegendTerrain => 'Terén';
+
+  @override
+  String get losFrequencyLabel => 'Frekvencia';
+
+  @override
+  String get losFrequencyInfoTooltip => 'Zobraziť podrobnosti výpočtu';
+
+  @override
+  String get losFrequencyDialogTitle => 'Výpočet rádiového horizontu';
+
+  @override
+  String losFrequencyDialogDescription(
+    double baselineK,
+    double baselineFreq,
+    double frequencyMHz,
+    double kFactor,
+  ) {
+    return 'Vychádzajúc z k=$baselineK pri $baselineFreq MHz výpočet násobí 0.15 × (frequency − $baselineFreq) / $baselineFreq, aby dosiahol k approx $kFactor pre aktuálne pásmo $frequencyMHz MHz, ktoré definuje zakrivenú hranicu rádiového horizontu.';
+  }
+
+  @override
   String get contacts_pathTrace => 'Sledovanie lúčov';
 
   @override

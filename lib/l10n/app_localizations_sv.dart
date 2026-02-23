@@ -2831,6 +2831,34 @@ class AppLocalizationsSv extends AppLocalizations {
   String get losElevationAttribution => 'Höjddata: Open-Meteo (CC BY 4.0)';
 
   @override
+  String get losLegendRadioHorizon => 'Radiohorisont';
+
+  @override
+  String get losLegendLosBeam => 'LOS-stråle';
+
+  @override
+  String get losLegendTerrain => 'Terräng';
+
+  @override
+  String get losFrequencyLabel => 'Frekvens';
+
+  @override
+  String get losFrequencyInfoTooltip => 'Visa beräkningsdetaljer';
+
+  @override
+  String get losFrequencyDialogTitle => 'Beräkning av radiohorisont';
+
+  @override
+  String losFrequencyDialogDescription(
+    double baselineK,
+    double baselineFreq,
+    double frequencyMHz,
+    double kFactor,
+  ) {
+    return 'Med start från k=$baselineK vid $baselineFreq MHz multiplicerar beräkningen 0.15 × (frequency − $baselineFreq) / $baselineFreq för att nå k approx $kFactor för det aktuella $frequencyMHz-MHz-bandet, vilket definierar den krökta radiohorisontgränsen.';
+  }
+
+  @override
   String get contacts_pathTrace => 'Path Trace';
 
   @override

@@ -2875,6 +2875,34 @@ class AppLocalizationsFr extends AppLocalizations {
       'Données d\'altitude : Open-Meteo (CC BY 4.0)';
 
   @override
+  String get losLegendRadioHorizon => 'Horizon radio';
+
+  @override
+  String get losLegendLosBeam => 'Faisceau LOS';
+
+  @override
+  String get losLegendTerrain => 'Terrain';
+
+  @override
+  String get losFrequencyLabel => 'Fréquence';
+
+  @override
+  String get losFrequencyInfoTooltip => 'Voir les détails du calcul';
+
+  @override
+  String get losFrequencyDialogTitle => 'Calcul de l’horizon radio';
+
+  @override
+  String losFrequencyDialogDescription(
+    double baselineK,
+    double baselineFreq,
+    double frequencyMHz,
+    double kFactor,
+  ) {
+    return 'En partant de k=$baselineK à $baselineFreq MHz, le calcul multiplie 0.15 × (frequency − $baselineFreq) / $baselineFreq pour atteindre k approx $kFactor pour la bande actuelle de $frequencyMHz MHz, qui définit la limite courbe de l’horizon radio.';
+  }
+
+  @override
   String get contacts_pathTrace => 'Traçage de chemin';
 
   @override

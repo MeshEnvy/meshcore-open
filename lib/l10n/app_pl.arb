@@ -1716,5 +1716,21 @@
   "losPointName": "Nazwa punktu",
   "losShowPanelTooltip": "Pokaż panel LOS",
   "losHidePanelTooltip": "Ukryj panel LOS",
-  "losElevationAttribution": "Dane dotyczące wysokości: Open-Meteo (CC BY 4.0)"
+  "losElevationAttribution": "Dane dotyczące wysokości: Open-Meteo (CC BY 4.0)",
+  "losLegendRadioHorizon": "Horyzont radiowy",
+  "losLegendLosBeam": "Wiązka LOS",
+  "losLegendTerrain": "Teren",
+  "losFrequencyLabel": "Częstotliwość",
+  "losFrequencyInfoTooltip": "Zobacz szczegóły obliczeń",
+  "losFrequencyDialogTitle": "Obliczanie horyzontu radiowego",
+  "losFrequencyDialogDescription": "Wychodząc od k={baselineK} przy {baselineFreq} MHz, obliczenie mnoży 0.15 × (frequency − {baselineFreq}) / {baselineFreq}, aby osiągnąć k approx {kFactor} dla bieżącego pasma {frequencyMHz} MHz, które definiuje zakrzywioną granicę horyzontu radiowego.",
+  "@losFrequencyDialogDescription": {
+    "description": "Explain how the calculation uses the baseline frequency and derived k-factor.",
+    "placeholders": {
+      "baselineK": { "type": "double" },
+      "baselineFreq": { "type": "double" },
+      "frequencyMHz": { "type": "double" },
+      "kFactor": { "type": "double" }
+    }
+  }
 }

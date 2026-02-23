@@ -1716,5 +1716,21 @@
   "losPointName": "Ime točke",
   "losShowPanelTooltip": "Pokaži ploščo LOS",
   "losHidePanelTooltip": "Skrij ploščo LOS",
-  "losElevationAttribution": "Podatki o višini: Open-Meteo (CC BY 4.0)"
+  "losElevationAttribution": "Podatki o višini: Open-Meteo (CC BY 4.0)",
+  "losLegendRadioHorizon": "Radijski horizont",
+  "losLegendLosBeam": "LOS žarek",
+  "losLegendTerrain": "Teren",
+  "losFrequencyLabel": "Frekvenca",
+  "losFrequencyInfoTooltip": "Prikaži podrobnosti izračuna",
+  "losFrequencyDialogTitle": "Izračun radijskega horizonta",
+  "losFrequencyDialogDescription": "Izhajajoč iz k={baselineK} pri {baselineFreq} MHz izračun množi 0.15 × (frequency − {baselineFreq}) / {baselineFreq}, da doseže k approx {kFactor} za trenutno {frequencyMHz}-MHz območje, ki določa ukrivljeno mejo radijskega horizonta.",
+  "@losFrequencyDialogDescription": {
+    "description": "Explain how the calculation uses the baseline frequency and derived k-factor.",
+    "placeholders": {
+      "baselineK": { "type": "double" },
+      "baselineFreq": { "type": "double" },
+      "frequencyMHz": { "type": "double" },
+      "kFactor": { "type": "double" }
+    }
+  }
 }

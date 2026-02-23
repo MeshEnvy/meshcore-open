@@ -2818,6 +2818,34 @@ class AppLocalizationsEn extends AppLocalizations {
       'Elevation data: Open-Meteo (CC BY 4.0)';
 
   @override
+  String get losLegendRadioHorizon => 'Radio horizon';
+
+  @override
+  String get losLegendLosBeam => 'LOS beam';
+
+  @override
+  String get losLegendTerrain => 'Terrain';
+
+  @override
+  String get losFrequencyLabel => 'Frequency';
+
+  @override
+  String get losFrequencyInfoTooltip => 'View calculation details';
+
+  @override
+  String get losFrequencyDialogTitle => 'Radio horizon calculation';
+
+  @override
+  String losFrequencyDialogDescription(
+    double baselineK,
+    double baselineFreq,
+    double frequencyMHz,
+    double kFactor,
+  ) {
+    return 'Starting from k=$baselineK at $baselineFreq MHz, the calculation multiplies 0.15 × (frequency − $baselineFreq) / $baselineFreq to reach k approx $kFactor for the current $frequencyMHz MHz band, which defines the curved radio horizon cap.';
+  }
+
+  @override
   String get contacts_pathTrace => 'Path Trace';
 
   @override

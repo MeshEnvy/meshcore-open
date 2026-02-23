@@ -1716,5 +1716,21 @@
   "losPointName": "Nome del punto",
   "losShowPanelTooltip": "Mostra il pannello LOS",
   "losHidePanelTooltip": "Nascondi il pannello LOS",
-  "losElevationAttribution": "Dati di elevazione: Open-Meteo (CC BY 4.0)"
+  "losElevationAttribution": "Dati di elevazione: Open-Meteo (CC BY 4.0)",
+  "losLegendRadioHorizon": "Orizzonte radio",
+  "losLegendLosBeam": "Raggio LOS",
+  "losLegendTerrain": "Terreno",
+  "losFrequencyLabel": "Frequenza",
+  "losFrequencyInfoTooltip": "Visualizza i dettagli del calcolo",
+  "losFrequencyDialogTitle": "Calcolo dell’orizzonte radio",
+  "losFrequencyDialogDescription": "Partendo da k={baselineK} a {baselineFreq} MHz, il calcolo moltiplica 0.15 × (frequency − {baselineFreq}) / {baselineFreq} per raggiungere k approx {kFactor} per la banda corrente di {frequencyMHz} MHz, che definisce il limite curvo dell’orizzonte radio.",
+  "@losFrequencyDialogDescription": {
+    "description": "Explain how the calculation uses the baseline frequency and derived k-factor.",
+    "placeholders": {
+      "baselineK": { "type": "double" },
+      "baselineFreq": { "type": "double" },
+      "frequencyMHz": { "type": "double" },
+      "kFactor": { "type": "double" }
+    }
+  }
 }

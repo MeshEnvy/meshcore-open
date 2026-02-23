@@ -1744,5 +1744,21 @@
   "losPointName": "Nombre del punto",
   "losShowPanelTooltip": "Mostrar panel LOS",
   "losHidePanelTooltip": "Ocultar panel LOS",
-  "losElevationAttribution": "Datos de elevación: Open-Meteo (CC BY 4.0)"
+  "losElevationAttribution": "Datos de elevación: Open-Meteo (CC BY 4.0)",
+  "losLegendRadioHorizon": "Horizonte radioeléctrico",
+  "losLegendLosBeam": "Haz LOS",
+  "losLegendTerrain": "Terreno",
+  "losFrequencyLabel": "Frecuencia",
+  "losFrequencyInfoTooltip": "Ver detalles del cálculo",
+  "losFrequencyDialogTitle": "Cálculo del horizonte radioeléctrico",
+  "losFrequencyDialogDescription": "Partiendo de k={baselineK} a {baselineFreq} MHz, el cálculo multiplica 0.15 × (frequency − {baselineFreq}) / {baselineFreq} para llegar a k approx {kFactor} para la banda actual de {frequencyMHz} MHz, que define el límite curvo del horizonte radioeléctrico.",
+  "@losFrequencyDialogDescription": {
+    "description": "Explain how the calculation uses the baseline frequency and derived k-factor.",
+    "placeholders": {
+      "baselineK": { "type": "double" },
+      "baselineFreq": { "type": "double" },
+      "frequencyMHz": { "type": "double" },
+      "kFactor": { "type": "double" }
+    }
+  }
 }

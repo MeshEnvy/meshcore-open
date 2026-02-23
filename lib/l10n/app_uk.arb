@@ -1716,5 +1716,21 @@
   "losPointName": "Назва точки",
   "losShowPanelTooltip": "Показати панель LOS",
   "losHidePanelTooltip": "Приховати панель LOS",
-  "losElevationAttribution": "Дані про висоту: Open-Meteo (CC BY 4.0)"
+  "losElevationAttribution": "Дані про висоту: Open-Meteo (CC BY 4.0)",
+  "losLegendRadioHorizon": "Радіогоризонт",
+  "losLegendLosBeam": "Промінь LOS",
+  "losLegendTerrain": "Рельєф",
+  "losFrequencyLabel": "Частота",
+  "losFrequencyInfoTooltip": "Переглянути деталі розрахунку",
+  "losFrequencyDialogTitle": "Розрахунок радіогоризонту",
+  "losFrequencyDialogDescription": "Виходячи з k={baselineK} при {baselineFreq} MHz, розрахунок множить 0.15 × (frequency − {baselineFreq}) / {baselineFreq}, щоб отримати k approx {kFactor} для поточного діапазону {frequencyMHz} MHz, який визначає вигнуту межу радіогоризонту.",
+  "@losFrequencyDialogDescription": {
+    "description": "Explain how the calculation uses the baseline frequency and derived k-factor.",
+    "placeholders": {
+      "baselineK": { "type": "double" },
+      "baselineFreq": { "type": "double" },
+      "frequencyMHz": { "type": "double" },
+      "kFactor": { "type": "double" }
+    }
+  }
 }

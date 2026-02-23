@@ -2710,6 +2710,34 @@ class AppLocalizationsZh extends AppLocalizations {
   String get losElevationAttribution => '高程数据：Open-Meteo (CC BY 4.0)';
 
   @override
+  String get losLegendRadioHorizon => '无线电地平线';
+
+  @override
+  String get losLegendLosBeam => 'LOS 波束';
+
+  @override
+  String get losLegendTerrain => '地形';
+
+  @override
+  String get losFrequencyLabel => '频率';
+
+  @override
+  String get losFrequencyInfoTooltip => '查看计算详情';
+
+  @override
+  String get losFrequencyDialogTitle => '无线电地平线计算';
+
+  @override
+  String losFrequencyDialogDescription(
+    double baselineK,
+    double baselineFreq,
+    double frequencyMHz,
+    double kFactor,
+  ) {
+    return '从 k=$baselineK（$baselineFreq MHz）开始，计算将 0.15 × (frequency − $baselineFreq) / $baselineFreq，以得到当前 $frequencyMHz MHz 频段的 k approx $kFactor，从而定义弯曲的无线电地平线边界。';
+  }
+
+  @override
   String get contacts_pathTrace => '路径追踪';
 
   @override

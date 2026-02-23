@@ -2859,6 +2859,34 @@ class AppLocalizationsPt extends AppLocalizations {
       'Dados de elevação: Open-Meteo (CC BY 4.0)';
 
   @override
+  String get losLegendRadioHorizon => 'Horizonte de rádio';
+
+  @override
+  String get losLegendLosBeam => 'Feixe LOS';
+
+  @override
+  String get losLegendTerrain => 'Terreno';
+
+  @override
+  String get losFrequencyLabel => 'Frequência';
+
+  @override
+  String get losFrequencyInfoTooltip => 'Ver detalhes do cálculo';
+
+  @override
+  String get losFrequencyDialogTitle => 'Cálculo do horizonte de rádio';
+
+  @override
+  String losFrequencyDialogDescription(
+    double baselineK,
+    double baselineFreq,
+    double frequencyMHz,
+    double kFactor,
+  ) {
+    return 'Partindo de k=$baselineK a $baselineFreq MHz, o cálculo multiplica 0.15 × (frequency − $baselineFreq) / $baselineFreq para chegar a k approx $kFactor para a banda atual de $frequencyMHz MHz, que define o limite curvo do horizonte de rádio.';
+  }
+
+  @override
   String get contacts_pathTrace => 'Traçado de Caminho';
 
   @override

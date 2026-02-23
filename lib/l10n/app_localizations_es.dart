@@ -2860,6 +2860,34 @@ class AppLocalizationsEs extends AppLocalizations {
       'Datos de elevación: Open-Meteo (CC BY 4.0)';
 
   @override
+  String get losLegendRadioHorizon => 'Horizonte radioeléctrico';
+
+  @override
+  String get losLegendLosBeam => 'Haz LOS';
+
+  @override
+  String get losLegendTerrain => 'Terreno';
+
+  @override
+  String get losFrequencyLabel => 'Frecuencia';
+
+  @override
+  String get losFrequencyInfoTooltip => 'Ver detalles del cálculo';
+
+  @override
+  String get losFrequencyDialogTitle => 'Cálculo del horizonte radioeléctrico';
+
+  @override
+  String losFrequencyDialogDescription(
+    double baselineK,
+    double baselineFreq,
+    double frequencyMHz,
+    double kFactor,
+  ) {
+    return 'Partiendo de k=$baselineK a $baselineFreq MHz, el cálculo multiplica 0.15 × (frequency − $baselineFreq) / $baselineFreq para llegar a k approx $kFactor para la banda actual de $frequencyMHz MHz, que define el límite curvo del horizonte radioeléctrico.';
+  }
+
+  @override
   String get contacts_pathTrace => 'Rastreo de caminos';
 
   @override
