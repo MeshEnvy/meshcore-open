@@ -347,10 +347,12 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                               ? Padding(
                                   padding: const EdgeInsets.only(bottom: 2),
                                   child: MessageStatusIcon(
-                                    isAcked: message.status ==
+                                    isAcked:
+                                        message.status ==
                                             ChannelMessageStatus.sent &&
                                         displayPath.isNotEmpty,
-                                    isFailed: message.status ==
+                                    isFailed:
+                                        message.status ==
                                         ChannelMessageStatus.failed,
                                   ),
                                 )
@@ -783,10 +785,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
             ],
           ),
         ),
-        if (trailing != null) ...[
-          const SizedBox(width: 4),
-          trailing,
-        ],
+        if (trailing != null) ...[const SizedBox(width: 4), trailing],
       ],
     );
   }

@@ -1263,10 +1263,12 @@ class _MessageBubble extends StatelessWidget {
                                 ? Padding(
                                     padding: const EdgeInsets.only(bottom: 2),
                                     child: MessageStatusIcon(
-                                      isAcked: message.status ==
+                                      isAcked:
+                                          message.status ==
                                               MessageStatus.delivered &&
                                           message.pathBytes.isNotEmpty,
-                                      isFailed: message.status ==
+                                      isFailed:
+                                          message.status ==
                                           MessageStatus.failed,
                                     ),
                                   )
@@ -1502,10 +1504,7 @@ class _MessageBubble extends StatelessWidget {
             ],
           ),
         ),
-        if (trailing != null) ...[
-          const SizedBox(width: 4),
-          trailing,
-        ],
+        if (trailing != null) ...[const SizedBox(width: 4), trailing],
       ],
     );
   }
