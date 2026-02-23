@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:meshcore_open/storage/channel_message_store.dart';
 import 'package:meshcore_open/widgets/app_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
@@ -105,6 +106,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
   @override
   Widget build(BuildContext context) {
     final connector = context.watch<MeshCoreConnector>();
+    final channelMessageStore = ChannelMessageStore();
 
     // Auto-navigate back to scanner if disconnected
     if (!checkConnectionAndNavigate(connector)) {
@@ -304,6 +306,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                             return _buildChannelTile(
                               context,
                               connector,
+                              channelMessageStore,
                               channel,
                               showDragHandle: true,
                               dragIndex: index,
@@ -323,6 +326,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                             return _buildChannelTile(
                               context,
                               connector,
+                              channelMessageStore,
                               channel,
                             );
                           },
@@ -352,6 +356,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
   Widget _buildChannelTile(
     BuildContext context,
     MeshCoreConnector connector,
+    ChannelMessageStore channelMessageStore,
     Channel channel, {
     bool showDragHandle = false,
     int? dragIndex,
@@ -468,7 +473,12 @@ class _ChannelsScreenState extends State<ChannelsScreen>
             );
           }
         },
-        onLongPress: () => _showChannelActions(context, connector, channel),
+        onLongPress: () => _showChannelActions(
+          context,
+          connector,
+          channelMessageStore,
+          channel,
+        ),
       ),
     );
   }
@@ -476,6 +486,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
   void _showChannelActions(
     BuildContext context,
     MeshCoreConnector connector,
+    ChannelMessageStore channelMessageStore,
     Channel channel,
   ) {
     final settingsService = context.read<AppSettingsService>();
@@ -528,7 +539,12 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                 Navigator.pop(context);
                 await Future.delayed(const Duration(milliseconds: 100));
                 if (context.mounted) {
-                  _confirmDeleteChannel(context, connector, channel);
+                  _confirmDeleteChannel(
+                    context,
+                    connector,
+                    channelMessageStore,
+                    channel,
+                  );
                 }
               },
             ),
@@ -1474,6 +1490,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
   void _confirmDeleteChannel(
     BuildContext context,
     MeshCoreConnector connector,
+    ChannelMessageStore channelMessageStore,
     Channel channel,
   ) {
     showDialog(
@@ -1492,6 +1509,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
             onPressed: () {
               Navigator.pop(dialogContext);
               connector.deleteChannel(channel.index);
+              channelMessageStore.clearChannelMessages(channel.index);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
