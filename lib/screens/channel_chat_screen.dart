@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
@@ -20,6 +21,7 @@ import '../models/channel_message.dart';
 import '../services/app_settings_service.dart';
 import '../utils/emoji_utils.dart';
 import '../widgets/emoji_picker.dart';
+import '../widgets/image_message.dart';
 import '../widgets/gif_message.dart';
 import '../widgets/jump_to_bottom_button.dart';
 import '../widgets/gif_picker.dart';
@@ -43,6 +45,9 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
   ChannelMessage? _replyingToMessage;
   final Map<String, GlobalKey> _messageKeys = {};
   bool _isLoadingOlder = false;
+  bool _isImageUploading = false;
+  Uint8List? _stagedImageBytes;
+  String? _stagedImageMimeType;
 
   MeshCoreConnector? _connector;
 
@@ -268,6 +273,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
     final settingsService = context.watch<AppSettingsService>();
     final enableTracing = settingsService.settings.enableMessageTracing;
     final isOutgoing = message.isOutgoing;
+    final imageId = _parseImageHash(message.text);
     final gifId = _parseGifId(message.text);
     final poi = _parsePoiMessage(message.text);
     final displayPath = message.pathBytes.isNotEmpty
@@ -353,9 +359,64 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                                     isFailed:
                                         message.status ==
                                         ChannelMessageStatus.failed,
+                                    isUploading:
+                                        message.status ==
+                                        ChannelMessageStatus.uploading,
                                   ),
                                 )
                               : null,
+                        )
+                      else if (imageId != null)
+                        Stack(
+                          children: [
+                            ImageMessage(
+                              hash: imageId,
+                              backgroundColor: Colors.transparent,
+                              fallbackTextColor: isOutgoing
+                                  ? Theme.of(context)
+                                      .colorScheme
+                                      .onPrimaryContainer
+                                      .withValues(alpha: 0.7)
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withValues(alpha: 0.6),
+                              localBytes: message.attachmentBytes,
+                            ),
+                            if (!enableTracing && isOutgoing)
+                              Positioned(
+                                top: 0,
+                                right: 0,
+                                child: Container(
+                                  padding: const EdgeInsets.all(3),
+                                  decoration: BoxDecoration(
+                                    color: isOutgoing
+                                        ? Theme.of(
+                                            context,
+                                          ).colorScheme.primaryContainer
+                                        : Theme.of(
+                                            context,
+                                          ).colorScheme.surfaceContainerHighest,
+                                    borderRadius: const BorderRadius.only(
+                                      bottomLeft: Radius.circular(10),
+                                      topRight: Radius.circular(8),
+                                    ),
+                                  ),
+                                  child: MessageStatusIcon(
+                                    isAcked:
+                                        message.status ==
+                                            ChannelMessageStatus.sent &&
+                                        displayPath.isNotEmpty,
+                                    isFailed:
+                                        message.status ==
+                                        ChannelMessageStatus.failed,
+                                    isUploading:
+                                        message.status ==
+                                        ChannelMessageStatus.uploading,
+                                  ),
+                                ),
+                              ),
+                          ],
                         )
                       else if (gifId != null)
                         Stack(
@@ -402,6 +463,9 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                                     isFailed:
                                         message.status ==
                                         ChannelMessageStatus.failed,
+                                    isUploading:
+                                        message.status ==
+                                        ChannelMessageStatus.uploading,
                                   ),
                                 ),
                               ),
@@ -444,6 +508,9 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                                   isFailed:
                                       message.status ==
                                       ChannelMessageStatus.failed,
+                                  isUploading:
+                                      message.status ==
+                                      ChannelMessageStatus.uploading,
                                 ),
                               ),
                             ],
@@ -453,7 +520,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                         if (displayPath.isNotEmpty) ...[
                           const SizedBox(height: 4),
                           Padding(
-                            padding: gifId != null
+                            padding: gifId != null || imageId != null
                                 ? const EdgeInsets.symmetric(horizontal: 8)
                                 : EdgeInsets.zero,
                             child: Text(
@@ -467,7 +534,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                         ],
                         const SizedBox(height: 4),
                         Padding(
-                          padding: gifId != null
+                          padding: gifId != null || imageId != null
                               ? const EdgeInsets.only(
                                   left: 8,
                                   right: 8,
@@ -502,20 +569,33 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                               ],
                               if (isOutgoing) ...[
                                 const SizedBox(width: 4),
-                                Icon(
-                                  message.status == ChannelMessageStatus.sent
-                                      ? Icons.check
-                                      : message.status ==
-                                            ChannelMessageStatus.pending
-                                      ? Icons.schedule
-                                      : Icons.error_outline,
-                                  size: 14,
-                                  color:
-                                      message.status ==
-                                          ChannelMessageStatus.failed
-                                      ? Colors.red
-                                      : Colors.grey[600],
-                                ),
+                                message.status == ChannelMessageStatus.uploading
+                                    ? SizedBox(
+                                        width: 12,
+                                        height: 12,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 1.5,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                Colors.grey[600]!,
+                                              ),
+                                        ),
+                                      )
+                                    : Icon(
+                                        message.status ==
+                                                ChannelMessageStatus.sent
+                                            ? Icons.check
+                                            : message.status ==
+                                                  ChannelMessageStatus.pending
+                                            ? Icons.schedule
+                                            : Icons.error_outline,
+                                        size: 14,
+                                        color:
+                                            message.status ==
+                                                    ChannelMessageStatus.failed
+                                                ? Colors.red
+                                                : Colors.grey[600],
+                                      ),
                               ],
                             ],
                           ),
@@ -602,11 +682,23 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     final previewTextColor = colorScheme.onSurface.withValues(alpha: 0.7);
 
+    final imageId = _parseImageHash(replyText);
     final gifId = _parseGifId(replyText);
     final poi = _parsePoiMessage(replyText);
 
     Widget contentPreview;
-    if (gifId != null) {
+    if (imageId != null) {
+      contentPreview = Row(
+        children: [
+          Icon(Icons.image_outlined, size: 14, color: previewTextColor),
+          const SizedBox(width: 4),
+          Text(
+            'Image',
+            style: TextStyle(fontSize: 12, color: previewTextColor),
+          ),
+        ],
+      );
+    } else if (gifId != null) {
       contentPreview = ClipRRect(
         borderRadius: BorderRadius.circular(4),
         child: GifMessage(
@@ -714,6 +806,12 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
     );
   }
 
+  String? _parseImageHash(String text) {
+    final trimmed = text.trim();
+    final match = RegExp(r'^i:([A-Za-z0-9]+)$').firstMatch(trimmed);
+    return match?.group(1);
+  }
+
   String? _parseGifId(String text) {
     final trimmed = text.trim();
     final match = RegExp(r'^g:([A-Za-z0-9_-]+)$').firstMatch(trimmed);
@@ -787,6 +885,24 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
         if (trailing != null) ...[const SizedBox(width: 4), trailing],
       ],
     );
+  }
+
+  Future<void> _pickAndUploadImage() async {
+    final picker = ImagePicker();
+    final image = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 4096,
+      maxHeight: 4096,
+      imageQuality: 85,
+    );
+
+    if (image != null) {
+      final bytes = await image.readAsBytes();
+      setState(() {
+        _stagedImageBytes = bytes;
+        _stagedImageMimeType = image.mimeType;
+      });
+    }
   }
 
   void _showGifPicker(BuildContext context) {
@@ -927,6 +1043,20 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
           ),
           child: Row(
             children: [
+              _isImageUploading
+                  ? const Padding(
+                      padding: EdgeInsets.all(12.0),
+                      child: SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    )
+                  : IconButton(
+                      icon: const Icon(Icons.image),
+                      onPressed: _pickAndUploadImage,
+                      tooltip: 'Send Image',
+                    ),
               IconButton(
                 icon: const Icon(Icons.gif_box),
                 onPressed: () => _showGifPicker(context),
@@ -936,7 +1066,64 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                 child: ValueListenableBuilder<TextEditingValue>(
                   valueListenable: _textController,
                   builder: (context, value, child) {
+                    final imageId = _parseImageHash(value.text);
                     final gifId = _parseGifId(value.text);
+                    if (imageId != null || _stagedImageBytes != null) {
+                      return Focus(
+                        autofocus: true,
+                        onKeyEvent: (node, event) {
+                          if (event is KeyDownEvent &&
+                              (event.logicalKey == LogicalKeyboardKey.enter ||
+                                  event.logicalKey ==
+                                      LogicalKeyboardKey.numpadEnter)) {
+                            _sendMessage();
+                            return KeyEventResult.handled;
+                          }
+                          return KeyEventResult.ignored;
+                        },
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: _stagedImageBytes != null
+                                  ? ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Image.memory(
+                                        _stagedImageBytes!,
+                                        height: 160,
+                                        fit: BoxFit.contain,
+                                      ),
+                                    )
+                                  : ImageMessage(
+                                      hash: imageId!,
+                                      backgroundColor: Theme.of(
+                                        context,
+                                      ).colorScheme.surfaceContainerHighest,
+                                      fallbackTextColor: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withValues(alpha: 0.6),
+                                      maxSize: 160,
+                                    ),
+                            ),
+                            const SizedBox(width: 8),
+                            IconButton(
+                              icon: const Icon(Icons.close),
+                              onPressed: () {
+                                if (_stagedImageBytes != null) {
+                                  setState(() {
+                                    _stagedImageBytes = null;
+                                    _stagedImageMimeType = null;
+                                  });
+                                } else {
+                                  _textController.clear();
+                                }
+                                _textFieldFocusNode.requestFocus();
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    }
                     if (gifId != null) {
                       return Focus(
                         autofocus: true,
@@ -1019,26 +1206,45 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
     );
   }
 
-  void _sendMessage() {
-    final text = _textController.text.trim();
-    if (text.isEmpty) return;
+  void _sendMessage() async {
+    final stagedBytes = _stagedImageBytes;
+    final stagedMimeType = _stagedImageMimeType;
+    String text = _textController.text.trim();
+
+    if (stagedBytes == null && text.isEmpty) return;
 
     final connector = context.read<MeshCoreConnector>();
 
-    String messageText = text;
-    if (_replyingToMessage != null) {
-      messageText = '@[${_replyingToMessage!.senderName}] $text';
-    }
+    if (stagedBytes != null) {
+      // Clear staging state
+      setState(() {
+        _stagedImageBytes = null;
+        _stagedImageMimeType = null;
+      });
 
-    final maxBytes = maxChannelMessageBytes(connector.selfName);
-    if (utf8.encode(messageText).length > maxBytes) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.chat_messageTooLong(maxBytes))),
+      await connector.sendChannelImageMessage(
+        widget.channel,
+        stagedBytes,
+        mimeType: stagedMimeType,
+        replyToMessage: _replyingToMessage,
       );
-      return;
+    } else {
+      String messageText = text;
+      if (_replyingToMessage != null) {
+        messageText = '@[${_replyingToMessage!.senderName}] $text';
+      }
+
+      final maxBytes = maxChannelMessageBytes(connector.selfName);
+      if (utf8.encode(messageText).length > maxBytes) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.chat_messageTooLong(maxBytes))),
+        );
+        return;
+      }
+
+      connector.sendChannelMessage(widget.channel, messageText);
     }
 
-    connector.sendChannelMessage(widget.channel, messageText);
     _textController.clear();
     _cancelReply();
     _textFieldFocusNode.requestFocus();

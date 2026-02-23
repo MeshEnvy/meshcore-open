@@ -159,6 +159,31 @@ class MessageRetryService extends ChangeNotifier {
     await _attemptSend(messageId);
   }
 
+  Future<void> retransmitMessage({
+    required Contact contact,
+    required Message message,
+  }) async {
+    final messageId = message.messageId!;
+    final useFlood = contact.pathLength < 0;
+    final messagePathBytes = _resolveMessagePathBytes(contact, useFlood, null);
+    final messagePathLength = _resolveMessagePathLength(
+      contact,
+      useFlood,
+      null,
+    );
+
+    final updatedMessage = message.copyWith(
+      status: MessageStatus.pending,
+      pathLength: messagePathLength,
+      pathBytes: messagePathBytes,
+    );
+
+    _pendingMessages[messageId] = updatedMessage;
+    _pendingContacts[messageId] = contact;
+
+    await _attemptSend(messageId);
+  }
+
   Future<void> _attemptSend(String messageId) async {
     final message = _pendingMessages[messageId];
     final contact = _pendingContacts[messageId];

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:uuid/uuid.dart';
 
 import 'package:crypto/crypto.dart' as crypto;
 import 'package:pointycastle/export.dart';
@@ -20,6 +21,7 @@ import '../services/path_history_service.dart';
 import '../services/app_settings_service.dart';
 import '../services/background_service.dart';
 import '../services/notification_service.dart';
+import '../services/image_upload_service.dart';
 import '../storage/channel_message_store.dart';
 import '../storage/channel_order_store.dart';
 import '../storage/channel_settings_store.dart';
@@ -639,6 +641,20 @@ class MeshCoreConnector extends ChangeNotifier {
       if (index != -1) {
         messages[index] = message;
         _messageStore.saveMessages(contactKey, messages);
+        notifyListeners();
+      }
+    }
+  }
+
+  void _updateChannelMessage(int channelIndex, ChannelMessage message) {
+    final messages = _channelMessages[channelIndex];
+    if (messages != null) {
+      final index = messages.indexWhere(
+        (m) => m.messageId == message.messageId,
+      );
+      if (index != -1) {
+        messages[index] = message;
+        _channelMessageStore.saveChannelMessages(channelIndex, messages);
         notifyListeners();
       }
     }
@@ -1486,18 +1502,126 @@ class MeshCoreConnector extends ChangeNotifier {
     _pendingChannelSentQueue.add(message.messageId);
     notifyListeners();
 
-    final trimmed = text.trim();
-    final isStructuredPayload =
-        trimmed.startsWith('g:') || trimmed.startsWith('m:');
-    final outboundText =
-        (isChannelSmazEnabled(channel.index) && !isStructuredPayload)
-        ? Smaz.encodeIfSmaller(text)
-        : text;
+    final outboundText = _prepareChannelOutboundText(channel.index, text);
     await sendFrame(
       buildSendChannelTextMsgFrame(channel.index, outboundText),
       channelSendQueueId: message.messageId,
       expectsGenericAck: true,
     );
+  }
+
+  String _prepareChannelOutboundText(int channelIndex, String text) {
+    final trimmed = text.trim();
+    final isStructuredPayload =
+        trimmed.startsWith('g:') ||
+        trimmed.startsWith('m:') ||
+        trimmed.startsWith('i:');
+    return (isChannelSmazEnabled(channelIndex) && !isStructuredPayload)
+        ? Smaz.encodeIfSmaller(text)
+        : text;
+  }
+
+  Future<void> sendImageMessage(
+    Contact contact,
+    Uint8List bytes, {
+    String? mimeType,
+  }) async {
+    if (!isConnected) return;
+
+    final messageId = const Uuid().v4();
+    final message = Message(
+      senderKey: contact.publicKey,
+      text: 'i:uploading',
+      timestamp: DateTime.now(),
+      isOutgoing: true,
+      status: MessageStatus.uploading,
+      messageId: messageId,
+      attachmentBytes: bytes,
+    );
+
+    _addMessage(contact.publicKeyHex, message);
+
+    final hash = await ImageUploadService().uploadImage(
+      bytes,
+      mimeType: mimeType,
+    );
+
+    if (hash != null) {
+      final updatedMessage = message.copyWith(
+        text: 'i:$hash',
+        status: MessageStatus.pending,
+      );
+      _updateMessage(updatedMessage);
+
+      if (_retryService != null) {
+        await _retryService!.retransmitMessage(
+          contact: contact,
+          message: updatedMessage,
+        );
+      } else {
+        final outboundText = prepareContactOutboundText(contact, 'i:$hash');
+        await sendFrame(buildSendTextMsgFrame(contact.publicKey, outboundText));
+      }
+    } else {
+      _updateMessage(message.copyWith(status: MessageStatus.failed));
+    }
+  }
+
+  Future<void> sendChannelImageMessage(
+    Channel channel,
+    Uint8List bytes, {
+    String? mimeType,
+    ChannelMessage? replyToMessage,
+  }) async {
+    if (!isConnected) return;
+
+    final messageId = const Uuid().v4();
+    final message = ChannelMessage(
+      senderName: selfName ?? 'Me',
+      text: 'i:uploading',
+      timestamp: DateTime.now(),
+      isOutgoing: true,
+      status: ChannelMessageStatus.uploading,
+      messageId: messageId,
+      channelIndex: channel.index,
+      replyToMessageId: replyToMessage?.messageId,
+      replyToSenderName: replyToMessage?.senderName,
+      replyToText: replyToMessage?.text,
+      attachmentBytes: bytes,
+    );
+
+    _addChannelMessage(channel.index, message);
+    notifyListeners();
+
+    final hash = await ImageUploadService().uploadImage(
+      bytes,
+      mimeType: mimeType,
+    );
+
+    if (hash != null) {
+      String text = 'i:$hash';
+      if (replyToMessage != null) {
+        text = '@[${replyToMessage.senderName}] i:$hash';
+      }
+
+      final updatedMessage = message.copyWith(
+        text: text,
+        status: ChannelMessageStatus.pending,
+      );
+      _updateChannelMessage(channel.index, updatedMessage);
+
+      final outboundText = _prepareChannelOutboundText(channel.index, text);
+      await sendFrame(
+        buildSendChannelTextMsgFrame(channel.index, outboundText),
+        channelSendQueueId: messageId,
+        expectsGenericAck: true,
+      );
+    } else {
+      _updateChannelMessage(
+        channel.index,
+        message.copyWith(status: ChannelMessageStatus.failed),
+      );
+    }
   }
 
   Future<void> removeContact(Contact contact) async {
