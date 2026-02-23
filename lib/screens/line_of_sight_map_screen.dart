@@ -993,11 +993,9 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
     );
   }
 
-  double? _normalizeFrequencyMHz(int? frequencyHz) {
-    if (frequencyHz == null || frequencyHz <= 0) return null;
-    if (frequencyHz >= 1000000) return frequencyHz / 1e6;
-    if (frequencyHz >= 1000) return frequencyHz / 1e3;
-    return frequencyHz.toDouble();
+  double? _normalizeFrequencyMHz(int? frequencyKHz) {
+    if (frequencyKHz == null || frequencyKHz <= 0) return null;
+    return frequencyKHz / 1000.0;
   }
 }
 
