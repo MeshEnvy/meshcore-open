@@ -52,7 +52,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final _scrollController = ChatScrollController();
   final _textFieldFocusNode = FocusNode();
   bool _isLoadingOlder = false;
-  bool _isImageUploading = false;
+  final bool _isImageUploading = false;
   bool _isDragging = false;
   Uint8List? _stagedImageBytes;
   String? _stagedImageMimeType;

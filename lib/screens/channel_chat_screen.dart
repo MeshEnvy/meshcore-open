@@ -46,7 +46,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
   ChannelMessage? _replyingToMessage;
   final Map<String, GlobalKey> _messageKeys = {};
   bool _isLoadingOlder = false;
-  bool _isImageUploading = false;
+  final bool _isImageUploading = false;
   bool _isDragging = false;
   Uint8List? _stagedImageBytes;
   String? _stagedImageMimeType;
