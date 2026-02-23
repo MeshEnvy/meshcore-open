@@ -943,7 +943,10 @@ class _LosProfilePainter extends CustomPainter {
     terrainPath.lineTo(size.width, size.height);
     terrainPath.close();
 
-    canvas.drawPath(terrainPath, Paint()..color = const Color(0xCC7C6F5D));
+    const terrainFillColor = Color(0xCC7C6F5D);
+    const terrainLineColor = Color(0xFF9FE870);
+    const losLineColor = Color(0xFFE0E7FF);
+    canvas.drawPath(terrainPath, Paint()..color = terrainFillColor);
 
     final terrainLine = ui.Path();
     for (int i = 0; i < samples.length; i++) {
@@ -957,7 +960,7 @@ class _LosProfilePainter extends CustomPainter {
     canvas.drawPath(
       terrainLine,
       Paint()
-        ..color = const Color(0xFF9FE870)
+        ..color = terrainLineColor
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2,
     );
@@ -977,9 +980,63 @@ class _LosProfilePainter extends CustomPainter {
     canvas.drawPath(
       losLine,
       Paint()
-        ..color = const Color(0xFFE0E7FF)
+        ..color = losLineColor
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2,
+    );
+
+    final horizonLine = ui.Path();
+    for (int i = 0; i < samples.length; i++) {
+      final p = mapPoint(
+        samples[i].distanceMeters,
+        samples[i].radioHorizonMeters,
+      );
+      if (i == 0) {
+        horizonLine.moveTo(p.dx, p.dy);
+      } else {
+        horizonLine.lineTo(p.dx, p.dy);
+      }
+    }
+    const horizonLineColor = Color(0xFF4BC0FF);
+    final horizonPaint = Paint()
+      ..color = horizonLineColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+    canvas.drawPath(horizonLine, horizonPaint);
+
+    final capPath = ui.Path();
+    for (int i = 0; i < samples.length; i++) {
+      final p = mapPoint(
+        samples[i].distanceMeters,
+        samples[i].radioHorizonMeters,
+      );
+      if (i == 0) {
+        capPath.moveTo(p.dx, p.dy);
+      } else {
+        capPath.lineTo(p.dx, p.dy);
+      }
+    }
+    for (int i = samples.length - 1; i >= 0; i--) {
+      final p = mapPoint(
+        samples[i].distanceMeters,
+        samples[i].lineHeightMeters,
+      );
+      capPath.lineTo(p.dx, p.dy);
+    }
+    capPath.close();
+    const horizonFillColor = Color(0x404BC0FF);
+    canvas.drawPath(
+      capPath,
+      Paint()
+        ..color = horizonFillColor
+        ..style = PaintingStyle.fill,
+    );
+
+    _drawLegend(
+      canvas,
+      horizonLineColor,
+      losLineColor,
+      terrainLineColor,
     );
   }
 
@@ -1000,4 +1057,95 @@ class _LosProfilePainter extends CustomPainter {
       ..layout();
     painter.paint(canvas, Offset(size.width - painter.width - 8, 8));
   }
+
+  void _drawLegend(
+    Canvas canvas,
+    Color horizonColor,
+    Color losColor,
+    Color terrainColor,
+  ) {
+    const legendX = 8.0;
+    const legendY = 8.0;
+    const swatchSize = 10.0;
+    const swatchTextGap = 6.0;
+    const entrySpacing = 4.0;
+    const legendPadding = 6.0;
+
+    final entries = [
+      _LegendEntry('Terrain', terrainColor),
+      _LegendEntry('LOS beam', losColor),
+      _LegendEntry('Radio horizon', horizonColor),
+    ];
+
+    final textStyle = badgeTextStyle.copyWith(
+      fontSize: 10,
+      fontWeight: FontWeight.w500,
+    );
+
+    final painters = entries.map<TextPainter>((entry) {
+      final painter = TextPainter(
+        text: TextSpan(text: entry.label, style: textStyle),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      return painter;
+    }).toList();
+
+    final maxTextWidth = painters.map((p) => p.width).fold<double>(
+      0,
+      math.max,
+    );
+
+    final legendWidth =
+        legendPadding * 2 + swatchSize + swatchTextGap + maxTextWidth;
+
+    final legendHeight = legendPadding * 2 +
+        entries.length * swatchSize +
+        (entries.length - 1) * entrySpacing;
+
+    final legendRect = RRect.fromLTRBR(
+      legendX,
+      legendY,
+      legendX + legendWidth,
+      legendY + legendHeight,
+      const Radius.circular(10),
+    );
+
+    canvas.drawRRect(
+      legendRect,
+      Paint()..color = const Color.fromARGB(90, 0, 0, 0),
+    );
+
+    var yOffset = legendY + legendPadding;
+    for (int i = 0; i < entries.length; i++) {
+      final entry = entries[i];
+      final painter = painters[i];
+      final swatchRect = Rect.fromLTWH(
+        legendX + legendPadding,
+        yOffset,
+        swatchSize,
+        swatchSize,
+      );
+      canvas.drawRect(
+        swatchRect,
+        Paint()..color = entry.color,
+      );
+
+      painter.paint(
+        canvas,
+        Offset(
+          swatchRect.right + swatchTextGap,
+          yOffset + (swatchSize - painter.height) / 2,
+        ),
+      );
+
+      yOffset += swatchSize + entrySpacing;
+    }
+  }
+}
+
+class _LegendEntry {
+  final String label;
+  final Color color;
+
+  const _LegendEntry(this.label, this.color);
 }

@@ -12,12 +12,14 @@ class LineOfSightSample {
   final double distanceMeters;
   final double terrainMeters;
   final double lineHeightMeters;
+  final double radioHorizonMeters;
   final double clearanceMeters;
 
   const LineOfSightSample({
     required this.distanceMeters,
     required this.terrainMeters,
     required this.lineHeightMeters,
+    required this.radioHorizonMeters,
     required this.clearanceMeters,
   });
 }
@@ -238,6 +240,7 @@ class LineOfSightService {
           (2 * effectiveEarthRadius);
       final terrainHeight = elevations[i] + earthBulge;
       final clearance = lineHeight - terrainHeight;
+      final radioHorizonHeight = lineHeight - earthBulge;
 
       if (clearance < -obstructionToleranceMeters) {
         isClear = false;
@@ -253,6 +256,7 @@ class LineOfSightService {
           distanceMeters: distanceFromStart,
           terrainMeters: terrainHeight,
           lineHeightMeters: lineHeight,
+          radioHorizonMeters: radioHorizonHeight,
           clearanceMeters: clearance,
         ),
       );
