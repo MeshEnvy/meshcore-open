@@ -25,6 +25,7 @@ import '../models/message.dart';
 import '../models/path_history.dart';
 import '../services/app_settings_service.dart';
 import '../services/path_history_service.dart';
+import '../services/image_upload_service.dart';
 import '../widgets/elements_ui.dart';
 import 'channel_message_path_screen.dart';
 import 'map_screen.dart';
@@ -52,10 +53,13 @@ class _ChatScreenState extends State<ChatScreen> {
   final _scrollController = ChatScrollController();
   final _textFieldFocusNode = FocusNode();
   bool _isLoadingOlder = false;
-  final bool _isImageUploading = false;
   bool _isDragging = false;
   Uint8List? _stagedImageBytes;
   String? _stagedImageMimeType;
+  bool _isPreparingStagedImage = false;
+  String? _stagedImageHash;
+  String? _stagedImageError;
+  bool _isStagedImageUploaded = false;
   MeshCoreConnector? _connector;
 
   @override
@@ -246,10 +250,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     file.name.toLowerCase().endsWith('.gif') ||
                     file.name.toLowerCase().endsWith('.webp')) {
                   final bytes = await file.readAsBytes();
-                  setState(() {
-                    _stagedImageBytes = bytes;
-                    _stagedImageMimeType = file.mimeType;
-                  });
+                  _prepareStagedImage(bytes);
                 }
               }
             },
@@ -415,7 +416,7 @@ class _ChatScreenState extends State<ChatScreen> {
       child: SafeArea(
         child: Row(
           children: [
-            _isImageUploading
+            _isPreparingStagedImage
                 ? const Padding(
                     padding: EdgeInsets.all(12.0),
                     child: SizedBox(
@@ -456,8 +457,10 @@ class _ChatScreenState extends State<ChatScreen> {
                       child: Row(
                         children: [
                           Expanded(
-                            child: _stagedImageBytes != null
-                                ? ClipRRect(
+                            child: Column(
+                              children: [
+                                if (_stagedImageBytes != null)
+                                  ClipRRect(
                                     borderRadius: BorderRadius.circular(8),
                                     child: Image.memory(
                                       _stagedImageBytes!,
@@ -465,7 +468,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                       fit: BoxFit.contain,
                                     ),
                                   )
-                                : ImageMessage(
+                                else
+                                  ImageMessage(
                                     hash: imageId!,
                                     backgroundColor:
                                         colorScheme.surfaceContainerHighest,
@@ -473,6 +477,49 @@ class _ChatScreenState extends State<ChatScreen> {
                                         .withValues(alpha: 0.6),
                                     maxSize: 160,
                                   ),
+                                if (_isPreparingStagedImage &&
+                                    _stagedImageHash == null)
+                                  const Padding(
+                                    padding: EdgeInsets.only(top: 8.0),
+                                    child: LinearProgressIndicator(),
+                                  ),
+                                if (_stagedImageError != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 8.0),
+                                    child: Text(
+                                      _stagedImageError!,
+                                      style: const TextStyle(
+                                        color: Colors.red,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                                if (_isStagedImageUploaded)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 8.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const Icon(
+                                          Icons.check_circle,
+                                          color: Colors.green,
+                                          size: 16,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        const Text(
+                                          'Uploaded',
+                                          style: TextStyle(
+                                            color: Colors.green,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                              ],
+                            ),
                           ),
                           const SizedBox(width: 8),
                           IconButton(
@@ -482,6 +529,10 @@ class _ChatScreenState extends State<ChatScreen> {
                                 setState(() {
                                   _stagedImageBytes = null;
                                   _stagedImageMimeType = null;
+                                  _isPreparingStagedImage = false;
+                                  _stagedImageHash = null;
+                                  _stagedImageError = null;
+                                  _isStagedImageUploaded = false;
                                 });
                               } else {
                                 _textController.clear();
@@ -559,7 +610,11 @@ class _ChatScreenState extends State<ChatScreen> {
             const SizedBox(width: 8),
             IconButton.filled(
               icon: const Icon(Icons.send),
-              onPressed: () => _sendMessage(connector),
+              onPressed:
+                  (_isPreparingStagedImage && _stagedImageHash == null) ||
+                      _stagedImageError != null
+                  ? null
+                  : () => _sendMessage(connector),
             ),
           ],
         ),
@@ -590,10 +645,44 @@ class _ChatScreenState extends State<ChatScreen> {
 
     if (image != null) {
       final bytes = await image.readAsBytes();
-      setState(() {
-        _stagedImageBytes = bytes;
-        _stagedImageMimeType = image.mimeType;
-      });
+      _prepareStagedImage(bytes);
+    }
+  }
+
+  Future<void> _prepareStagedImage(Uint8List bytes) async {
+    final processedBytes = await ImageUploadService.processImage(bytes);
+    setState(() {
+      _stagedImageBytes = processedBytes;
+      _stagedImageMimeType = 'image/webp';
+      _isPreparingStagedImage = true;
+      _stagedImageHash = null;
+      _stagedImageError = null;
+      _isStagedImageUploaded = false;
+    });
+
+    try {
+      final hash = await ImageUploadService().uploadImage(processedBytes);
+      if (mounted) {
+        setState(() {
+          if (hash != null) {
+            _stagedImageHash = hash;
+            _isStagedImageUploaded = true;
+            _stagedImageError = null;
+          } else {
+            _stagedImageError = 'Upload failed';
+            _isStagedImageUploaded = false;
+          }
+          _isPreparingStagedImage = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isPreparingStagedImage = false;
+          _stagedImageError = 'Upload failed: $e';
+          _isStagedImageUploaded = false;
+        });
+      }
     }
   }
 
@@ -617,21 +706,30 @@ class _ChatScreenState extends State<ChatScreen> {
     if (stagedBytes == null && text.isEmpty) return;
 
     if (stagedBytes != null) {
-      // Clear stating state
+      final stagedHash = _stagedImageHash;
+      // Clear staging state
       setState(() {
         _stagedImageBytes = null;
         _stagedImageMimeType = null;
+        _isPreparingStagedImage = false;
+        _stagedImageHash = null;
+        _stagedImageError = null;
+        _isStagedImageUploaded = false;
       });
 
-      // 1. Create a placeholder message with 'uploading' status
-      // We'll need a way for the connector to handle this, or we do it here.
-      // But connector.sendMessage currently handles adding to list.
-      // We can add a method to connector to send an image that handles upload.
-      await connector.sendImageMessage(
-        widget.contact,
-        stagedBytes,
-        mimeType: stagedMimeType,
-      );
+      if (stagedHash != null) {
+        await connector.sendMessage(
+          widget.contact,
+          'i:$stagedHash',
+          attachmentBytes: stagedBytes,
+        );
+      } else {
+        await connector.sendImageMessage(
+          widget.contact,
+          stagedBytes,
+          mimeType: stagedMimeType,
+        );
+      }
     } else {
       final maxBytes = maxContactMessageBytes();
       if (utf8.encode(text).length > maxBytes) {

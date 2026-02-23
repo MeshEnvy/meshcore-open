@@ -124,6 +124,7 @@ class Message {
     String text, {
     int? pathLength,
     Uint8List? pathBytes,
+    Uint8List? attachmentBytes,
   }) {
     return Message(
       senderKey: recipientKey,
@@ -134,6 +135,7 @@ class Message {
       status: MessageStatus.pending,
       pathLength: pathLength,
       pathBytes: pathBytes,
+      attachmentBytes: attachmentBytes,
     );
   }
 

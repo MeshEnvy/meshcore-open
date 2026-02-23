@@ -199,8 +199,12 @@ class ChannelMessage {
   static ChannelMessage outgoing(
     String text,
     String senderName,
-    int channelIndex,
-  ) {
+    int channelIndex, {
+    Uint8List? attachmentBytes,
+    String? replyToMessageId,
+    String? replyToSenderName,
+    String? replyToText,
+  }) {
     return ChannelMessage(
       senderKey: null,
       senderName: senderName,
@@ -212,6 +216,10 @@ class ChannelMessage {
       pathBytes: Uint8List(0),
       pathVariants: const [],
       channelIndex: channelIndex,
+      attachmentBytes: attachmentBytes,
+      replyToMessageId: replyToMessageId,
+      replyToSenderName: replyToSenderName,
+      replyToText: replyToText,
     );
   }
 

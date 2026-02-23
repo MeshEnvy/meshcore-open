@@ -1218,7 +1218,11 @@ class MeshCoreConnector extends ChangeNotifier {
     await sendFrame(buildGetContactByKeyFrame(pubKey));
   }
 
-  Future<void> sendMessage(Contact contact, String text) async {
+  Future<void> sendMessage(
+    Contact contact,
+    String text, {
+    Uint8List? attachmentBytes,
+  }) async {
     if (!isConnected || text.isEmpty) return;
 
     // Handle auto-rotation if enabled
@@ -1252,6 +1256,7 @@ class MeshCoreConnector extends ChangeNotifier {
         pathSelection: autoSelection,
         pathBytes: pathBytes,
         pathLength: pathLength,
+        attachmentBytes: attachmentBytes,
       );
     } else {
       // Fallback to old behavior if retry service not initialized
@@ -1262,6 +1267,7 @@ class MeshCoreConnector extends ChangeNotifier {
         text,
         pathLength: pathLength,
         pathBytes: pathBytes,
+        attachmentBytes: attachmentBytes,
       );
       _addMessage(contact.publicKeyHex, message);
       notifyListeners();
@@ -1451,7 +1457,12 @@ class MeshCoreConnector extends ChangeNotifier {
     }
   }
 
-  Future<void> sendChannelMessage(Channel channel, String text) async {
+  Future<void> sendChannelMessage(
+    Channel channel,
+    String text, {
+    Uint8List? attachmentBytes,
+    ChannelMessage? replyToMessage,
+  }) async {
     if (!isConnected || text.isEmpty) return;
 
     // Check if this is a reaction - if so, process it immediately instead of adding as a message
@@ -1497,6 +1508,10 @@ class MeshCoreConnector extends ChangeNotifier {
       text,
       _selfName ?? 'Me',
       channel.index,
+      attachmentBytes: attachmentBytes,
+      replyToMessageId: replyToMessage?.messageId,
+      replyToSenderName: replyToMessage?.senderName,
+      replyToText: replyToMessage?.text,
     );
     _addChannelMessage(channel.index, message);
     _pendingChannelSentQueue.add(message.messageId);
