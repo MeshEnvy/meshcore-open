@@ -428,7 +428,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
   Widget _buildControlPanel(bool isImperial) {
     _sanitizeSelection();
     final segment = _primarySegmentResult();
-    final connector = context.watch<MeshCoreConnector>();
+    final connector = context.read<MeshCoreConnector>();
     final reportedFrequencyMHz = _normalizeFrequencyMHz(
       connector.currentFreqHz,
     );
