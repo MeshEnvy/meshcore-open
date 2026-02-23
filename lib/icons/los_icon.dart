@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 class LosIcon extends StatelessWidget {
   final double size;
@@ -13,12 +13,17 @@ class LosIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconColor = color ?? IconTheme.of(context).color ?? Colors.black;
-    return SvgPicture.asset(
-      'assets/icons/los_elevation.svg',
-      width: size,
-      height: size,
-      colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+    final theme = Theme.of(context);
+    final iconTheme = IconTheme.of(context);
+    final iconColor = color ??
+        iconTheme.color ??
+        theme.iconTheme.color ??
+        theme.colorScheme.onSurface;
+
+    return Icon(
+      Symbols.elevation,
+      size: size,
+      color: iconColor,
     );
   }
 }
