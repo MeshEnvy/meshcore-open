@@ -60,6 +60,7 @@ dependencies:
   gpx: ^2.3.0
   path_provider: ^2.1.5
   share_plus: ^12.0.1
+  flutter_svg: ^2.0.10
 
 dev_dependencies:
   flutter_test:
@@ -87,6 +88,7 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/icons/los_elevation.svg
 
 flutter_launcher_icons:
   android: true
