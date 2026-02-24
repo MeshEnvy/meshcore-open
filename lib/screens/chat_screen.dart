@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -399,6 +400,7 @@ class _ChatScreenState extends State<ChatScreen> {
           isRoomServer: widget.contact.type == advTypeRoom,
           onTap: () => _openMessagePath(message, contact),
           onLongPress: () => _showMessageActions(message, contact),
+          contactKeyHex: widget.contact.publicKeyHex,
         );
       },
     );
@@ -649,19 +651,56 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  Uint8List? _stagedImageSecretKey;
+
   Future<void> _prepareStagedImage(Uint8List bytes) async {
-    final processedBytes = await ImageUploadService.processImage(bytes);
+    final connector = context.read<MeshCoreConnector>();
+
+    // Generate a random secret key for this asset
+    final secretKey = Uint8List(32);
+    final random = Random.secure();
+    for (var i = 0; i < 32; i++) {
+      secretKey[i] = random.nextInt(256);
+    }
+
+    // Show preview immediately using original bytes
     setState(() {
-      _stagedImageBytes = processedBytes;
+      _stagedImageBytes = bytes;
       _stagedImageMimeType = 'image/webp';
       _isPreparingStagedImage = true;
       _stagedImageHash = null;
       _stagedImageError = null;
       _isStagedImageUploaded = false;
+      _stagedImageSecretKey = secretKey;
     });
 
     try {
-      final hash = await ImageUploadService().uploadImage(processedBytes);
+      debugPrint('ChatScreen: Starting processImage (via compute)...');
+      final sw = Stopwatch()..start();
+      final processedBytes = await compute(
+        ImageUploadService.processImage,
+        bytes,
+      );
+      debugPrint('ChatScreen: processImage took ${sw.elapsedMilliseconds}ms');
+
+      if (mounted) {
+        setState(() {
+          _stagedImageBytes = processedBytes;
+        });
+      }
+
+      final uploadSw = Stopwatch()..start();
+      final hash = await ImageUploadService().uploadImage(
+        processedBytes,
+        contact: widget.contact,
+        secretKey: _stagedImageSecretKey!,
+        selfPublicKey: connector.selfPublicKey,
+        skipProcessing: true,
+      );
+      debugPrint(
+        'ChatScreen: uploadImage took ${uploadSw.elapsedMilliseconds}ms',
+      );
+
       if (mounted) {
         setState(() {
           if (hash != null) {
@@ -676,6 +715,7 @@ class _ChatScreenState extends State<ChatScreen> {
         });
       }
     } catch (e) {
+      debugPrint('Error preparing/uploading image: $e');
       if (mounted) {
         setState(() {
           _isPreparingStagedImage = false;
@@ -1474,6 +1514,7 @@ class _MessageBubble extends StatelessWidget {
   final Message message;
   final String senderName;
   final bool isRoomServer;
+  final String contactKeyHex;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
 
@@ -1481,6 +1522,7 @@ class _MessageBubble extends StatelessWidget {
     required this.message,
     required this.senderName,
     required this.isRoomServer,
+    required this.contactKeyHex,
     this.onTap,
     this.onLongPress,
   });
@@ -1600,6 +1642,8 @@ class _MessageBubble extends StatelessWidget {
                                   alpha: 0.7,
                                 ),
                                 localBytes: message.attachmentBytes,
+                                messageId: message.messageId,
+                                contactKeyHex: contactKeyHex,
                               ),
                               if (!enableTracing && isOutgoing)
                                 Positioned(

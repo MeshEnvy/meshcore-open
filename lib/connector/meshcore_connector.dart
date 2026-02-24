@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'package:uuid/uuid.dart';
 
 import 'package:crypto/crypto.dart' as crypto;
@@ -139,6 +140,7 @@ class MeshCoreConnector extends ChangeNotifier {
       StreamController<Uint8List>.broadcast();
 
   Uint8List? _selfPublicKey;
+  Uint8List? _selfPrivateKey;
   String? _selfName;
   int? _currentTxPower;
   int? _maxTxPower;
@@ -251,6 +253,9 @@ class MeshCoreConnector extends ChangeNotifier {
   bool get isLoadingChannels => _isLoadingChannels;
   Stream<Uint8List> get receivedFrames => _receivedFramesController.stream;
   Uint8List? get selfPublicKey => _selfPublicKey;
+  Uint8List? get selfPrivateKey => _selfPrivateKey;
+  Uint8List? get publicKey => _selfPublicKey;
+  Uint8List? get privateKey => _selfPrivateKey;
   String? get selfName => _selfName;
   double? get selfLatitude => _selfLatitude;
   double? get selfLongitude => _selfLongitude;
@@ -365,6 +370,38 @@ class MeshCoreConnector extends ChangeNotifier {
 
   List<ChannelMessage> getChannelMessages(Channel channel) {
     return _channelMessages[channel.index] ?? [];
+  }
+
+  /// Updates a channel message's attachment bytes in memory for caching.
+  /// Does NOT persist to disk to avoid bloating storage with binary data.
+  void setChannelMessageAttachment(
+    int channelIndex,
+    String messageId,
+    Uint8List bytes,
+  ) {
+    final messages = _channelMessages[channelIndex];
+    if (messages == null) return;
+    final index = messages.indexWhere((m) => m.messageId == messageId);
+    if (index != -1) {
+      messages[index] = messages[index].copyWith(attachmentBytes: bytes);
+      notifyListeners();
+    }
+  }
+
+  /// Updates a private message's attachment bytes in memory for caching.
+  /// Does NOT persist to disk to avoid bloating storage with binary data.
+  void setMessageAttachment(
+    String contactKeyHex,
+    String messageId,
+    Uint8List bytes,
+  ) {
+    final messages = _conversations[contactKeyHex];
+    if (messages == null) return;
+    final index = messages.indexWhere((m) => m.messageId == messageId);
+    if (index != -1) {
+      messages[index] = messages[index].copyWith(attachmentBytes: bytes);
+      notifyListeners();
+    }
   }
 
   Future<void> deleteChannelMessage(ChannelMessage message) async {
@@ -1078,7 +1115,7 @@ class MeshCoreConnector extends ChangeNotifier {
     _clientRepeat = null;
     _firmwareVerCode = null;
     _batteryMillivolts = null;
-    _repeaterBatterySnapshots.clear();
+    // _repeaterBatterySnapshots.clear();
     _batteryRequested = false;
     _awaitingSelfInfo = false;
     _maxContacts = _defaultMaxContacts;
@@ -1199,7 +1236,6 @@ class MeshCoreConnector extends ChangeNotifier {
     _preserveContactsOnRefresh = preserveExisting;
     if (!preserveExisting) {
       _contacts.clear();
-      notifyListeners();
     }
 
     await sendFrame(buildGetContactsFrame(since: since));
@@ -1331,7 +1367,7 @@ class MeshCoreConnector extends ChangeNotifier {
     );
 
     appLogger.info(
-      'Updated contact. New override: ${_contacts[index].pathOverride}, bytesLen: ${_contacts[index].pathOverrideBytes?.length}',
+      'After merge: pathOverride=${_contacts[index].pathOverride}, bytesLen: ${_contacts[index].pathOverrideBytes?.length}',
       tag: 'Connector',
     );
 
@@ -1540,6 +1576,7 @@ class MeshCoreConnector extends ChangeNotifier {
     Contact contact,
     Uint8List bytes, {
     String? mimeType,
+    Uint8List? stagedImageSecretKey,
   }) async {
     if (!isConnected) return;
 
@@ -1556,9 +1593,21 @@ class MeshCoreConnector extends ChangeNotifier {
 
     _addMessage(contact.publicKeyHex, message);
 
+    // Generate a random secret key for this asset if not provided
+    final secretKey = stagedImageSecretKey ?? Uint8List(32);
+    if (stagedImageSecretKey == null) {
+      final random = Random.secure();
+      for (var i = 0; i < 32; i++) {
+        secretKey[i] = random.nextInt(256);
+      }
+    }
+
     final hash = await ImageUploadService().uploadImage(
       bytes,
       mimeType: mimeType,
+      contact: contact,
+      secretKey: secretKey,
+      selfPublicKey: selfPublicKey,
     );
 
     if (hash != null) {
@@ -1611,6 +1660,9 @@ class MeshCoreConnector extends ChangeNotifier {
     final hash = await ImageUploadService().uploadImage(
       bytes,
       mimeType: mimeType,
+      channel: channel,
+      secretKey: channel.psk,
+      selfPublicKey: selfPublicKey,
     );
 
     if (hash != null) {
@@ -3010,7 +3062,11 @@ class MeshCoreConnector extends ChangeNotifier {
     entry.timeout?.cancel();
     final effectiveTimeoutMs = timeoutMs > 0
         ? timeoutMs
-        : calculateTimeout(
+        : calculateMessageTimeout(
+            freqHz: _currentFreqHz ?? 0,
+            bwHz: _currentBwHz ?? 0,
+            sf: _currentSf ?? 0,
+            cr: _currentCr ?? 0,
             pathLength: entry.pathLength,
             messageBytes: entry.messageBytes,
           );

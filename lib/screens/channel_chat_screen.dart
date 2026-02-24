@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -465,6 +466,9 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                                   : Theme.of(context).colorScheme.onSurface
                                         .withValues(alpha: 0.6),
                               localBytes: message.attachmentBytes,
+                              channelPsk: widget.channel.psk,
+                              messageId: message.messageId,
+                              channelIndex: widget.channel.index,
                             ),
                             if (!enableTracing && isOutgoing)
                               Positioned(
@@ -987,19 +991,52 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
     }
   }
 
+  Uint8List? _stagedImageSecretKey;
   Future<void> _prepareStagedImage(Uint8List bytes) async {
-    final processedBytes = await ImageUploadService.processImage(bytes);
+    final connector = context.read<MeshCoreConnector>();
+    final secretKey = widget.channel.psk;
+
+    // Show preview immediately using original bytes
     setState(() {
-      _stagedImageBytes = processedBytes;
+      _stagedImageBytes = bytes;
       _stagedImageMimeType = 'image/webp';
       _isPreparingStagedImage = true;
       _stagedImageHash = null;
       _stagedImageError = null;
       _isStagedImageUploaded = false;
+      _stagedImageSecretKey = secretKey;
     });
 
     try {
-      final hash = await ImageUploadService().uploadImage(processedBytes);
+      // Process in background (if we use the improved ImageUploadService with logging/compute)
+      final sw = Stopwatch()..start();
+      debugPrint('ChannelChatScreen: Starting processImage (via compute)...');
+      final processedBytes = await compute(
+        ImageUploadService.processImage,
+        bytes,
+      );
+      debugPrint(
+        'ChannelChatScreen: processImage took ${sw.elapsedMilliseconds}ms',
+      );
+
+      if (mounted) {
+        setState(() {
+          _stagedImageBytes = processedBytes;
+        });
+      }
+
+      final uploadSw = Stopwatch()..start();
+      final hash = await ImageUploadService().uploadImage(
+        processedBytes,
+        channel: widget.channel,
+        secretKey: _stagedImageSecretKey!,
+        selfPublicKey: connector.selfPublicKey,
+        skipProcessing: true,
+      );
+      debugPrint(
+        'ChannelChatScreen: uploadImage took ${uploadSw.elapsedMilliseconds}ms',
+      );
+
       if (mounted) {
         setState(() {
           if (hash != null) {
@@ -1014,6 +1051,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
         });
       }
     } catch (e) {
+      debugPrint('Error preparing/uploading image: $e');
       if (mounted) {
         setState(() {
           _isPreparingStagedImage = false;
@@ -1225,6 +1263,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                                           .onSurface
                                           .withValues(alpha: 0.6),
                                       maxSize: 160,
+                                      channelPsk: widget.channel.psk,
                                     ),
                                   if (_isPreparingStagedImage &&
                                       _stagedImageHash == null)
