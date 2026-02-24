@@ -6,6 +6,7 @@ import '../../../connector/meshcore_connector.dart';
 import 'mal_api.dart';
 import 'kv/kv_store.dart';
 import 'kv/sqflite_kv.dart';
+import 'kv/indexed_db_kv.dart';
 import 'vfs/vfs.dart';
 import 'package:flutter/foundation.dart';
 
@@ -23,7 +24,13 @@ class ConnectorMalApi implements MalApi {
 
   @override
   Future<void> init() async {
-    final kvStore = SqfliteKvStore.instance;
+    final MeshKvStore kvStore;
+    if (kIsWeb) {
+      kvStore = getIndexedDbKvStore();
+    } else {
+      kvStore = SqfliteKvStore.instance;
+    }
+
     await kvStore.init();
     _kvStore = kvStore;
     _vfs = VirtualFileSystem.get(kvStore);
