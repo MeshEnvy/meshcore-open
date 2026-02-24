@@ -9,7 +9,6 @@ import '../l10n/l10n.dart';
 import '../widgets/adaptive_app_bar_title.dart';
 import '../widgets/device_tile.dart';
 import 'contacts_screen.dart';
-import 'app_settings_screen.dart';
 
 /// Screen for scanning and connecting to MeshCore devices
 class ScannerScreen extends StatefulWidget {
@@ -79,26 +78,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
         title: AdaptiveAppBarTitle(context.l10n.scanner_title),
         centerTitle: true,
         automaticallyImplyLeading: false,
-        actions: [
-          PopupMenuButton<int>(
-            icon: const Icon(Icons.more_vert),
-            onSelected: (value) {
-              if (value == 0) {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const AppSettingsScreen(),
-                  ),
-                );
-              }
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 0,
-                child: Text(context.l10n.common_settings),
-              ),
-            ],
-          ),
-        ],
       ),
       body: SafeArea(
         top: false,

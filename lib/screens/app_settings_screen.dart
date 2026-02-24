@@ -8,8 +8,6 @@ import '../services/app_settings_service.dart';
 import '../services/notification_service.dart';
 import '../widgets/adaptive_app_bar_title.dart';
 import 'map_cache_screen.dart';
-import 'ide_screen.dart';
-import 'env_vars_screen.dart';
 
 class AppSettingsScreen extends StatelessWidget {
   const AppSettingsScreen({super.key});
@@ -39,8 +37,6 @@ class AppSettingsScreen extends StatelessWidget {
                 _buildMapSettingsCard(context, settingsService),
                 const SizedBox(height: 16),
                 _buildDebugCard(context, settingsService),
-                const SizedBox(height: 16),
-                _buildDeveloperCard(context, settingsService),
               ],
             );
           },
@@ -808,51 +804,6 @@ class AppSettingsScreen extends StatelessWidget {
                   ),
                   duration: const Duration(seconds: 2),
                 ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDeveloperCard(
-    BuildContext context,
-    AppSettingsService settingsService,
-  ) {
-    return Card(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text(
-              context.l10n.appSettings_developerCard,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.code),
-            title: Text(context.l10n.appSettings_ide),
-            subtitle: Text(context.l10n.appSettings_ideSubtitle),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const IdeScreen()),
-              );
-            },
-          ),
-          const Divider(height: 1),
-          ListTile(
-            leading: const Icon(Icons.vpn_key_outlined),
-            title: Text(context.l10n.appSettings_secrets),
-            subtitle: Text(context.l10n.appSettings_secretsSubtitle),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const EnvVarsScreen()),
               );
             },
           ),
