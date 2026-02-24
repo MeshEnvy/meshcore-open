@@ -80,7 +80,7 @@ class WebVfs extends VirtualFileSystem {
     return completer.future;
   }
 
-  Future<void> _putRecord(String path, dynamic data) async {
+  Future<void> _putRecord(String path, Object? data) async {
     final db = await _getDb();
     final tx = db.transaction(_storeName.toJS, 'readwrite');
     final store = tx.objectStore(_storeName);

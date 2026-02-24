@@ -6,7 +6,7 @@ import 'package:flutter_highlight/themes/monokai-sublime.dart';
 import 'package:highlight/languages/lua.dart' as highlight_lua;
 
 import '../services/vfs/vfs.dart';
-
+import '../utils/app_logger.dart';
 import '../l10n/l10n.dart';
 
 class IdeScreen extends StatefulWidget {
@@ -59,7 +59,10 @@ class _IdeScreenState extends State<IdeScreen> {
 
       await _loadFiles();
     } catch (e) {
-      debugPrint('Error initializing IDE drive directory: $e');
+      appLogger.error(
+        'Error initializing IDE drive directory: $e',
+        tag: 'IdeScreen',
+      );
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -120,7 +123,7 @@ class _IdeScreenState extends State<IdeScreen> {
         }
       }
     } catch (e) {
-      debugPrint('Error loading files: $e');
+      appLogger.error('Error loading files: $e', tag: 'IdeScreen');
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -202,7 +205,7 @@ class _IdeScreenState extends State<IdeScreen> {
           });
         }
       } catch (e) {
-        debugPrint('Error selecting file: $e');
+        appLogger.error('Error selecting file: $e', tag: 'IdeScreen');
       }
     }
   }
@@ -288,7 +291,7 @@ class _IdeScreenState extends State<IdeScreen> {
           );
         }
       } catch (e) {
-        debugPrint('Error saving file: $e');
+        appLogger.error('Error saving file: $e', tag: 'IdeScreen');
         if (mounted) {
           ScaffoldMessenger.of(
             context,
@@ -355,7 +358,7 @@ class _IdeScreenState extends State<IdeScreen> {
           }
           await _loadFiles();
         } catch (e) {
-          debugPrint('Error creating entity: $e');
+          appLogger.error('Error creating entity: $e', tag: 'IdeScreen');
           if (mounted) {
             ScaffoldMessenger.of(
               context,
@@ -417,7 +420,7 @@ class _IdeScreenState extends State<IdeScreen> {
         }
         await _loadFiles();
       } catch (e) {
-        debugPrint('Error deleting entity: $e');
+        appLogger.error('Error deleting entity: $e', tag: 'IdeScreen');
         if (mounted) {
           ScaffoldMessenger.of(
             context,
