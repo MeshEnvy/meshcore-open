@@ -2855,6 +2855,34 @@ class AppLocalizationsSl extends AppLocalizations {
       'Podatki o višini: Open-Meteo (CC BY 4.0)';
 
   @override
+  String get losLegendRadioHorizon => 'Radijski horizont';
+
+  @override
+  String get losLegendLosBeam => 'Linija vidnosti';
+
+  @override
+  String get losLegendTerrain => 'Teren';
+
+  @override
+  String get losFrequencyLabel => 'Frekvenca';
+
+  @override
+  String get losFrequencyInfoTooltip => 'Prikaži podrobnosti izračuna';
+
+  @override
+  String get losFrequencyDialogTitle => 'Izračun radijskega horizonta';
+
+  @override
+  String losFrequencyDialogDescription(
+    double baselineK,
+    double baselineFreq,
+    double frequencyMHz,
+    double kFactor,
+  ) {
+    return 'Začenši od k=$baselineK pri $baselineFreq MHz, izračun prilagodi k-faktor za trenutni pas $frequencyMHz MHz, ki določa ukrivljeno zgornjo mejo radijskega horizonta.';
+  }
+
+  @override
   String get contacts_pathTrace => 'Sledenje poti';
 
   @override

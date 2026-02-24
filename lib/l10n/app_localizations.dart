@@ -5004,6 +5004,53 @@ abstract class AppLocalizations {
   /// **'Elevation data: Open-Meteo (CC BY 4.0)'**
   String get losElevationAttribution;
 
+  /// No description provided for @losLegendRadioHorizon.
+  ///
+  /// In en, this message translates to:
+  /// **'Radio horizon'**
+  String get losLegendRadioHorizon;
+
+  /// No description provided for @losLegendLosBeam.
+  ///
+  /// In en, this message translates to:
+  /// **'LOS beam'**
+  String get losLegendLosBeam;
+
+  /// No description provided for @losLegendTerrain.
+  ///
+  /// In en, this message translates to:
+  /// **'Terrain'**
+  String get losLegendTerrain;
+
+  /// No description provided for @losFrequencyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Frequency'**
+  String get losFrequencyLabel;
+
+  /// No description provided for @losFrequencyInfoTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'View calculation details'**
+  String get losFrequencyInfoTooltip;
+
+  /// No description provided for @losFrequencyDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Radio horizon calculation'**
+  String get losFrequencyDialogTitle;
+
+  /// Explain how the calculation uses the baseline frequency and derived k-factor.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting from k={baselineK} at {baselineFreq} MHz, the calculation adjusts the k-factor for the current {frequencyMHz} MHz band, which defines the curved radio horizon cap.'**
+  String losFrequencyDialogDescription(
+    double baselineK,
+    double baselineFreq,
+    double frequencyMHz,
+    double kFactor,
+  );
+
   /// No description provided for @contacts_pathTrace.
   ///
   /// In en, this message translates to:

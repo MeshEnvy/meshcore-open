@@ -2858,6 +2858,34 @@ class AppLocalizationsNl extends AppLocalizations {
       'Hoogtegegevens: Open-Meteo (CC BY 4.0)';
 
   @override
+  String get losLegendRadioHorizon => 'Radiohorizon';
+
+  @override
+  String get losLegendLosBeam => 'Zichtlijn';
+
+  @override
+  String get losLegendTerrain => 'Terrein';
+
+  @override
+  String get losFrequencyLabel => 'Frequentie';
+
+  @override
+  String get losFrequencyInfoTooltip => 'Bekijk details van de berekening';
+
+  @override
+  String get losFrequencyDialogTitle => 'Berekening van de radiohorizon';
+
+  @override
+  String losFrequencyDialogDescription(
+    double baselineK,
+    double baselineFreq,
+    double frequencyMHz,
+    double kFactor,
+  ) {
+    return 'Beginnend met k=$baselineK bij $baselineFreq MHz, wordt bij de berekening de k-factor aangepast voor de huidige $frequencyMHz MHz-band, die de gebogen radiohorizonkap definieert.';
+  }
+
+  @override
   String get contacts_pathTrace => 'Pad Traceren';
 
   @override

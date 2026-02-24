@@ -1746,5 +1746,29 @@
   "losPointName": "Punktname",
   "losShowPanelTooltip": "LOS-Panel anzeigen",
   "losHidePanelTooltip": "LOS-Panel ausblenden",
-  "losElevationAttribution": "Höhendaten: Open-Meteo (CC BY 4.0)"
+  "losElevationAttribution": "Höhendaten: Open-Meteo (CC BY 4.0)",
+  "losLegendRadioHorizon": "Funkhorizont",
+  "losLegendLosBeam": "Sichtlinie",
+  "losLegendTerrain": "Gelände",
+  "losFrequencyLabel": "Frequenz",
+  "losFrequencyInfoTooltip": "Details zur Berechnung anzeigen",
+  "losFrequencyDialogTitle": "Berechnung des Funkhorizonts",
+  "losFrequencyDialogDescription": "Ausgehend von k={baselineK} bei {baselineFreq} MHz passt die Berechnung den k-Faktor für das aktuelle {frequencyMHz} MHz-Band an, das die gekrümmte Funkhorizontobergrenze definiert.",
+  "@losFrequencyDialogDescription": {
+    "description": "Explain how the calculation uses the baseline frequency and derived k-factor.",
+    "placeholders": {
+      "baselineK": {
+        "type": "double"
+      },
+      "baselineFreq": {
+        "type": "double"
+      },
+      "frequencyMHz": {
+        "type": "double"
+      },
+      "kFactor": {
+        "type": "double"
+      }
+    }
+  }
 }

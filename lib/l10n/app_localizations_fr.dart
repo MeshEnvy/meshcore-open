@@ -2880,7 +2880,35 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get losElevationAttribution =>
-      'Données d\'altitude : Open-Meteo (CC BY 4.0)';
+      'Données d’altitude : Open-Meteo (CC BY 4.0)';
+
+  @override
+  String get losLegendRadioHorizon => 'Horizon radio';
+
+  @override
+  String get losLegendLosBeam => 'Ligne de visée';
+
+  @override
+  String get losLegendTerrain => 'Terrain';
+
+  @override
+  String get losFrequencyLabel => 'Fréquence';
+
+  @override
+  String get losFrequencyInfoTooltip => 'Voir les détails du calcul';
+
+  @override
+  String get losFrequencyDialogTitle => 'Calcul de l’horizon radio';
+
+  @override
+  String losFrequencyDialogDescription(
+    double baselineK,
+    double baselineFreq,
+    double frequencyMHz,
+    double kFactor,
+  ) {
+    return 'À partir de k=$baselineK à $baselineFreq MHz, le calcul ajuste le facteur k pour la bande actuelle de $frequencyMHz MHz, ce qui définit la limite incurvée de l\'horizon radio.';
+  }
 
   @override
   String get contacts_pathTrace => 'Traçage de chemin';

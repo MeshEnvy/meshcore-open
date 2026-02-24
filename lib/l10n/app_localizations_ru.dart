@@ -2870,6 +2870,34 @@ class AppLocalizationsRu extends AppLocalizations {
       'Данные о высоте: Open-Meteo (CC BY 4.0)';
 
   @override
+  String get losLegendRadioHorizon => 'Радиогоризонт';
+
+  @override
+  String get losLegendLosBeam => 'Линия прямой видимости';
+
+  @override
+  String get losLegendTerrain => 'Рельеф';
+
+  @override
+  String get losFrequencyLabel => 'Частота';
+
+  @override
+  String get losFrequencyInfoTooltip => 'Просмотреть детали расчёта';
+
+  @override
+  String get losFrequencyDialogTitle => 'Расчёт радиогоризонта';
+
+  @override
+  String losFrequencyDialogDescription(
+    double baselineK,
+    double baselineFreq,
+    double frequencyMHz,
+    double kFactor,
+  ) {
+    return 'Начиная с k=$baselineK на частоте $baselineFreq МГц, расчет корректирует коэффициент k для текущего диапазона $frequencyMHz МГц, который определяет изогнутую границу радиогоризонта.';
+  }
+
+  @override
   String get contacts_pathTrace => 'Трассировка пути';
 
   @override
