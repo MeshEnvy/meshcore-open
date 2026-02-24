@@ -53,7 +53,7 @@ dependencies:
   wakelock_plus: ^1.4.0
   characters: ^1.4.0
   package_info_plus: ^9.0.0
-  mobile_scanner: ^7.1.4  # QR/barcode scanning
+  mobile_scanner: ^7.2.0  # QR/barcode scanning updated for web stability
   qr_flutter: ^4.1.0      # QR code generation
   url_launcher: ^6.3.0    # Launch URLs in system browser
   flutter_linkify: ^6.0.0 # Auto-detect and linkify URLs in text

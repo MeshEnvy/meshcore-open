@@ -126,9 +126,11 @@ class _QrScannerWidgetState extends State<QrScannerWidget>
 
       // Mark as scanned to prevent duplicates
       if (!widget.continuousScanning) {
-        setState(() {
-          _hasScanned = true;
-        });
+        if (mounted) {
+          setState(() {
+            _hasScanned = true;
+          });
+        }
         _controller.stop();
       }
 
@@ -140,11 +142,13 @@ class _QrScannerWidgetState extends State<QrScannerWidget>
 
   /// Reset the scanner to allow scanning again
   void resetScanner() {
-    setState(() {
-      _hasScanned = false;
-      _lastScannedData = null;
-      _lastScanTime = null;
-    });
+    if (mounted) {
+      setState(() {
+        _hasScanned = false;
+        _lastScannedData = null;
+        _lastScanTime = null;
+      });
+    }
     _controller.start();
   }
 
