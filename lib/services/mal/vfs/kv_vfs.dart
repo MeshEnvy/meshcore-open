@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'vfs.dart';
 import '../kv/kv_store.dart';
@@ -27,8 +28,11 @@ class KvVfs extends VirtualFileSystem {
   KvVfs(this._kvStore);
 
   String _toKvKey(String path) {
-    // Normalize path to ensure consistent keys
-    return p.normalize(path);
+    // Normalize path to ensure consistent keys and force absolute paths
+    final normalized = p.posix.normalize(path);
+    final key = normalized.startsWith('/') ? normalized : '/$normalized';
+    // if (kDebugMode) print('[KvVfs] _toKvKey(path: $path) -> $key');
+    return key;
   }
 
   @override
@@ -41,12 +45,22 @@ class KvVfs extends VirtualFileSystem {
   @override
   Future<bool> exists(String path) async {
     final key = _toKvKey(path);
+    if (kDebugMode) print('[KvVfs] exists(path: $path, key: $key)...');
+
+    // Root directory always exists conceptually
+    if (key == '/') {
+      if (kDebugMode) print('[KvVfs] exists(path: $path) -> true (root)');
+      return true;
+    }
+
     final val = await _kvStore.get(key, scope: _vfsScope);
-    return val != null;
+    final existsResult = val != null;
+    if (kDebugMode) print('[KvVfs] exists(path: $path) -> $existsResult');
+    return existsResult;
   }
 
   Future<void> _ensureParentDirExists(String path) async {
-    final parent = p.dirname(path);
+    final parent = p.posix.dirname(path);
     if (parent == '.' || parent == '/') return;
 
     final existsParent = await exists(parent);
@@ -194,38 +208,55 @@ class KvVfs extends VirtualFileSystem {
 
   @override
   Future<List<VfsNode>> list(String path) async {
-    final normalizedPath = p.normalize(path);
-    final targetPrefix = normalizedPath == '/'
-        ? ''
-        : (normalizedPath.endsWith('/') ? normalizedPath : '$normalizedPath/');
+    if (kDebugMode) print('[KvVfs] list(path: $path)...');
+    final absolutePath = _toKvKey(path);
+    final targetPrefix = absolutePath == '/'
+        ? '/'
+        : (absolutePath.endsWith('/') ? absolutePath : '$absolutePath/');
 
-    final allKeys = await _kvStore.getKeys(scope: _vfsScope);
+    final allData = await _kvStore.getValues(scope: _vfsScope);
     final Map<String, VfsNode> nodes = {};
 
-    for (final key in allKeys) {
+    for (final entry in allData.entries) {
+      final key = entry.key;
       if (key.startsWith(targetPrefix)) {
         final relativePath = key.substring(targetPrefix.length);
         if (relativePath.isEmpty) continue;
 
-        final parts = p.split(relativePath);
+        final parts = p.posix.split(relativePath);
         if (parts.isNotEmpty) {
           final childName = parts.first;
-          final childFullPath = p.join(normalizedPath, childName);
-          final childVal = await _kvStore.get(childFullPath, scope: _vfsScope);
+          // Skip if this part is an empty string or / to avoid infinite recursion
+          if (childName.isEmpty || childName == '/') continue;
 
-          if (childVal != null && !nodes.containsKey(childName)) {
-            final childData = _decode(childVal);
-            nodes[childName] = VfsNode(
-              path: childFullPath,
-              isDir: childData['type'] == 'dir',
-              name: childName,
-            );
+          final childFullPath = p.posix.join(absolutePath, childName);
+
+          if (!nodes.containsKey(childName)) {
+            final childVal = allData[childFullPath];
+            if (childVal != null) {
+              final childData = _decode(childVal);
+              nodes[childName] = VfsNode(
+                path: childFullPath,
+                isDir: childData['type'] == 'dir',
+                name: childName,
+              );
+            } else {
+              // Implicit directory from a deep path
+              nodes[childName] = VfsNode(
+                path: childFullPath,
+                isDir: true,
+                name: childName,
+              );
+            }
           }
         }
       }
     }
 
-    return nodes.values.toList();
+    final result = nodes.values.toList();
+    if (kDebugMode)
+      print('[KvVfs] list(path: $path) found ${result.length} items');
+    return result;
   }
 }
 

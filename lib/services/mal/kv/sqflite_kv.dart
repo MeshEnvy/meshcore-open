@@ -148,4 +148,17 @@ class SqfliteKvStore implements MeshKvStore {
     );
     return maps.map((e) => e['key'] as String).toList();
   }
+
+  @override
+  Future<Map<String, String>> getValues({String? scope}) async {
+    await init();
+    final db = await _getDatabase();
+    final maps = await db.query(
+      'kv_store',
+      columns: ['key', 'value'],
+      where: 'scope = ?',
+      whereArgs: [scope ?? 'global'],
+    );
+    return {for (final m in maps) m['key'] as String: m['value'] as String};
+  }
 }

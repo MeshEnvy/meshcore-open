@@ -1,6 +1,13 @@
-import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:lua_dardo/lua.dart';
+// ignore: implementation_imports
+import 'package:lua_dardo/src/stdlib/basic_lib.dart';
+// ignore: implementation_imports
+import 'package:lua_dardo/src/stdlib/math_lib.dart';
+// ignore: implementation_imports
+import 'package:lua_dardo/src/stdlib/string_lib.dart';
+// ignore: implementation_imports
+import 'package:lua_dardo/src/stdlib/table_lib.dart';
 
 import 'package:meshcore_open/connector/meshcore_connector.dart';
 import 'package:meshcore_open/services/mal/mal_provider.dart';
@@ -22,7 +29,16 @@ void main() async {
 
   // Setup Lua Environment
   LuaState ls = LuaState.newState();
-  ls.openLibs();
+
+  // Load standard libraries selectively (Web-safe subset)
+  ls.requireF("_G", BasicLib.openBaseLib, true);
+  ls.pop(1);
+  ls.requireF("table", TableLib.openTableLib, true);
+  ls.pop(1);
+  ls.requireF("string", StringLib.openStringLib, true);
+  ls.pop(1);
+  ls.requireF("math", MathLib.openMathLib, true);
+  ls.pop(1);
 
   // Register the single 'mal' table
   LuaMalBindings.register(ls, api: malApi);

@@ -1,6 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:lua_dardo/lua.dart';
+// ignore: implementation_imports
+import 'package:lua_dardo/src/stdlib/basic_lib.dart';
+// ignore: implementation_imports
+import 'package:lua_dardo/src/stdlib/math_lib.dart';
+// ignore: implementation_imports
+import 'package:lua_dardo/src/stdlib/string_lib.dart';
+// ignore: implementation_imports
+import 'package:lua_dardo/src/stdlib/table_lib.dart';
+
 import '../utils/app_logger.dart';
+import '../utils/platform_info.dart';
 import 'mal/mal_api.dart';
 import 'mal/bindings/lua_bindings.dart';
 
@@ -27,7 +37,28 @@ class LuaService {
         final content = await malApi.fread(autoexecPath);
 
         LuaState state = LuaState.newState();
-        state.openLibs();
+
+        // Load standard libraries selectively to avoid crashes on Web.
+        // We avoid openLibs() because it attempts to load 'package' and 'os' libraries
+        // which crash on Web/Chrome due to Platform.pathSeparator usage in lua_dardo ^0.0.5.
+        // The most essential libraries (Base, Table, String, Math) are safe.
+        state.requireF("_G", BasicLib.openBaseLib, true);
+        state.pop(1);
+        state.requireF("table", TableLib.openTableLib, true);
+        state.pop(1);
+        state.requireF("string", StringLib.openStringLib, true);
+        state.pop(1);
+        state.requireF("math", MathLib.openMathLib, true);
+        state.pop(1);
+
+        // We intentionally skip PackageLib and OSLib on Web/Chrome as they depend on Platform.
+        // MeshCore provides its own system/file access via the 'mal' table.
+        if (!PlatformInfo.isWeb) {
+          // On native, we could potentially load them if needed, but keeping it
+          // minimal and consistent across platforms is usually better for Mesh scripts.
+          // state.requireF("package", PackageLib.openPackageLib, true);
+          // state.pop(1);
+        }
 
         appLogger.info(
           'Registering Mesh Abstraction Layer into Lua...',

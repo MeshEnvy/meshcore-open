@@ -18,4 +18,7 @@ abstract class MeshKvStore {
   /// Returns all keys. Useful for iterating
   /// over all environment variables or virtual files.
   Future<List<String>> getKeys({String? scope});
+
+  /// Returns all key-value pairs for a given scope.
+  Future<Map<String, String>> getValues({String? scope});
 }

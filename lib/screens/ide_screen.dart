@@ -47,6 +47,7 @@ class _IdeScreenState extends State<IdeScreen> {
   }
 
   Future<void> _initDriveDirs() async {
+    if (kDebugMode) print('[IdeScreen] _initDriveDirs starting...');
     try {
       final malApi = context.read<MalApi>();
       _drivePath = malApi.homePath;
@@ -57,6 +58,8 @@ class _IdeScreenState extends State<IdeScreen> {
         await malApi.fwrite(autoexecPath, 'print("hello world")\n');
       }
 
+      if (kDebugMode)
+        print('[IdeScreen] autoexec.lua checked. Loading files...');
       await _loadFiles();
     } catch (e) {
       appLogger.error(
@@ -72,6 +75,7 @@ class _IdeScreenState extends State<IdeScreen> {
   }
 
   Future<void> _loadFiles() async {
+    if (kDebugMode) print('[IdeScreen] _loadFiles starting...');
     try {
       final malApi = context.read<MalApi>();
       if (await malApi.fexists(_drivePath)) {
@@ -87,7 +91,13 @@ class _IdeScreenState extends State<IdeScreen> {
           }
         }
 
+        if (kDebugMode)
+          print('[IdeScreen] loadDir basic path: $_drivePath starting...');
         await loadDir(_drivePath);
+        if (kDebugMode)
+          print(
+            '[IdeScreen] loadDir finished. Found ${files.length} flat entities',
+          );
 
         files.sort((a, b) {
           final aRelative = a.path.replaceFirst('$_drivePath/', '');
@@ -115,14 +125,29 @@ class _IdeScreenState extends State<IdeScreen> {
 
           return aSegments.length.compareTo(bSegments.length);
         });
+        if (kDebugMode)
+          print(
+            '[IdeScreen] _loadFiles: setState called with ${files.length} files',
+          );
         if (mounted) {
           setState(() {
             _files = files;
             _isLoading = false;
           });
         }
+      } else {
+        if (kDebugMode)
+          print(
+            '[IdeScreen] _loadFiles: _drivePath $_drivePath does not exist',
+          );
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
       }
     } catch (e) {
+      if (kDebugMode) print('[IdeScreen] Error loading files: $e');
       appLogger.error('Error loading files: $e', tag: 'IdeScreen');
       if (mounted) {
         setState(() {
