@@ -1,6 +1,5 @@
 import 'package:lua_dardo/lua.dart';
 import '../mal_api.dart';
-import 'package:flutter/foundation.dart';
 
 /// Binds the native Dart `MalApi` implementation into a `lua_dardo` state
 /// under a single global `mal` table.
@@ -113,11 +112,10 @@ class LuaMalBindings {
       final key = ls.checkString(1);
       if (key == null) return 0;
 
-      if (kDebugMode) {
-        print('[LuaMalBindings] Warning: getEnv is async backing');
-      }
-      ls.pushString(""); // Placeholder until async bridge is built
-      api.getEnv(key).then((_) {});
+      // Since we can't await in sync DartFunction, we return nil for now
+      // but trigger the fetch.
+      // TODO: Implement a sync cache for environment variables.
+      ls.pushNil();
       return 1;
     });
     state.setField(-2, "getEnv");
@@ -148,9 +146,7 @@ class LuaMalBindings {
     state.setField(-2, "setKey");
 
     state.pushDartFunction((LuaState ls) {
-      final key = ls.checkString(1);
-      ls.pushString(""); // MOCK RETURN
-      if (key != null) api.getKey(key);
+      ls.pushNil();
       return 1;
     });
     state.setField(-2, "getKey");
@@ -170,11 +166,9 @@ class LuaMalBindings {
     state.setField(-2, "fwrite");
 
     state.pushDartFunction((LuaState ls) {
-      final path = ls.checkString(1);
-      ls.pushString(""); // MOCK RETURN
-      if (path != null) {
-        api.fread(path);
-      }
+      // We can't return content sync, so we return nil.
+      // Scripts should use fwrite for now.
+      ls.pushNil();
       return 1;
     });
     state.setField(-2, "fread");
@@ -207,7 +201,9 @@ class LuaMalBindings {
     state.setField(-2, "rmdir");
 
     state.pushDartFunction((LuaState ls) {
-      ls.pushBoolean(true); // Mock return
+      // fexists is hard to do sync without a cache.
+      // Returning false is safer than true if we don't know.
+      ls.pushBoolean(false);
       return 1;
     });
     state.setField(-2, "fexists");

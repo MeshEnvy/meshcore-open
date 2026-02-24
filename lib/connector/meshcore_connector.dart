@@ -556,6 +556,8 @@ class MeshCoreConnector extends ChangeNotifier {
     }
   }
 
+  VoidCallback? _onConnected;
+
   void initialize({
     required MessageRetryService retryService,
     required PathHistoryService pathHistoryService,
@@ -563,7 +565,9 @@ class MeshCoreConnector extends ChangeNotifier {
     BleDebugLogService? bleDebugLogService,
     AppDebugLogService? appDebugLogService,
     BackgroundService? backgroundService,
+    VoidCallback? onConnected,
   }) {
+    _onConnected = onConnected;
     _retryService = retryService;
     _pathHistoryService = pathHistoryService;
     _appSettingsService = appSettingsService;
@@ -916,6 +920,7 @@ class MeshCoreConnector extends ChangeNotifier {
       debugPrint('setNotifyValue(true) configuration completed');
 
       _setState(MeshCoreConnectionState.connected);
+      _onConnected?.call();
 
       await _requestDeviceInfo();
       _startBatteryPolling();
