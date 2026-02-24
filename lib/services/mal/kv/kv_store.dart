@@ -7,15 +7,15 @@ abstract class MeshKvStore {
   Future<void> init();
 
   /// Retrieves a string value for a given key.
-  Future<String?> get(String key);
+  Future<String?> get(String key, {String? scope});
 
   /// Sets a string value for a given key.
-  Future<void> set(String key, String value);
+  Future<void> set(String key, String value, {String? scope});
 
   /// Deletes a specific key.
-  Future<void> delete(String key);
+  Future<void> delete(String key, {String? scope});
 
   /// Returns all keys. Useful for iterating
   /// over all environment variables or virtual files.
-  Future<List<String>> getKeys();
+  Future<List<String>> getKeys({String? scope});
 }

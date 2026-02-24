@@ -16,6 +16,7 @@ class SqfliteKvStore implements MeshKvStore {
   Database? _db;
   bool _initialized = false;
   Future<void>? _initFuture;
+  String? _overridePath;
 
   /// Private constructor
   SqfliteKvStore._();
@@ -25,6 +26,14 @@ class SqfliteKvStore implements MeshKvStore {
 
   /// Gets the singleton instance
   static SqfliteKvStore get instance => _instance;
+
+  /// Sets an override path for the database. Useful for testing.
+  void overrideDatabasePath(String? path) {
+    _overridePath = path;
+    _db = null;
+    _initialized = false;
+    _initFuture = null;
+  }
 
   @override
   Future<void> init() async {
@@ -43,7 +52,9 @@ class SqfliteKvStore implements MeshKvStore {
     if (_db != null) return _db!;
 
     String path;
-    if (PlatformInfo.isWeb) {
+    if (_overridePath != null) {
+      path = _overridePath!;
+    } else if (PlatformInfo.isWeb) {
       path = 'mesh_kv_store.db';
     } else {
       final docsDir = await getApplicationDocumentsDirectory();
@@ -53,12 +64,27 @@ class SqfliteKvStore implements MeshKvStore {
     try {
       final db = await openDatabase(
         path,
-        version: 2,
+        version: 3,
+        onUpgrade: (db, oldVersion, newVersion) async {
+          if (oldVersion < 3) {
+            await db.execute('DROP TABLE IF EXISTS kv_store');
+            await db.execute(
+              'CREATE TABLE kv_store ('
+              '  key TEXT,'
+              '  scope TEXT,'
+              '  value TEXT,'
+              '  PRIMARY KEY (key, scope)'
+              ')',
+            );
+          }
+        },
         onCreate: (db, version) async {
           await db.execute(
             'CREATE TABLE kv_store ('
-            '  key TEXT PRIMARY KEY,'
-            '  value TEXT'
+            '  key TEXT,'
+            '  scope TEXT,'
+            '  value TEXT,'
+            '  PRIMARY KEY (key, scope)'
             ')',
           );
         },
@@ -71,14 +97,14 @@ class SqfliteKvStore implements MeshKvStore {
   }
 
   @override
-  Future<String?> get(String key) async {
+  Future<String?> get(String key, {String? scope}) async {
     await init();
     final db = await _getDatabase();
     final maps = await db.query(
       'kv_store',
       columns: ['value'],
-      where: 'key = ?',
-      whereArgs: [key],
+      where: 'key = ? AND scope = ?',
+      whereArgs: [key, scope ?? 'global'],
       limit: 1,
     );
 
@@ -89,27 +115,37 @@ class SqfliteKvStore implements MeshKvStore {
   }
 
   @override
-  Future<void> set(String key, String value) async {
+  Future<void> set(String key, String value, {String? scope}) async {
     await init();
     final db = await _getDatabase();
     await db.insert('kv_store', {
       'key': key,
+      'scope': scope ?? 'global',
       'value': value,
     }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   @override
-  Future<void> delete(String key) async {
+  Future<void> delete(String key, {String? scope}) async {
     await init();
     final db = await _getDatabase();
-    await db.delete('kv_store', where: 'key = ?', whereArgs: [key]);
+    await db.delete(
+      'kv_store',
+      where: 'key = ? AND scope = ?',
+      whereArgs: [key, scope ?? 'global'],
+    );
   }
 
   @override
-  Future<List<String>> getKeys() async {
+  Future<List<String>> getKeys({String? scope}) async {
     await init();
     final db = await _getDatabase();
-    final maps = await db.query('kv_store', columns: ['key']);
+    final maps = await db.query(
+      'kv_store',
+      columns: ['key'],
+      where: 'scope = ?',
+      whereArgs: [scope ?? 'global'],
+    );
     return maps.map((e) => e['key'] as String).toList();
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:js_interop';
+import 'dart:js_interop_unsafe';
 import 'package:web/web.dart' as web;
 import 'kv_store.dart';
 
@@ -7,7 +8,7 @@ import 'kv_store.dart';
 class IndexedDbKvStore implements MeshKvStore {
   static const String _dbName = 'mesh_kv_store';
   static const String _storeName = 'kv_store';
-  static const int _version = 1;
+  static const int _version = 2;
 
   web.IDBDatabase? _db;
   bool _initialized = false;
@@ -30,9 +31,14 @@ class IndexedDbKvStore implements MeshKvStore {
 
     request.onupgradeneeded = (web.IDBVersionChangeEvent e) {
       final db = request.result as web.IDBDatabase;
-      if (!db.objectStoreNames.contains(_storeName)) {
-        db.createObjectStore(_storeName);
+      if (db.objectStoreNames.contains(_storeName)) {
+        db.deleteObjectStore(_storeName);
       }
+      final store = db.createObjectStore(
+        _storeName,
+        web.IDBObjectStoreParameters(keyPath: ['key'.toJS, 'scope'.toJS].toJS),
+      );
+      store.createIndex('scope', 'scope'.toJS);
     }.toJS;
 
     request.onsuccess = (web.Event e) {
@@ -56,17 +62,19 @@ class IndexedDbKvStore implements MeshKvStore {
   }
 
   @override
-  Future<String?> get(String key) async {
+  Future<String?> get(String key, {String? scope}) async {
     final store = await _getStore();
     final completer = Completer<String?>();
-    final request = store.get(key.toJS);
+    final compositeKey = [key.toJS, (scope ?? 'global').toJS].toJS;
+    final request = store.get(compositeKey);
 
     request.onsuccess = (web.Event e) {
       final result = request.result;
       if (result == null || result.isUndefinedOrNull) {
         completer.complete(null);
       } else {
-        completer.complete((result as JSString).toDart);
+        final map = result as JSObject;
+        completer.complete((map.getProperty('value'.toJS) as JSString).toDart);
       }
     }.toJS;
 
@@ -78,10 +86,15 @@ class IndexedDbKvStore implements MeshKvStore {
   }
 
   @override
-  Future<void> set(String key, String value) async {
+  Future<void> set(String key, String value, {String? scope}) async {
     final store = await _getStore('readwrite');
     final completer = Completer<void>();
-    final request = store.put(value.toJS, key.toJS);
+    final obj = JSObject();
+    obj.setProperty('key'.toJS, key.toJS);
+    obj.setProperty('scope'.toJS, (scope ?? 'global').toJS);
+    obj.setProperty('value'.toJS, value.toJS);
+
+    final request = store.put(obj);
 
     request.onsuccess = (web.Event e) {
       completer.complete();
@@ -95,10 +108,11 @@ class IndexedDbKvStore implements MeshKvStore {
   }
 
   @override
-  Future<void> delete(String key) async {
+  Future<void> delete(String key, {String? scope}) async {
     final store = await _getStore('readwrite');
     final completer = Completer<void>();
-    final request = store.delete(key.toJS);
+    final compositeKey = [key.toJS, (scope ?? 'global').toJS].toJS;
+    final request = store.delete(compositeKey);
 
     request.onsuccess = (web.Event e) {
       completer.complete();
@@ -112,14 +126,19 @@ class IndexedDbKvStore implements MeshKvStore {
   }
 
   @override
-  Future<List<String>> getKeys() async {
+  Future<List<String>> getKeys({String? scope}) async {
     final store = await _getStore();
     final completer = Completer<List<String>>();
-    final request = store.getAllKeys();
+    final index = store.index('scope');
+    final request = index.getAllKeys((scope ?? 'global').toJS);
 
     request.onsuccess = (web.Event e) {
-      final keys = (request.result as JSArray).toDart;
-      completer.complete(keys.map((k) => (k as JSString).toDart).toList());
+      final results = (request.result as JSArray).toDart;
+      final keys = results.map((r) {
+        final compositeKey = (r as JSArray).toDart;
+        return (compositeKey[0] as JSString).toDart;
+      }).toList();
+      completer.complete(keys);
     }.toJS;
 
     request.onerror = (web.Event e) {

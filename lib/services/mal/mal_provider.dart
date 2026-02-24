@@ -159,12 +159,12 @@ class ConnectorMalApi implements MalApi {
 
   @override
   Future<String?> getEnv(String key) async {
-    return _kvStore.get(key);
+    return _kvStore.get(key, scope: 'env');
   }
 
   @override
   Future<void> setEnv(String key, String value) async {
-    await _kvStore.set(key, value);
+    await _kvStore.set(key, value, scope: 'env');
   }
 
   // --------------------------------------------------------------------------
@@ -172,16 +172,20 @@ class ConnectorMalApi implements MalApi {
   // --------------------------------------------------------------------------
 
   @override
-  Future<String?> getKey(String key) => _kvStore.get(key);
+  Future<String?> getKey(String key, {String? scope}) =>
+      _kvStore.get(key, scope: scope);
 
   @override
-  Future<void> setKey(String key, String value) => _kvStore.set(key, value);
+  Future<void> setKey(String key, String value, {String? scope}) =>
+      _kvStore.set(key, value, scope: scope);
 
   @override
-  Future<void> deleteKey(String key) => _kvStore.delete(key);
+  Future<void> deleteKey(String key, {String? scope}) =>
+      _kvStore.delete(key, scope: scope);
 
   @override
-  Future<List<String>> getKeys() => _kvStore.getKeys();
+  Future<List<String>> getKeys({String? scope}) =>
+      _kvStore.getKeys(scope: scope);
 
   // --------------------------------------------------------------------------
   // Virtual File System

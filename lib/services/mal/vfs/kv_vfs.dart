@@ -21,15 +21,14 @@ VirtualFileSystem getNativeVfs() {
 class KvVfs extends VirtualFileSystem {
   final MeshKvStore _kvStore;
 
-  // The prefix used in the KV store key to isolate VFS data from ENV variables
-  static const String _vfsPrefix = 'vfs:';
+  // The scope used in the KV store to isolate VFS data from ENV variables
+  static const String _vfsScope = 'vfs';
 
   KvVfs(this._kvStore);
 
   String _toKvKey(String path) {
     // Normalize path to ensure consistent keys
-    final normalized = p.normalize(path);
-    return '$_vfsPrefix$normalized';
+    return p.normalize(path);
   }
 
   @override
@@ -42,7 +41,7 @@ class KvVfs extends VirtualFileSystem {
   @override
   Future<bool> exists(String path) async {
     final key = _toKvKey(path);
-    final val = await _kvStore.get(key);
+    final val = await _kvStore.get(key, scope: _vfsScope);
     return val != null;
   }
 
@@ -56,134 +55,169 @@ class KvVfs extends VirtualFileSystem {
     }
   }
 
+  Map<String, dynamic> _decode(String val) {
+    return json.decode(val) as Map<String, dynamic>;
+  }
+
+  String _encode(Map<String, dynamic> data) {
+    return json.encode(data);
+  }
+
   @override
   Future<void> createDir(String path) async {
     await _ensureParentDirExists(path);
-
-    // We represent a directory by storing a specific marker string
     final key = _toKvKey(path);
-    await _kvStore.set(key, '__DIR__');
+    await _kvStore.set(
+      key,
+      _encode({'type': 'dir', 'mtime': DateTime.now().millisecondsSinceEpoch}),
+      scope: _vfsScope,
+    );
   }
 
   @override
   Future<void> createFile(String path) async {
     await _ensureParentDirExists(path);
-
-    // We represent an empty file by storing an empty string
     final key = _toKvKey(path);
-    await _kvStore.set(key, '');
+    await _kvStore.set(
+      key,
+      _encode({
+        'type': 'file',
+        'encoding': 'utf8',
+        'data': '',
+        'size': 0,
+        'mtime': DateTime.now().millisecondsSinceEpoch,
+      }),
+      scope: _vfsScope,
+    );
   }
 
   @override
   Future<void> writeAsString(String path, String content) async {
     await _ensureParentDirExists(path);
     final key = _toKvKey(path);
-
-    // Store as plain string text prefix
-    await _kvStore.set(key, '__TXT__$content');
+    await _kvStore.set(
+      key,
+      _encode({
+        'type': 'file',
+        'encoding': 'utf8',
+        'data': content,
+        'size': utf8.encode(content).length,
+        'mtime': DateTime.now().millisecondsSinceEpoch,
+      }),
+      scope: _vfsScope,
+    );
   }
 
   @override
   Future<String> readAsString(String path) async {
     final key = _toKvKey(path);
-    final val = await _kvStore.get(key);
+    final val = await _kvStore.get(key, scope: _vfsScope);
 
     if (val == null) {
       throw FileSystemException('File not found', path);
     }
-    if (val == '__DIR__') {
+
+    final data = _decode(val);
+    if (data['type'] == 'dir') {
       throw FileSystemException('Path is a directory, not a file', path);
     }
 
-    if (val.startsWith('__TXT__')) {
-      return val.substring(7);
+    if (data['encoding'] == 'utf8') {
+      return data['data'] as String;
     } else {
-      throw FileSystemException('Path contains binary data, not text', path);
+      final bytes = base64.decode(data['data'] as String);
+      return utf8.decode(bytes);
     }
   }
 
-  // NOTE: For binary methods readAsBytes/writeAsBytes, we would typically base64 encode
-  // the data and store it with a '__BIN__' prefix. We omit full binary conversion here
-  // to keep the VFS scope focused, but it can be added if Lua scripts need binary images.
   @override
   Future<void> writeAsBytes(String path, Uint8List bytes) async {
     await _ensureParentDirExists(path);
     final key = _toKvKey(path);
-
-    // Store as base64 encoded binary
-    final encoded = base64.encode(bytes);
-    await _kvStore.set(key, '__BIN__$encoded');
+    await _kvStore.set(
+      key,
+      _encode({
+        'type': 'file',
+        'encoding': 'base64',
+        'data': base64.encode(bytes),
+        'size': bytes.length,
+        'mtime': DateTime.now().millisecondsSinceEpoch,
+      }),
+      scope: _vfsScope,
+    );
   }
 
   @override
   Future<Uint8List> readAsBytes(String path) async {
     final key = _toKvKey(path);
-    final val = await _kvStore.get(key);
+    final val = await _kvStore.get(key, scope: _vfsScope);
 
     if (val == null) {
       throw FileSystemException('File not found', path);
     }
-    if (val == '__DIR__') {
+
+    final data = _decode(val);
+    if (data['type'] == 'dir') {
       throw FileSystemException('Path is a directory, not a file', path);
     }
 
-    if (val.startsWith('__BIN__')) {
-      return base64.decode(val.substring(7));
-    } else if (val.startsWith('__TXT__')) {
-      return Uint8List.fromList(utf8.encode(val.substring(7)));
+    if (data['encoding'] == 'base64') {
+      return base64.decode(data['data'] as String);
     } else {
-      // Handle legacy or plain strings if any
-      return Uint8List.fromList(utf8.encode(val));
+      return Uint8List.fromList(utf8.encode(data['data'] as String));
     }
   }
 
   @override
   Future<void> delete(String path) async {
     final key = _toKvKey(path);
-    final val = await _kvStore.get(key);
+    final val = await _kvStore.get(key, scope: _vfsScope);
 
     if (val == null) return;
 
-    if (val == '__DIR__') {
-      // If it's a directory, we must delete all children recursively.
-      // This is expensive in KV, we have to scan keys.
-      final allKeys = await _kvStore.getKeys();
-      final targetPrefix = '$key/';
+    final data = _decode(val);
+    if (data['type'] == 'dir') {
+      final allKeys = await _kvStore.getKeys(scope: _vfsScope);
+      final targetPrefix = (key == '/' || key == '')
+          ? '/'
+          : (key.endsWith('/') ? key : '$key/');
 
       for (final k in allKeys) {
         if (k.startsWith(targetPrefix)) {
-          await _kvStore.delete(k);
+          await _kvStore.delete(k, scope: _vfsScope);
         }
       }
     }
 
-    // Delete the target itself
-    await _kvStore.delete(key);
+    await _kvStore.delete(key, scope: _vfsScope);
   }
 
   @override
   Future<List<VfsNode>> list(String path) async {
     final normalizedPath = p.normalize(path);
-    final targetPrefix = '$_vfsPrefix$normalizedPath/';
+    final targetPrefix = normalizedPath == '/'
+        ? ''
+        : (normalizedPath.endsWith('/') ? normalizedPath : '$normalizedPath/');
 
-    final allKeys = await _kvStore.getKeys();
+    final allKeys = await _kvStore.getKeys(scope: _vfsScope);
     final Map<String, VfsNode> nodes = {};
 
     for (final key in allKeys) {
-      if (key.startsWith(targetPrefix) && key != targetPrefix) {
+      if (key.startsWith(targetPrefix)) {
         final relativePath = key.substring(targetPrefix.length);
-        final parts = p.split(relativePath);
+        if (relativePath.isEmpty) continue;
 
+        final parts = p.split(relativePath);
         if (parts.isNotEmpty) {
           final childName = parts.first;
           final childFullPath = p.join(normalizedPath, childName);
-          final childKey = '$_vfsPrefix$childFullPath';
-          final childVal = await _kvStore.get(childKey);
+          final childVal = await _kvStore.get(childFullPath, scope: _vfsScope);
 
-          if (!nodes.containsKey(childName)) {
+          if (childVal != null && !nodes.containsKey(childName)) {
+            final childData = _decode(childVal);
             nodes[childName] = VfsNode(
               path: childFullPath,
-              isDir: childVal == '__DIR__',
+              isDir: childData['type'] == 'dir',
               name: childName,
             );
           }

@@ -55,10 +55,10 @@ abstract class MalApi {
   // Key-Value Store
   // --------------------------------------------------------------------------
 
-  Future<String?> getKey(String key);
-  Future<void> setKey(String key, String value);
-  Future<void> deleteKey(String key);
-  Future<List<String>> getKeys();
+  Future<String?> getKey(String key, {String? scope});
+  Future<void> setKey(String key, String value, {String? scope});
+  Future<void> deleteKey(String key, {String? scope});
+  Future<List<String>> getKeys({String? scope});
 
   // --------------------------------------------------------------------------
   // Virtual File System
