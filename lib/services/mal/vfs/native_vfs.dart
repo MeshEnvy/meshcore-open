@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
 import '../kv/kv_store.dart';
+import 'package:path/path.dart' as p;
 import 'vfs.dart';
 
 /// Provides the NativeVfs implementation.
@@ -21,7 +22,7 @@ class NativeVfs extends VirtualFileSystem {
   @override
   Future<String> init(String nodeId) async {
     final docsDir = await getApplicationDocumentsDirectory();
-    _drivePath = '${docsDir.path}/$nodeId/drive';
+    _drivePath = p.join(docsDir.path, nodeId, 'drive');
     final dir = Directory(_drivePath);
     if (!await dir.exists()) {
       await dir.create(recursive: true);
