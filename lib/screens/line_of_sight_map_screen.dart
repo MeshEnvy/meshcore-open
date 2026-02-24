@@ -17,6 +17,7 @@ import '../utils/route_transitions.dart';
 import '../connector/meshcore_connector.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/quick_switch_bar.dart';
+import '../icons/los_icon.dart';
 
 class LineOfSightEndpoint {
   final String label;
@@ -709,7 +710,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                     alignment: Alignment.centerRight,
                     child: ElevatedButton.icon(
                       onPressed: _loading ? null : _runLos,
-                      icon: const Icon(Icons.visibility),
+                      icon: const LosIcon(),
                       label: Text(context.l10n.losRun),
                     ),
                   ),
