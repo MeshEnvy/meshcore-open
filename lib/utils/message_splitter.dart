@@ -56,7 +56,7 @@ class MessageSplitter {
     final totalPages = chunks.length;
     final prefixedChunks = <String>[];
     for (var i = 0; i < totalPages; i++) {
-      prefixedChunks.add('[${i + 1}/${totalPages}$mid]${chunks[i]}');
+      prefixedChunks.add('[${i + 1}/$totalPages$mid]${chunks[i]}');
     }
 
     return prefixedChunks;
