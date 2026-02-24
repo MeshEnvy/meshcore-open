@@ -669,6 +669,15 @@ class AppLocalizationsSl extends AppLocalizations {
       'Beleženje napak v aplikacije onemogočeno.';
 
   @override
+  String get appSettings_developerCard => 'Developer';
+
+  @override
+  String get appSettings_ide => 'IDE';
+
+  @override
+  String get appSettings_ideSubtitle => 'Integrated Development Environment';
+
+  @override
   String get contacts_title => 'Stiki';
 
   @override

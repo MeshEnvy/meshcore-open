@@ -1330,6 +1330,24 @@ abstract class AppLocalizations {
   /// **'App debug logging disabled'**
   String get appSettings_appDebugLoggingDisabled;
 
+  /// No description provided for @appSettings_developerCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer'**
+  String get appSettings_developerCard;
+
+  /// No description provided for @appSettings_ide.
+  ///
+  /// In en, this message translates to:
+  /// **'IDE'**
+  String get appSettings_ide;
+
+  /// No description provided for @appSettings_ideSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Integrated Development Environment'**
+  String get appSettings_ideSubtitle;
+
   /// No description provided for @contacts_title.
   ///
   /// In en, this message translates to:

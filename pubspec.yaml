@@ -64,6 +64,9 @@ dependencies:
   web: ^1.1.1
   flutter_svg: ^2.0.10+1
   lua_dardo: ^0.0.5
+  flutter_code_editor: ^0.3.5
+  highlight: ^0.7.0
+  flutter_highlight: ^0.7.0
 
 dev_dependencies:
   flutter_test:

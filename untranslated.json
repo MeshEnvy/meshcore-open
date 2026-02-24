@@ -1,1 +1,85 @@
-{}
+{
+  "bg": [
+    "appSettings_developerCard",
+    "appSettings_ide",
+    "appSettings_ideSubtitle"
+  ],
+
+  "de": [
+    "appSettings_developerCard",
+    "appSettings_ide",
+    "appSettings_ideSubtitle"
+  ],
+
+  "es": [
+    "appSettings_developerCard",
+    "appSettings_ide",
+    "appSettings_ideSubtitle"
+  ],
+
+  "fr": [
+    "appSettings_developerCard",
+    "appSettings_ide",
+    "appSettings_ideSubtitle"
+  ],
+
+  "it": [
+    "appSettings_developerCard",
+    "appSettings_ide",
+    "appSettings_ideSubtitle"
+  ],
+
+  "nl": [
+    "appSettings_developerCard",
+    "appSettings_ide",
+    "appSettings_ideSubtitle"
+  ],
+
+  "pl": [
+    "appSettings_developerCard",
+    "appSettings_ide",
+    "appSettings_ideSubtitle"
+  ],
+
+  "pt": [
+    "appSettings_developerCard",
+    "appSettings_ide",
+    "appSettings_ideSubtitle"
+  ],
+
+  "ru": [
+    "appSettings_developerCard",
+    "appSettings_ide",
+    "appSettings_ideSubtitle"
+  ],
+
+  "sk": [
+    "appSettings_developerCard",
+    "appSettings_ide",
+    "appSettings_ideSubtitle"
+  ],
+
+  "sl": [
+    "appSettings_developerCard",
+    "appSettings_ide",
+    "appSettings_ideSubtitle"
+  ],
+
+  "sv": [
+    "appSettings_developerCard",
+    "appSettings_ide",
+    "appSettings_ideSubtitle"
+  ],
+
+  "uk": [
+    "appSettings_developerCard",
+    "appSettings_ide",
+    "appSettings_ideSubtitle"
+  ],
+
+  "zh": [
+    "appSettings_developerCard",
+    "appSettings_ide",
+    "appSettings_ideSubtitle"
+  ]
+}

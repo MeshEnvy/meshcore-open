@@ -673,6 +673,15 @@ class AppLocalizationsUk extends AppLocalizations {
       'Налагодження програми вимкнено.';
 
   @override
+  String get appSettings_developerCard => 'Developer';
+
+  @override
+  String get appSettings_ide => 'IDE';
+
+  @override
+  String get appSettings_ideSubtitle => 'Integrated Development Environment';
+
+  @override
   String get contacts_title => 'Контакти';
 
   @override

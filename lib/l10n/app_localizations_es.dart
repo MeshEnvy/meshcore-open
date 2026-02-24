@@ -675,6 +675,15 @@ class AppLocalizationsEs extends AppLocalizations {
       'El registro de depuración de la aplicación está desactivado';
 
   @override
+  String get appSettings_developerCard => 'Developer';
+
+  @override
+  String get appSettings_ide => 'IDE';
+
+  @override
+  String get appSettings_ideSubtitle => 'Integrated Development Environment';
+
+  @override
   String get contacts_title => 'Contactos';
 
   @override

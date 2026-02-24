@@ -635,6 +635,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get appSettings_appDebugLoggingDisabled => '应用程序调试日志已禁用';
 
   @override
+  String get appSettings_developerCard => 'Developer';
+
+  @override
+  String get appSettings_ide => 'IDE';
+
+  @override
+  String get appSettings_ideSubtitle => 'Integrated Development Environment';
+
+  @override
   String get contacts_title => '联系方式';
 
   @override
