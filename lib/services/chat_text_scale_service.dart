@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../storage/prefs_manager.dart';
@@ -21,6 +23,7 @@ class ChatTextScaleService extends ChangeNotifier {
   static const double _maxScale = 1.8;
 
   double _scale = 1.0;
+  Timer? _saveTimer;
 
   double get scale => _scale;
 
@@ -31,15 +34,39 @@ class ChatTextScaleService extends ChangeNotifier {
     }
   }
 
-  void setScale(double value) {
+  void setScale(double value, {bool persistImmediately = false}) {
     final next = _clamp(value);
     if (next == _scale) return;
     _scale = next;
-    PrefsManager.instance.setDouble(_prefKey, _scale);
     notifyListeners();
+    if (persistImmediately) {
+      _commitScale();
+    } else {
+      _scheduleSave();
+    }
   }
 
-  void reset() => setScale(1.0);
+  void reset() {
+    setScale(1.0, persistImmediately: true);
+  }
+
+  void persist() => _commitScale();
+
+  @override
+  void dispose() {
+    _saveTimer?.cancel();
+    super.dispose();
+  }
+
+  void _scheduleSave() {
+    _saveTimer?.cancel();
+    _saveTimer = Timer(const Duration(milliseconds: 250), _commitScale);
+  }
+
+  void _commitScale() {
+    _saveTimer?.cancel();
+    PrefsManager.instance.setDouble(_prefKey, _scale);
+  }
 
   double _clamp(double value) => value.clamp(_minScale, _maxScale).toDouble();
 }
