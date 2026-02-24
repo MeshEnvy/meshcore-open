@@ -211,7 +211,7 @@ class MeshCoreConnector extends ChangeNotifier {
   String? _activeContactKey;
   int? _activeChannelIndex;
   List<int> _channelOrder = [];
-
+  Future<void> Function(String nodeId)? _onConnected;
   // Getters
   MeshCoreConnectionState get state => _state;
   BluetoothDevice? get device => _device;
@@ -564,6 +564,7 @@ class MeshCoreConnector extends ChangeNotifier {
     BleDebugLogService? bleDebugLogService,
     AppDebugLogService? appDebugLogService,
     BackgroundService? backgroundService,
+    Future<void> Function(String nodeId)? onConnected,
   }) {
     _retryService = retryService;
     _pathHistoryService = pathHistoryService;
@@ -571,6 +572,7 @@ class MeshCoreConnector extends ChangeNotifier {
     _bleDebugLogService = bleDebugLogService;
     _appDebugLogService = appDebugLogService;
     _backgroundService = backgroundService;
+    _onConnected = onConnected;
 
     // Initialize notification service
     _notificationService.initialize();
@@ -933,6 +935,10 @@ class MeshCoreConnector extends ChangeNotifier {
 
       // Fetch channels so we can track unread counts for incoming messages
       unawaited(getChannels());
+
+      if (_onConnected != null && _deviceId != null) {
+        unawaited(_onConnected!(_deviceId!));
+      }
     } catch (e) {
       debugPrint("Connection error: $e");
       await disconnect(manual: false);
@@ -1251,6 +1257,77 @@ class MeshCoreConnector extends ChangeNotifier {
       notifyListeners();
       final outboundText = prepareContactOutboundText(contact, text);
       await sendFrame(buildSendTextMsgFrame(contact.publicKey, outboundText));
+    }
+  }
+
+  /// Sends a text message to a specific destination node ID.
+  Future<Message?> sendText(String text, String destNodeId) async {
+    if (!isConnected || text.isEmpty || destNodeId.isEmpty) return null;
+
+    try {
+      final contact = _contacts.firstWhere((c) => c.publicKeyHex == destNodeId);
+      final pathBytes = _resolveOutgoingPathBytes(contact, null);
+      final pathLength = _resolveOutgoingPathLength(contact, null);
+
+      final message = Message.outgoing(
+        contact.publicKey,
+        text,
+        pathLength: pathLength,
+        pathBytes: pathBytes,
+      );
+
+      await sendMessage(contact, text);
+      return message;
+    } catch (_) {
+      debugPrint(
+        '[MeshCoreConnector] sendText failed: Contact not found $destNodeId',
+      );
+      return null;
+    }
+  }
+
+  /// Sends raw data bytes to a specific destination node and port.
+  Future<Message?> sendData(
+    Uint8List payloadBytes, {
+    required String destContactKeyHex,
+    required int portNum,
+    bool wantAck = false,
+  }) async {
+    if (!isConnected) return null;
+
+    try {
+      final contact = _contacts.firstWhere(
+        (c) => c.publicKeyHex == destContactKeyHex,
+      );
+      final pathBytes = _resolveOutgoingPathBytes(contact, null);
+      final pathLength = _resolveOutgoingPathLength(contact, null);
+
+      // Create a logical outbound message record
+      final message = Message.outgoing(
+        contact.publicKey,
+        'Raw Data ($portNum): ${payloadBytes.length} bytes',
+        pathLength: pathLength,
+        pathBytes: pathBytes,
+      );
+
+      _addMessage(contact.publicKeyHex, message);
+      notifyListeners();
+
+      // Use the actual binary request command
+      // In MeshCore protocol, CMD_SEND_BINARY_REQ (50) sends a REQ packet.
+      // The first byte of the payload is often treated as the request type (port).
+      final binaryPayload = Uint8List(payloadBytes.length + 1);
+      binaryPayload[0] = portNum;
+      binaryPayload.setRange(1, binaryPayload.length, payloadBytes);
+
+      await sendFrame(
+        buildSendBinaryReq(contact.publicKey, payload: binaryPayload),
+      );
+
+      return message;
+    } catch (e) {
+      debugPrint('[MeshCoreConnector] sendData failed: $e');
+      return null;
     }
   }
 

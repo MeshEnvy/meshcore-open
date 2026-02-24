@@ -1,70 +1,42 @@
 import 'package:flutter/foundation.dart';
 import 'package:lua_dardo/lua.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/app_logger.dart';
-import 'vfs/vfs.dart';
+import 'mal/mal_api.dart';
+import 'mal/bindings/lua_bindings.dart';
 
 class LuaService {
-  Future<void> initialize() async {
+  Future<void> initialize(MalApi malApi) async {
     appLogger.info('Initializing LuaService', tag: 'LuaService');
     if (kDebugMode) print('[LuaService] Initializing...');
     try {
-      // TODO: Get actual nodeId securely
-      final nodeId = 'default_node';
-      final vfs = VirtualFileSystem.get();
-      final drivePath = await vfs.init(nodeId);
+      final drivePath = malApi.homePath;
 
       appLogger.info('LuaService Drive: $drivePath', tag: 'LuaService');
       if (kDebugMode) print('[LuaService] Dir: $drivePath');
 
       final autoexecPath = '$drivePath/autoexec.lua';
-      appLogger.info('LuaService: $autoexecPath', tag: 'LuaService');
-      if (kDebugMode) print('[LuaService] Autoexec file: $autoexecPath');
 
-      if (await vfs.exists(autoexecPath)) {
+      // Optionally run autoexec if it exists
+      if (await malApi.fexists(autoexecPath)) {
         appLogger.info(
           'Found autoexec.lua at $autoexecPath, executing...',
           tag: 'LuaService',
         );
         if (kDebugMode) print('[LuaService] Found autoexec.lua, executing...');
-        final content = await vfs.readAsString(autoexecPath);
+
+        final content = await malApi.fread(autoexecPath);
 
         LuaState state = LuaState.newState();
         state.openLibs();
 
         appLogger.info(
-          'Injecting Environment Variables into Lua...',
+          'Registering Mesh Abstraction Layer into Lua...',
           tag: 'LuaService',
         );
-        if (kDebugMode) {
-          print('[LuaService] Injecting Environment Variables...');
-        }
+        if (kDebugMode) print('[LuaService] Registering MAL...');
 
-        final prefs = await SharedPreferences.getInstance();
-        const prefix = 'secret:';
-        final envVars = <String, String>{};
-        for (final key in prefs.getKeys()) {
-          if (key.startsWith(prefix)) {
-            final k = key.substring(prefix.length);
-            envVars[k] = prefs.getString(key) ?? '';
-          }
-        }
-
-        // Replace `os.getenv` with our custom function
-        state.getGlobal('os');
-        if (state.isTable(-1)) {
-          state.pushDartFunction((LuaState ls) {
-            final arg = ls.checkString(1);
-            if (arg != null && envVars.containsKey(arg)) {
-              ls.pushString(envVars[arg]!);
-            } else {
-              ls.pushNil();
-            }
-            return 1;
-          });
-          state.setField(-2, 'getenv');
-        }
-        state.pop(1); // pop 'os' table
+        // Inject MAL Bindings (Global 'mal' table)
+        LuaMalBindings.register(state, api: malApi);
 
         state.doString(content);
         appLogger.info('autoexec.lua execution completed.', tag: 'LuaService');

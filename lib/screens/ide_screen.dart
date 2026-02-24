@@ -5,7 +5,9 @@ import 'package:flutter_code_editor/flutter_code_editor.dart';
 import 'package:flutter_highlight/themes/monokai-sublime.dart';
 import 'package:highlight/languages/lua.dart' as highlight_lua;
 
-import '../services/vfs/vfs.dart';
+import 'package:provider/provider.dart';
+import '../services/mal/vfs/vfs.dart';
+import '../services/mal/mal_api.dart';
 import '../utils/app_logger.dart';
 import '../l10n/l10n.dart';
 
@@ -46,15 +48,13 @@ class _IdeScreenState extends State<IdeScreen> {
 
   Future<void> _initDriveDirs() async {
     try {
-      // TODO: Get actual nodeId
-      final nodeId = 'default_node';
-      final vfs = VirtualFileSystem.get();
-      _drivePath = await vfs.init(nodeId);
+      final malApi = context.read<MalApi>();
+      _drivePath = malApi.homePath;
 
       // Let's create an autoexec.lua dummy file if it doesn't exist
       final autoexecPath = '$_drivePath/autoexec.lua';
-      if (!await vfs.exists(autoexecPath)) {
-        await vfs.writeAsString(autoexecPath, 'print("hello world")\n');
+      if (!await malApi.fexists(autoexecPath)) {
+        await malApi.fwrite(autoexecPath, 'print("hello world")\n');
       }
 
       await _loadFiles();
@@ -73,12 +73,12 @@ class _IdeScreenState extends State<IdeScreen> {
 
   Future<void> _loadFiles() async {
     try {
-      final vfs = VirtualFileSystem.get();
-      if (await vfs.exists(_drivePath)) {
+      final malApi = context.read<MalApi>();
+      if (await malApi.fexists(_drivePath)) {
         // Simple recursive load helper
         final files = <VfsNode>[];
         Future<void> loadDir(String path) async {
-          final children = await vfs.list(path);
+          final children = await malApi.flist(path);
           for (final child in children) {
             files.add(child);
             if (child.isDir) {
@@ -183,8 +183,8 @@ class _IdeScreenState extends State<IdeScreen> {
           _selectedFile = entity;
           _hasUnsavedChanges = false;
         });
-        final vfs = VirtualFileSystem.get();
-        final content = await vfs.readAsString(entity.path);
+        final malApi = context.read<MalApi>();
+        final content = await malApi.fread(entity.path);
         if (mounted) {
           _originalContent = content;
           final controller = CodeController(
@@ -279,8 +279,8 @@ class _IdeScreenState extends State<IdeScreen> {
   Future<void> _saveCurrentFile() async {
     if (_selectedFile != null && _codeController != null) {
       try {
-        final vfs = VirtualFileSystem.get();
-        await vfs.writeAsString(_selectedFile!.path, _codeController!.text);
+        final malApi = context.read<MalApi>();
+        await malApi.fwrite(_selectedFile!.path, _codeController!.text);
         if (mounted) {
           _originalContent = _codeController!.text;
           setState(() {
@@ -350,11 +350,11 @@ class _IdeScreenState extends State<IdeScreen> {
         }
         final path = '$basePath/${value.trim()}';
         try {
-          final vfs = VirtualFileSystem.get();
+          final malApi = context.read<MalApi>();
           if (isFile) {
-            await vfs.createFile(path);
+            await malApi.fcreate(path);
           } else {
-            await vfs.createDir(path);
+            await malApi.mkdir(path);
           }
           await _loadFiles();
         } catch (e) {
@@ -400,8 +400,8 @@ class _IdeScreenState extends State<IdeScreen> {
 
     if (confirm == true) {
       try {
-        final vfs = VirtualFileSystem.get();
-        await vfs.delete(entity.path);
+        final malApi = context.read<MalApi>();
+        await malApi.rm(entity.path);
         if (_selectedFile?.path == entity.path ||
             (!isFile &&
                 _selectedFile?.path.startsWith('${entity.path}/') == true)) {

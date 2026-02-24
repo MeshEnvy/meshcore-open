@@ -1,14 +1,17 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
+import '../kv/kv_store.dart';
 import 'vfs.dart';
 
 /// Provides the NativeVfs implementation.
 VirtualFileSystem getNativeVfs() => NativeVfs();
 
-/// Provides the WebVfs implementation. Throws an error if called on native.
-VirtualFileSystem getWebVfs() {
-  throw UnsupportedError('getWebVfs is not supported on native platforms.');
+/// Provides the WebVfs (KvVfs) implementation. Throws an error if called on native.
+VirtualFileSystem getWebVfs(MeshKvStore kvStore) {
+  throw UnsupportedError(
+    'getWebVfs is not supported on native platforms. Use KvVfs directly if needed.',
+  );
 }
 
 /// A standard `dart:io` implementation of the VirtualFileSystem for native platforms.

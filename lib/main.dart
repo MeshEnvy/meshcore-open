@@ -8,6 +8,8 @@ import 'screens/chrome_required_screen.dart';
 import 'utils/platform_info.dart';
 
 import 'connector/meshcore_connector.dart';
+import 'services/mal/mal_api.dart';
+import 'services/mal/mal_provider.dart';
 import 'screens/scanner_screen.dart';
 import 'services/storage_service.dart';
 import 'services/message_retry_service.dart';
@@ -53,8 +55,10 @@ void main() async {
   final notificationService = NotificationService();
   await notificationService.initialize();
   await backgroundService.initialize();
-  await luaService.initialize();
   _registerThirdPartyLicenses();
+
+  final malApi = ConnectorMalApi(connector: connector);
+  await malApi.init();
 
   // Wire up connector with services
   connector.initialize(
@@ -64,6 +68,14 @@ void main() async {
     bleDebugLogService: bleDebugLogService,
     appDebugLogService: appDebugLogService,
     backgroundService: backgroundService,
+    onConnected: (nodeId) async {
+      appLogger.info(
+        'Node connected: $nodeId, initializing MAL...',
+        tag: 'Main',
+      );
+      await malApi.bindToNode(nodeId);
+      await luaService.initialize(malApi);
+    },
   );
 
   await connector.loadContactCache();
@@ -77,6 +89,7 @@ void main() async {
   runApp(
     MeshCoreApp(
       connector: connector,
+      malApi: malApi,
       retryService: retryService,
       pathHistoryService: pathHistoryService,
       storage: storage,
@@ -111,6 +124,7 @@ https://creativecommons.org/licenses/by/4.0/
 
 class MeshCoreApp extends StatelessWidget {
   final MeshCoreConnector connector;
+  final MalApi malApi;
   final MessageRetryService retryService;
   final PathHistoryService pathHistoryService;
   final StorageService storage;
@@ -122,6 +136,7 @@ class MeshCoreApp extends StatelessWidget {
   const MeshCoreApp({
     super.key,
     required this.connector,
+    required this.malApi,
     required this.retryService,
     required this.pathHistoryService,
     required this.storage,
@@ -141,6 +156,7 @@ class MeshCoreApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: appSettingsService),
         ChangeNotifierProvider.value(value: bleDebugLogService),
         ChangeNotifierProvider.value(value: appDebugLogService),
+        Provider.value(value: malApi),
         Provider.value(value: storage),
         Provider.value(value: mapTileCacheService),
       ],

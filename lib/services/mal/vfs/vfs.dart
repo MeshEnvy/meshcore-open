@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import '../../utils/platform_info.dart';
+import '../../../utils/platform_info.dart';
+import '../kv/kv_store.dart';
 
-import 'native_vfs.dart' if (dart.library.html) 'web_vfs.dart';
+import 'native_vfs.dart' if (dart.library.html) 'kv_vfs.dart';
 
 /// Represents a node (file or directory) in the virtual file system.
 class VfsNode {
@@ -17,9 +18,11 @@ class VfsNode {
 /// from `dart:io` for web compatibility.
 abstract class VirtualFileSystem {
   /// Returns the singleton instance based on the platform.
-  static VirtualFileSystem get() {
+  /// If [PlatformInfo.isWeb] is true, this defaults to the `KvVfs` implementation
+  /// backed by the provided [kvStore].
+  static VirtualFileSystem get(MeshKvStore kvStore) {
     if (PlatformInfo.isWeb) {
-      return getWebVfs();
+      return getWebVfs(kvStore);
     }
     return getNativeVfs();
   }
