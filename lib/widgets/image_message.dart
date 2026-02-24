@@ -1,15 +1,19 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import '../services/image_upload_service.dart';
+import '../utils/asset_encoder.dart';
+import '../connector/meshcore_connector.dart';
 import '../l10n/l10n.dart';
 
-class ImageMessage extends StatelessWidget {
+class ImageMessage extends StatefulWidget {
   final String hash;
   final Color backgroundColor;
   final Color fallbackTextColor;
   final double maxSize;
   final Uint8List? localBytes;
+  final Uint8List? channelPsk; // Optional: for channel assets
 
   const ImageMessage({
     super.key,
@@ -18,63 +22,159 @@ class ImageMessage extends StatelessWidget {
     required this.fallbackTextColor,
     this.maxSize = 250,
     this.localBytes,
+    this.channelPsk,
   });
 
   @override
+  State<ImageMessage> createState() => _ImageMessageState();
+}
+
+class _ImageMessageState extends State<ImageMessage> {
+  Uint8List? _displayBytes;
+  bool _isLoading = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.localBytes != null) {
+      _displayBytes = widget.localBytes;
+    } else {
+      _loadAndDecrypt();
+    }
+  }
+
+  Future<void> _loadAndDecrypt() async {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      final connector = context.read<MeshCoreConnector>();
+      final url = ImageUploadService.getImageUrl(widget.hash);
+      debugPrint('ImageMessage._loadAndDecrypt: Fetching from URL: $url');
+      final response = await http.get(Uri.parse(url));
+
+      debugPrint(
+        'ImageMessage._loadAndDecrypt: Received response for ${widget.hash}. Status: ${response.statusCode}',
+      );
+      if (response.statusCode == 200) {
+        final blobBytes = response.bodyBytes;
+        debugPrint(
+          'ImageMessage._loadAndDecrypt: bodyBytes.length=${blobBytes.length}',
+        );
+
+        debugPrint(
+          'ImageMessage._loadAndDecrypt: hash=${widget.hash}, channelPsk.present=${widget.channelPsk != null}, psk=${widget.channelPsk != null ? widget.channelPsk!.map((b) => b.toRadixString(16).padLeft(2, "0")).join() : "null"}',
+        );
+        // Use AssetEncoder to decrypt
+        final decryptedData = AssetEncoder.decode(
+          blobBytes: blobBytes,
+          sharedPsk: widget.channelPsk,
+          myPrivateKey: connector.selfPrivateKey,
+          myPublicKey: connector.selfPublicKey,
+        );
+
+        if (mounted) {
+          setState(() {
+            _displayBytes = decryptedData;
+            _isLoading = false;
+          });
+        }
+      } else {
+        debugPrint(
+          'ImageMessage._loadAndDecrypt: FAILED for ${widget.hash}. Status: ${response.statusCode}, Body: ${response.body}',
+        );
+        throw Exception(
+          'Failed to load asset ${widget.hash}: ${response.statusCode} (Body: ${response.body})',
+        );
+      }
+    } catch (e) {
+      debugPrint('Error loading/decrypting asset: $e');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _error = e.toString();
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final imageUrl = ImageUploadService.getImageUrl(hash);
+    if (_displayBytes == null && _isLoading) {
+      return Container(
+        color: widget.backgroundColor,
+        constraints: BoxConstraints(
+          maxWidth: widget.maxSize,
+          maxHeight: widget.maxSize,
+        ),
+        child: Center(
+          child: SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                widget.fallbackTextColor.withValues(alpha: 0.5),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (_error != null && _displayBytes == null) {
+      return Container(
+        color: widget.backgroundColor,
+        constraints: BoxConstraints(
+          maxWidth: widget.maxSize,
+          maxHeight: widget.maxSize,
+        ),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.broken_image,
+                color: widget.fallbackTextColor,
+                size: 32,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '${context.l10n.chat_failedToLoadImage}\n(${widget.hash})',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: widget.fallbackTextColor, fontSize: 10),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return GestureDetector(
-      onTap: () => _showFullScreenImage(context, imageUrl),
+      onTap: () => _displayBytes != null ? _showFullScreenImage(context) : null,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8),
         child: Container(
-          color: backgroundColor,
-          constraints: BoxConstraints(maxWidth: maxSize, maxHeight: maxSize),
-          child: localBytes != null
-              ? Image.memory(localBytes!, fit: BoxFit.contain)
-              : CachedNetworkImage(
-                  imageUrl: imageUrl,
-                  fit: BoxFit.contain,
-                  placeholder: (context, url) => Center(
-                    child: SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          fallbackTextColor.withValues(alpha: 0.5),
-                        ),
-                      ),
-                    ),
-                  ),
-                  errorWidget: (context, url, error) => Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.broken_image,
-                          color: fallbackTextColor,
-                          size: 32,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          context.l10n.chat_failedToLoadImage,
-                          style: TextStyle(
-                            color: fallbackTextColor,
-                            fontSize: 10,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+          color: widget.backgroundColor,
+          constraints: BoxConstraints(
+            maxWidth: widget.maxSize,
+            maxHeight: widget.maxSize,
+          ),
+          child: _displayBytes != null
+              ? Image.memory(_displayBytes!, fit: BoxFit.contain)
+              : const SizedBox.shrink(),
         ),
       ),
     );
   }
 
-  void _showFullScreenImage(BuildContext context, String imageUrl) {
+  void _showFullScreenImage(BuildContext context) {
+    if (_displayBytes == null) return;
+
     showDialog(
       context: context,
       builder: (context) => Dialog.fullscreen(
@@ -85,14 +185,7 @@ class ImageMessage extends StatelessWidget {
               minScale: 0.5,
               maxScale: 4.0,
               child: Center(
-                child: localBytes != null
-                    ? Image.memory(localBytes!, fit: BoxFit.contain)
-                    : CachedNetworkImage(
-                        imageUrl: imageUrl,
-                        fit: BoxFit.contain,
-                        placeholder: (context, url) =>
-                            const CircularProgressIndicator(),
-                      ),
+                child: Image.memory(_displayBytes!, fit: BoxFit.contain),
               ),
             ),
             Positioned(

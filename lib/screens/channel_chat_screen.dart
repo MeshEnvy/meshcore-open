@@ -465,6 +465,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                                   : Theme.of(context).colorScheme.onSurface
                                         .withValues(alpha: 0.6),
                               localBytes: message.attachmentBytes,
+                              channelPsk: widget.channel.psk,
                             ),
                             if (!enableTracing && isOutgoing)
                               Positioned(
@@ -987,8 +988,13 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
     }
   }
 
+  Uint8List? _stagedImageSecretKey;
   Future<void> _prepareStagedImage(Uint8List bytes) async {
+    final connector = context.read<MeshCoreConnector>();
     final processedBytes = await ImageUploadService.processImage(bytes);
+    // For channels, we use the channel PSK as the secret key
+    final secretKey = widget.channel.psk;
+
     setState(() {
       _stagedImageBytes = processedBytes;
       _stagedImageMimeType = 'image/webp';
@@ -996,10 +1002,16 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
       _stagedImageHash = null;
       _stagedImageError = null;
       _isStagedImageUploaded = false;
+      _stagedImageSecretKey = secretKey;
     });
 
     try {
-      final hash = await ImageUploadService().uploadImage(processedBytes);
+      final hash = await ImageUploadService().uploadImage(
+        processedBytes,
+        channel: widget.channel,
+        secretKey: _stagedImageSecretKey!,
+        selfPublicKey: connector.selfPublicKey,
+      );
       if (mounted) {
         setState(() {
           if (hash != null) {
@@ -1225,6 +1237,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                                           .onSurface
                                           .withValues(alpha: 0.6),
                                       maxSize: 160,
+                                      channelPsk: widget.channel.psk,
                                     ),
                                   if (_isPreparingStagedImage &&
                                       _stagedImageHash == null)

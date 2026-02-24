@@ -66,6 +66,8 @@ dependencies:
   image_picker: ^1.1.2
   desktop_drop: ^0.7.0
   image: ^4.5.2
+  protobuf: ^6.0.0
+  path: ^1.9.1
 
 dev_dependencies:
   flutter_test:

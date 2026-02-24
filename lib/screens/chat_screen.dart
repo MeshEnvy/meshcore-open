@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -649,8 +650,19 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  Uint8List? _stagedImageSecretKey;
+
   Future<void> _prepareStagedImage(Uint8List bytes) async {
+    final connector = context.read<MeshCoreConnector>();
     final processedBytes = await ImageUploadService.processImage(bytes);
+
+    // Generate a random secret key for this asset
+    final secretKey = Uint8List(32);
+    final random = Random.secure();
+    for (var i = 0; i < 32; i++) {
+      secretKey[i] = random.nextInt(256);
+    }
+
     setState(() {
       _stagedImageBytes = processedBytes;
       _stagedImageMimeType = 'image/webp';
@@ -658,10 +670,16 @@ class _ChatScreenState extends State<ChatScreen> {
       _stagedImageHash = null;
       _stagedImageError = null;
       _isStagedImageUploaded = false;
+      _stagedImageSecretKey = secretKey;
     });
 
     try {
-      final hash = await ImageUploadService().uploadImage(processedBytes);
+      final hash = await ImageUploadService().uploadImage(
+        processedBytes,
+        contact: widget.contact,
+        secretKey: _stagedImageSecretKey!,
+        selfPublicKey: connector.selfPublicKey,
+      );
       if (mounted) {
         setState(() {
           if (hash != null) {
