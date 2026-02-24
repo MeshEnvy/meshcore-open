@@ -29,7 +29,7 @@ class _EnvVarsScreenState extends State<EnvVarsScreen> {
   Future<void> _loadEnvVars() async {
     setState(() => _isLoading = true);
     try {
-      final keys = await _malApi.getKeys();
+      final keys = await _malApi.getKeys(scope: 'env');
       final List<MapEntry<String, String>> vars = [];
 
       for (final key in keys) {
@@ -73,7 +73,7 @@ class _EnvVarsScreenState extends State<EnvVarsScreen> {
 
   Future<void> _deleteEnvVar(String key) async {
     try {
-      await _malApi.deleteKey(key);
+      await _malApi.deleteKey(key, scope: 'env');
       await _loadEnvVars(); // Refresh list
     } catch (e) {
       if (mounted) {
