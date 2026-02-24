@@ -1,6 +1,7 @@
 import 'dart:async';
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
-import '../utils/platform_info.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:provider/provider.dart';
 
@@ -45,22 +46,17 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
     connector.addListener(_connectionListener);
 
-    _bluetoothStateSubscription = FlutterBluePlus.adapterState.listen(
-      (state) {
-        if (mounted) {
-          setState(() {
-            _bluetoothState = state;
-          });
-          // Cancel scan if Bluetooth turns off while scanning
-          if (state != BluetoothAdapterState.on) {
-            unawaited(connector.stopScan());
-          }
+    _bluetoothStateSubscription = FlutterBluePlus.adapterState.listen((state) {
+      if (mounted) {
+        setState(() {
+          _bluetoothState = state;
+        });
+        // Cancel scan if Bluetooth turns off while scanning
+        if (state != BluetoothAdapterState.on) {
+          unawaited(connector.stopScan());
         }
-      },
-      onError: (Object e) {
-        debugPrint("Scanner adapterState stream error: $e");
-      },
-    );
+      }
+    });
   }
 
   @override
@@ -112,11 +108,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                     if (isScanning) {
                       connector.stopScan();
                     } else {
-                      unawaited(
-                        connector.startScan().catchError((e) {
-                          debugPrint("Scanner screen startScan error: $e");
-                        }),
-                      );
+                      connector.startScan();
                     }
                   },
             icon: isScanning
@@ -273,7 +265,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
               ],
             ),
           ),
-          if (PlatformInfo.isAndroid)
+          if (Platform.isAndroid)
             TextButton(
               onPressed: () => FlutterBluePlus.turnOn(),
               child: Text(context.l10n.scanner_enableBluetooth),

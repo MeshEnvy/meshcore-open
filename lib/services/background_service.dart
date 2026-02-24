@@ -1,4 +1,5 @@
 import '../utils/platform_info.dart';
+
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 
 class BackgroundService {

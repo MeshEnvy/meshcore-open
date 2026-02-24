@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -10,10 +9,8 @@ import 'package:provider/provider.dart';
 
 import '../connector/meshcore_connector.dart';
 import '../helpers/chat_scroll_controller.dart';
-import '../connector/meshcore_protocol.dart';
 import '../helpers/link_handler.dart';
 import '../helpers/reaction_helper.dart';
-import '../helpers/utf8_length_limiter.dart';
 import '../l10n/l10n.dart';
 import '../models/channel.dart';
 import '../models/channel_message.dart';
@@ -907,8 +904,16 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
   }
 
   Widget _buildMessageComposer() {
-    final connector = context.watch<MeshCoreConnector>();
-    final maxBytes = maxChannelMessageBytes(connector.selfName);
+    _textFieldFocusNode.onKeyEvent = (node, event) {
+      if (event is KeyDownEvent &&
+          event.logicalKey == LogicalKeyboardKey.enter &&
+          !HardwareKeyboard.instance.isShiftPressed) {
+        _sendMessage();
+        return KeyEventResult.handled;
+      }
+      return KeyEventResult.ignored;
+    };
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -982,26 +987,28 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                       );
                     }
 
-                    return TextField(
-                      controller: _textController,
-                      focusNode: _textFieldFocusNode,
-                      inputFormatters: [
-                        Utf8LengthLimitingTextInputFormatter(maxBytes),
-                      ],
-                      textCapitalization: TextCapitalization.sentences,
-                      decoration: InputDecoration(
-                        hintText: context.l10n.chat_typeMessage,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
+                    return ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxHeight: MediaQuery.of(context).size.height * 0.5,
                       ),
-                      maxLines: null,
-                      textInputAction: TextInputAction.send,
-                      onSubmitted: (_) => _sendMessage(),
+                      child: TextField(
+                        controller: _textController,
+                        focusNode: _textFieldFocusNode,
+                        maxLength: 2000,
+                        textCapitalization: TextCapitalization.sentences,
+                        decoration: InputDecoration(
+                          hintText: context.l10n.chat_typeMessage,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                        ),
+                        maxLines: null,
+                        textInputAction: TextInputAction.newline,
+                      ),
                     );
                   },
                 ),
@@ -1030,15 +1037,18 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
       messageText = '@[${_replyingToMessage!.senderName}] $text';
     }
 
-    final maxBytes = maxChannelMessageBytes(connector.selfName);
-    if (utf8.encode(messageText).length > maxBytes) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.chat_messageTooLong(maxBytes))),
+    try {
+      connector.sendChannelMessage(
+        widget.channel,
+        messageText,
+        allowSplit: true,
       );
-      return;
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     }
 
-    connector.sendChannelMessage(widget.channel, messageText);
     _textController.clear();
     _cancelReply();
     _textFieldFocusNode.requestFocus();

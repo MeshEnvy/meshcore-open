@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +15,6 @@ import '../helpers/reaction_helper.dart';
 import '../widgets/message_status_icon.dart';
 import '../helpers/chat_scroll_controller.dart';
 import '../helpers/link_handler.dart';
-import '../helpers/utf8_length_limiter.dart';
 import '../models/channel_message.dart';
 import '../models/contact.dart';
 import '../models/message.dart';
@@ -320,7 +318,16 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildInputBar(MeshCoreConnector connector) {
-    final maxBytes = maxContactMessageBytes();
+    _textFieldFocusNode.onKeyEvent = (node, event) {
+      if (event is KeyDownEvent &&
+          event.logicalKey == LogicalKeyboardKey.enter &&
+          !HardwareKeyboard.instance.isShiftPressed) {
+        _sendMessage(connector);
+        return KeyEventResult.handled;
+      }
+      return KeyEventResult.ignored;
+    };
+
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(8),
@@ -383,23 +390,26 @@ class _ChatScreenState extends State<ChatScreen> {
                     );
                   }
 
-                  return TextField(
-                    controller: _textController,
-                    focusNode: _textFieldFocusNode,
-                    inputFormatters: [
-                      Utf8LengthLimitingTextInputFormatter(maxBytes),
-                    ],
-                    textCapitalization: TextCapitalization.sentences,
-                    decoration: InputDecoration(
-                      hintText: context.l10n.chat_typeMessage,
-                      border: const OutlineInputBorder(),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
+                  return ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height * 0.5,
                     ),
-                    textInputAction: TextInputAction.send,
-                    onSubmitted: (_) => _sendMessage(connector),
+                    child: TextField(
+                      controller: _textController,
+                      focusNode: _textFieldFocusNode,
+                      maxLength: 2000,
+                      textCapitalization: TextCapitalization.sentences,
+                      decoration: InputDecoration(
+                        hintText: context.l10n.chat_typeMessage,
+                        border: const OutlineInputBorder(),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                      ),
+                      maxLines: null,
+                      textInputAction: TextInputAction.newline,
+                    ),
                   );
                 },
               ),
@@ -437,15 +447,14 @@ class _ChatScreenState extends State<ChatScreen> {
     final text = _textController.text.trim();
     if (text.isEmpty) return;
 
-    final maxBytes = maxContactMessageBytes();
-    if (utf8.encode(text).length > maxBytes) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.chat_messageTooLong(maxBytes))),
-      );
-      return;
+    try {
+      connector.sendMessage(widget.contact, text, allowSplit: true);
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     }
 
-    connector.sendMessage(widget.contact, text);
     _textController.clear();
     _textFieldFocusNode.requestFocus();
   }

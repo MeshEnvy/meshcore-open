@@ -32,6 +32,8 @@ import '../utils/app_logger.dart';
 import '../utils/battery_utils.dart';
 import '../utils/platform_info.dart';
 import 'meshcore_protocol.dart';
+import '../utils/message_assembler.dart';
+import '../utils/message_splitter.dart';
 
 class MeshCoreUuids {
   static const String service = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
@@ -1202,8 +1204,28 @@ class MeshCoreConnector extends ChangeNotifier {
     await sendFrame(buildGetContactByKeyFrame(pubKey));
   }
 
-  Future<void> sendMessage(Contact contact, String text) async {
+  Future<void> sendMessage(
+    Contact contact,
+    String text, {
+    bool allowSplit = false,
+  }) async {
     if (!isConnected || text.isEmpty) return;
+
+    final maxBytes = maxContactMessageBytes();
+    if (utf8.encode(text).length > maxBytes) {
+      if (allowSplit) {
+        final chunks = MessageSplitter.split(text, maxBytes);
+        for (final chunk in chunks) {
+          await sendMessage(contact, chunk, allowSplit: false);
+          await Future.delayed(const Duration(milliseconds: 100));
+        }
+        return;
+      } else {
+        throw ArgumentError(
+          'Message exceeds maximum length of $maxBytes bytes and allowSplit is false.',
+        );
+      }
+    }
 
     // Handle auto-rotation if enabled
     PathSelection? autoSelection;
@@ -1435,8 +1457,28 @@ class MeshCoreConnector extends ChangeNotifier {
     }
   }
 
-  Future<void> sendChannelMessage(Channel channel, String text) async {
+  Future<void> sendChannelMessage(
+    Channel channel,
+    String text, {
+    bool allowSplit = false,
+  }) async {
     if (!isConnected || text.isEmpty) return;
+
+    final maxBytes = maxChannelMessageBytes(_selfName);
+    if (utf8.encode(text).length > maxBytes) {
+      if (allowSplit) {
+        final chunks = MessageSplitter.split(text, maxBytes);
+        for (final chunk in chunks) {
+          await sendChannelMessage(channel, chunk, allowSplit: false);
+          await Future.delayed(const Duration(milliseconds: 100));
+        }
+        return;
+      } else {
+        throw ArgumentError(
+          'Message exceeds maximum length of $maxBytes bytes and allowSplit is false.',
+        );
+      }
+    }
 
     // Check if this is a reaction - if so, process it immediately instead of adding as a message
     final reactionInfo = ReactionHelper.parseReaction(text);
