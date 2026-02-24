@@ -59,6 +59,7 @@ void main() async {
 
   final malApi = ConnectorMalApi(connector: connector);
   await malApi.init();
+  await luaService.initialize(malApi);
 
   // Wire up connector with services
   connector.initialize(
@@ -68,14 +69,6 @@ void main() async {
     bleDebugLogService: bleDebugLogService,
     appDebugLogService: appDebugLogService,
     backgroundService: backgroundService,
-    onConnected: (nodeId) async {
-      appLogger.info(
-        'Node connected: $nodeId, initializing MAL...',
-        tag: 'Main',
-      );
-      await malApi.bindToNode(nodeId);
-      await luaService.initialize(malApi);
-    },
   );
 
   await connector.loadContactCache();

@@ -1,4 +1,3 @@
-import 'dart:io';
 import '../../../utils/platform_info.dart';
 import 'kv_store.dart';
 
@@ -11,7 +10,7 @@ import 'package:path/path.dart' as p;
 /// This provider handles per-node storage by creating a separate database file
 /// for each `nodeId` (scope) within the node's dedicated directory.
 class SqfliteKvStore implements MeshKvStore {
-  final Map<String, Database> _databases = {};
+  Database? _db;
   bool _initialized = false;
 
   /// Private constructor
@@ -36,31 +35,21 @@ class SqfliteKvStore implements MeshKvStore {
     _initialized = true;
   }
 
-  Future<Database> _getDatabase(String scope) async {
+  Future<Database> _getDatabase() async {
     if (!_initialized) await init();
-    if (_databases.containsKey(scope)) return _databases[scope]!;
+    if (_db != null) return _db!;
 
     String path;
     if (PlatformInfo.isWeb) {
-      // On Web, we use the same logical structure (nodeId/filename)
-      // which acts as a unique IndexedDB database name.
-      path = p.join(scope, 'mesh_kv_store.db');
+      path = 'mesh_kv_store.db';
     } else {
-      // On Native, we use the node-specific directory requested by the user:
-      // Documents/<nodeId>/mesh_kv_store.db
       final docsDir = await getApplicationDocumentsDirectory();
-      final nodeRoot = p.join(docsDir.path, scope);
-      final dir = Directory(nodeRoot);
-      if (!await dir.exists()) {
-        await dir.create(recursive: true);
-      }
-      path = p.join(nodeRoot, 'mesh_kv_store.db');
+      path = p.join(docsDir.path, 'mesh_kv_store.db');
     }
 
     final db = await openDatabase(
       path,
-      version:
-          2, // Bump version if we want to force schema update, but here it's a new file
+      version: 2,
       onCreate: (db, version) async {
         await db.execute(
           'CREATE TABLE kv_store ('
@@ -70,13 +59,13 @@ class SqfliteKvStore implements MeshKvStore {
         );
       },
     );
-    _databases[scope] = db;
+    _db = db;
     return db;
   }
 
   @override
-  Future<String?> get(String key, String scope) async {
-    final db = await _getDatabase(scope);
+  Future<String?> get(String key) async {
+    final db = await _getDatabase();
 
     final maps = await db.query(
       'kv_store',
@@ -93,8 +82,8 @@ class SqfliteKvStore implements MeshKvStore {
   }
 
   @override
-  Future<void> set(String key, String value, String scope) async {
-    final db = await _getDatabase(scope);
+  Future<void> set(String key, String value) async {
+    final db = await _getDatabase();
 
     await db.insert('kv_store', {
       'key': key,
@@ -103,15 +92,15 @@ class SqfliteKvStore implements MeshKvStore {
   }
 
   @override
-  Future<void> delete(String key, String scope) async {
-    final db = await _getDatabase(scope);
+  Future<void> delete(String key) async {
+    final db = await _getDatabase();
 
     await db.delete('kv_store', where: 'key = ?', whereArgs: [key]);
   }
 
   @override
-  Future<List<String>> getKeys(String scope) async {
-    final db = await _getDatabase(scope);
+  Future<List<String>> getKeys() async {
+    final db = await _getDatabase();
     final maps = await db.query('kv_store', columns: ['key']);
 
     return maps.map((e) => e['key'] as String).toList();

@@ -14,7 +14,6 @@ VirtualFileSystem getWebVfs(MeshKvStore kvStore) => KvVfs(kvStore);
 /// file contents are stored as Base64 encoded strings.
 class KvVfs extends VirtualFileSystem {
   final MeshKvStore _kvStore;
-  late String _nodeId;
 
   // The prefix used in the KV store key to isolate VFS data from ENV variables
   static const String _vfsPrefix = 'vfs:';
@@ -28,17 +27,16 @@ class KvVfs extends VirtualFileSystem {
   }
 
   @override
-  Future<String> init(String nodeId) async {
-    _nodeId = nodeId;
+  Future<String> init() async {
     // Since this is KV-backed, the "drive path" is conceptual.
-    // We return a normalized conceptual root for this node.
-    return '/$nodeId';
+    // We return a normalized conceptual root.
+    return '/';
   }
 
   @override
   Future<bool> exists(String path) async {
     final key = _toKvKey(path);
-    final val = await _kvStore.get(key, _nodeId);
+    final val = await _kvStore.get(key);
     return val != null;
   }
 
@@ -58,7 +56,7 @@ class KvVfs extends VirtualFileSystem {
 
     // We represent a directory by storing a specific marker string
     final key = _toKvKey(path);
-    await _kvStore.set(key, '__DIR__', _nodeId);
+    await _kvStore.set(key, '__DIR__');
   }
 
   @override
@@ -67,7 +65,7 @@ class KvVfs extends VirtualFileSystem {
 
     // We represent an empty file by storing an empty string
     final key = _toKvKey(path);
-    await _kvStore.set(key, '', _nodeId);
+    await _kvStore.set(key, '');
   }
 
   @override
@@ -76,13 +74,13 @@ class KvVfs extends VirtualFileSystem {
     final key = _toKvKey(path);
 
     // Store as plain string text prefix
-    await _kvStore.set(key, '__TXT__$content', _nodeId);
+    await _kvStore.set(key, '__TXT__$content');
   }
 
   @override
   Future<String> readAsString(String path) async {
     final key = _toKvKey(path);
-    final val = await _kvStore.get(key, _nodeId);
+    final val = await _kvStore.get(key);
 
     if (val == null) {
       throw FileSystemException('File not found', path);
@@ -114,25 +112,25 @@ class KvVfs extends VirtualFileSystem {
   @override
   Future<void> delete(String path) async {
     final key = _toKvKey(path);
-    final val = await _kvStore.get(key, _nodeId);
+    final val = await _kvStore.get(key);
 
     if (val == null) return;
 
     if (val == '__DIR__') {
       // If it's a directory, we must delete all children recursively.
       // This is expensive in KV, we have to scan keys.
-      final allKeys = await _kvStore.getKeys(_nodeId);
+      final allKeys = await _kvStore.getKeys();
       final targetPrefix = '$key/';
 
       for (final k in allKeys) {
         if (k.startsWith(targetPrefix)) {
-          await _kvStore.delete(k, _nodeId);
+          await _kvStore.delete(k);
         }
       }
     }
 
     // Delete the target itself
-    await _kvStore.delete(key, _nodeId);
+    await _kvStore.delete(key);
   }
 
   @override
@@ -140,7 +138,7 @@ class KvVfs extends VirtualFileSystem {
     final normalizedPath = p.normalize(path);
     final targetPrefix = '$_vfsPrefix$normalizedPath/';
 
-    final allKeys = await _kvStore.getKeys(_nodeId);
+    final allKeys = await _kvStore.getKeys();
     final Map<String, VfsNode> nodes = {};
 
     for (final key in allKeys) {
@@ -152,7 +150,7 @@ class KvVfs extends VirtualFileSystem {
           final childName = parts.first;
           final childFullPath = p.join(normalizedPath, childName);
           final childKey = '$_vfsPrefix$childFullPath';
-          final childVal = await _kvStore.get(childKey, _nodeId);
+          final childVal = await _kvStore.get(childKey);
 
           if (!nodes.containsKey(childName)) {
             nodes[childName] = VfsNode(

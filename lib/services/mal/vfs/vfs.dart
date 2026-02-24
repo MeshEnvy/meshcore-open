@@ -27,8 +27,8 @@ abstract class VirtualFileSystem {
     return getNativeVfs();
   }
 
-  /// Initializes the VFS for the given node and returns the absolute root drive path.
-  Future<String> init(String nodeId);
+  /// Initializes the VFS and returns the absolute root drive path.
+  Future<String> init();
 
   /// Checks if a file or directory exists at the given path.
   Future<bool> exists(String path);

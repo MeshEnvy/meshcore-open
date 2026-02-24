@@ -65,7 +65,6 @@ abstract class MalApi {
   // --------------------------------------------------------------------------
 
   Future<bool> fexists(String path);
-  Future<void> bindToNode(String nodeId);
   String get homePath;
   Future<List<VfsNode>> flist(String path);
   Future<void> fcreate(String path);

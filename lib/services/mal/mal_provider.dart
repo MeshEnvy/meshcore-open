@@ -27,15 +27,11 @@ class ConnectorMalApi implements MalApi {
     await kvStore.init();
     _kvStore = kvStore;
     _vfs = VirtualFileSystem.get(kvStore);
+    _homePath = await _vfs.init();
   }
 
   @override
   String get homePath => _homePath;
-
-  @override
-  Future<void> bindToNode(String nodeId) async {
-    _homePath = await _vfs.init(nodeId);
-  }
 
   @override
   Contact? get selfNode {
@@ -151,29 +147,17 @@ class ConnectorMalApi implements MalApi {
   }
 
   // --------------------------------------------------------------------------
-  // Helper: Require Node ID
-  // --------------------------------------------------------------------------
-
-  String get _reqNodeId {
-    final id = _connector.deviceId;
-    if (id == null || !_connector.isConnected) {
-      throw StateError('MAL Operation requires an active node connection.');
-    }
-    return id;
-  }
-
-  // --------------------------------------------------------------------------
   // Environment Variables
   // --------------------------------------------------------------------------
 
   @override
   Future<String?> getEnv(String key) async {
-    return _kvStore.get(key, _reqNodeId);
+    return _kvStore.get(key);
   }
 
   @override
   Future<void> setEnv(String key, String value) async {
-    await _kvStore.set(key, value, _reqNodeId);
+    await _kvStore.set(key, value);
   }
 
   // --------------------------------------------------------------------------
@@ -181,17 +165,16 @@ class ConnectorMalApi implements MalApi {
   // --------------------------------------------------------------------------
 
   @override
-  Future<String?> getKey(String key) => _kvStore.get(key, _reqNodeId);
+  Future<String?> getKey(String key) => _kvStore.get(key);
 
   @override
-  Future<void> setKey(String key, String value) =>
-      _kvStore.set(key, value, _reqNodeId);
+  Future<void> setKey(String key, String value) => _kvStore.set(key, value);
 
   @override
-  Future<void> deleteKey(String key) => _kvStore.delete(key, _reqNodeId);
+  Future<void> deleteKey(String key) => _kvStore.delete(key);
 
   @override
-  Future<List<String>> getKeys() => _kvStore.getKeys(_reqNodeId);
+  Future<List<String>> getKeys() => _kvStore.getKeys();
 
   // --------------------------------------------------------------------------
   // Virtual File System
@@ -199,61 +182,51 @@ class ConnectorMalApi implements MalApi {
 
   @override
   Future<bool> fexists(String path) {
-    _reqNodeId; // Ensure connected
     return _vfs.exists(path);
   }
 
   @override
   Future<List<VfsNode>> flist(String path) {
-    _reqNodeId; // Ensure connected
     return _vfs.list(path);
   }
 
   @override
   Future<void> fcreate(String path) {
-    _reqNodeId; // Ensure connected
     return _vfs.createFile(path);
   }
 
   @override
   Future<void> mkdir(String path) {
-    _reqNodeId; // Ensure connected
     return _vfs.createDir(path);
   }
 
   @override
   Future<void> rmdir(String path) {
-    _reqNodeId; // Ensure connected
     return _vfs.delete(path);
   }
 
   @override
   Future<void> rm(String path) {
-    _reqNodeId; // Ensure connected
     return _vfs.delete(path);
   }
 
   @override
   Future<void> fwrite(String path, String content) {
-    _reqNodeId; // Ensure connected
     return _vfs.writeAsString(path, content);
   }
 
   @override
   Future<void> fwriteBytes(String path, Uint8List bytes) {
-    _reqNodeId; // Ensure connected
     return _vfs.writeAsBytes(path, bytes);
   }
 
   @override
   Future<String> fread(String path) {
-    _reqNodeId; // Ensure connected
     return _vfs.readAsString(path);
   }
 
   @override
   Future<Uint8List> freadBytes(String path) {
-    _reqNodeId; // Ensure connected
     return _vfs.readAsBytes(path);
   }
 }

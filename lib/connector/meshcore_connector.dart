@@ -211,7 +211,6 @@ class MeshCoreConnector extends ChangeNotifier {
   String? _activeContactKey;
   int? _activeChannelIndex;
   List<int> _channelOrder = [];
-  Future<void> Function(String nodeId)? _onConnected;
   // Getters
   MeshCoreConnectionState get state => _state;
   BluetoothDevice? get device => _device;
@@ -564,7 +563,6 @@ class MeshCoreConnector extends ChangeNotifier {
     BleDebugLogService? bleDebugLogService,
     AppDebugLogService? appDebugLogService,
     BackgroundService? backgroundService,
-    Future<void> Function(String nodeId)? onConnected,
   }) {
     _retryService = retryService;
     _pathHistoryService = pathHistoryService;
@@ -572,7 +570,6 @@ class MeshCoreConnector extends ChangeNotifier {
     _bleDebugLogService = bleDebugLogService;
     _appDebugLogService = appDebugLogService;
     _backgroundService = backgroundService;
-    _onConnected = onConnected;
 
     // Initialize notification service
     _notificationService.initialize();
@@ -935,10 +932,6 @@ class MeshCoreConnector extends ChangeNotifier {
 
       // Fetch channels so we can track unread counts for incoming messages
       unawaited(getChannels());
-
-      if (_onConnected != null && _deviceId != null) {
-        unawaited(_onConnected!(_deviceId!));
-      }
     } catch (e) {
       debugPrint("Connection error: $e");
       await disconnect(manual: false);

@@ -20,9 +20,9 @@ class NativeVfs extends VirtualFileSystem {
   late String _drivePath;
 
   @override
-  Future<String> init(String nodeId) async {
+  Future<String> init() async {
     final docsDir = await getApplicationDocumentsDirectory();
-    _drivePath = p.join(docsDir.path, nodeId, 'drive');
+    _drivePath = p.join(docsDir.path, 'drive');
     final dir = Directory(_drivePath);
     if (!await dir.exists()) {
       await dir.create(recursive: true);

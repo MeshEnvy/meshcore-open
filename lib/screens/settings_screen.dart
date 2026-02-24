@@ -403,8 +403,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     MeshCoreConnector connector,
   ) {
     final l10n = context.l10n;
-    final isConnected = connector.isConnected && connector.deviceId != null;
-    final warningSubtitle = 'Connect to a node first';
 
     return Card(
       child: Column(
@@ -418,12 +416,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           ListTile(
-            enabled: isConnected,
             leading: const Icon(Icons.code),
             title: Text(l10n.appSettings_ide),
-            subtitle: Text(
-              isConnected ? l10n.appSettings_ideSubtitle : warningSubtitle,
-            ),
+            subtitle: Text(l10n.appSettings_ideSubtitle),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
               Navigator.push(
@@ -434,12 +429,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const Divider(height: 1),
           ListTile(
-            enabled: isConnected,
             leading: const Icon(Icons.vpn_key_outlined),
             title: Text(l10n.appSettings_secrets),
-            subtitle: Text(
-              isConnected ? l10n.appSettings_secretsSubtitle : warningSubtitle,
-            ),
+            subtitle: Text(l10n.appSettings_secretsSubtitle),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
               Navigator.push(

@@ -19,7 +19,6 @@ void main() async {
   // Prepare Flat API implementation
   final malApi = ConnectorMalApi(connector: connector);
   await malApi.init();
-  await malApi.bindToNode('test_node');
 
   // Setup Lua Environment
   LuaState ls = LuaState.newState();
