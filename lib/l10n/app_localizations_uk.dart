@@ -682,6 +682,47 @@ class AppLocalizationsUk extends AppLocalizations {
   String get appSettings_ideSubtitle => 'Integrated Development Environment';
 
   @override
+  String get ide_newFile => 'New File';
+
+  @override
+  String get ide_newDirectory => 'New Directory';
+
+  @override
+  String get ide_deleteConfirmTitle => 'Delete';
+
+  @override
+  String ide_deleteFileConfirm(String name) {
+    return 'Are you sure you want to delete the file \"$name\"?';
+  }
+
+  @override
+  String ide_deleteDirConfirm(String name) {
+    return 'Are you sure you want to delete the directory \"$name\" and all its contents?';
+  }
+
+  @override
+  String get ide_fileName => 'File Name';
+
+  @override
+  String get ide_dirName => 'Directory Name';
+
+  @override
+  String get ide_unsavedChanges => 'Unsaved changes';
+
+  @override
+  String get ide_discardTitle => 'Discard Changes?';
+
+  @override
+  String get ide_discardConfirm =>
+      'You have unsaved changes. Are you sure you want to discard them?';
+
+  @override
+  String get ide_discardAction => 'Discard';
+
+  @override
+  String get ide_saveAction => 'Save';
+
+  @override
   String get contacts_title => 'Контакти';
 
   @override

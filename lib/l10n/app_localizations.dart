@@ -1348,6 +1348,78 @@ abstract class AppLocalizations {
   /// **'Integrated Development Environment'**
   String get appSettings_ideSubtitle;
 
+  /// No description provided for @ide_newFile.
+  ///
+  /// In en, this message translates to:
+  /// **'New File'**
+  String get ide_newFile;
+
+  /// No description provided for @ide_newDirectory.
+  ///
+  /// In en, this message translates to:
+  /// **'New Directory'**
+  String get ide_newDirectory;
+
+  /// No description provided for @ide_deleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get ide_deleteConfirmTitle;
+
+  /// No description provided for @ide_deleteFileConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete the file \"{name}\"?'**
+  String ide_deleteFileConfirm(String name);
+
+  /// No description provided for @ide_deleteDirConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete the directory \"{name}\" and all its contents?'**
+  String ide_deleteDirConfirm(String name);
+
+  /// No description provided for @ide_fileName.
+  ///
+  /// In en, this message translates to:
+  /// **'File Name'**
+  String get ide_fileName;
+
+  /// No description provided for @ide_dirName.
+  ///
+  /// In en, this message translates to:
+  /// **'Directory Name'**
+  String get ide_dirName;
+
+  /// No description provided for @ide_unsavedChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsaved changes'**
+  String get ide_unsavedChanges;
+
+  /// No description provided for @ide_discardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard Changes?'**
+  String get ide_discardTitle;
+
+  /// No description provided for @ide_discardConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'You have unsaved changes. Are you sure you want to discard them?'**
+  String get ide_discardConfirm;
+
+  /// No description provided for @ide_discardAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get ide_discardAction;
+
+  /// No description provided for @ide_saveAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get ide_saveAction;
+
   /// No description provided for @contacts_title.
   ///
   /// In en, this message translates to:

@@ -270,6 +270,32 @@
   "appSettings_developerCard": "Developer",
   "appSettings_ide": "IDE",
   "appSettings_ideSubtitle": "Integrated Development Environment",
+  "ide_newFile": "New File",
+  "ide_newDirectory": "New Directory",
+  "ide_deleteConfirmTitle": "Delete",
+  "ide_deleteFileConfirm": "Are you sure you want to delete the file \"{name}\"?",
+  "@ide_deleteFileConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ide_deleteDirConfirm": "Are you sure you want to delete the directory \"{name}\" and all its contents?",
+  "@ide_deleteDirConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ide_fileName": "File Name",
+  "ide_dirName": "Directory Name",
+  "ide_unsavedChanges": "Unsaved changes",
+  "ide_discardTitle": "Discard Changes?",
+  "ide_discardConfirm": "You have unsaved changes. Are you sure you want to discard them?",
+  "ide_discardAction": "Discard",
+  "ide_saveAction": "Save",
   "contacts_title": "Contacts",
   "contacts_noContacts": "No contacts yet",
   "contacts_contactsWillAppear": "Contacts will appear when devices advertise",

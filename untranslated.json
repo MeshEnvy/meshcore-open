@@ -2,84 +2,252 @@
   "bg": [
     "appSettings_developerCard",
     "appSettings_ide",
-    "appSettings_ideSubtitle"
+    "appSettings_ideSubtitle",
+    "ide_newFile",
+    "ide_newDirectory",
+    "ide_deleteConfirmTitle",
+    "ide_deleteFileConfirm",
+    "ide_deleteDirConfirm",
+    "ide_fileName",
+    "ide_dirName",
+    "ide_unsavedChanges",
+    "ide_discardTitle",
+    "ide_discardConfirm",
+    "ide_discardAction",
+    "ide_saveAction"
   ],
 
   "de": [
     "appSettings_developerCard",
     "appSettings_ide",
-    "appSettings_ideSubtitle"
+    "appSettings_ideSubtitle",
+    "ide_newFile",
+    "ide_newDirectory",
+    "ide_deleteConfirmTitle",
+    "ide_deleteFileConfirm",
+    "ide_deleteDirConfirm",
+    "ide_fileName",
+    "ide_dirName",
+    "ide_unsavedChanges",
+    "ide_discardTitle",
+    "ide_discardConfirm",
+    "ide_discardAction",
+    "ide_saveAction"
   ],
 
   "es": [
     "appSettings_developerCard",
     "appSettings_ide",
-    "appSettings_ideSubtitle"
+    "appSettings_ideSubtitle",
+    "ide_newFile",
+    "ide_newDirectory",
+    "ide_deleteConfirmTitle",
+    "ide_deleteFileConfirm",
+    "ide_deleteDirConfirm",
+    "ide_fileName",
+    "ide_dirName",
+    "ide_unsavedChanges",
+    "ide_discardTitle",
+    "ide_discardConfirm",
+    "ide_discardAction",
+    "ide_saveAction"
   ],
 
   "fr": [
     "appSettings_developerCard",
     "appSettings_ide",
-    "appSettings_ideSubtitle"
+    "appSettings_ideSubtitle",
+    "ide_newFile",
+    "ide_newDirectory",
+    "ide_deleteConfirmTitle",
+    "ide_deleteFileConfirm",
+    "ide_deleteDirConfirm",
+    "ide_fileName",
+    "ide_dirName",
+    "ide_unsavedChanges",
+    "ide_discardTitle",
+    "ide_discardConfirm",
+    "ide_discardAction",
+    "ide_saveAction"
   ],
 
   "it": [
     "appSettings_developerCard",
     "appSettings_ide",
-    "appSettings_ideSubtitle"
+    "appSettings_ideSubtitle",
+    "ide_newFile",
+    "ide_newDirectory",
+    "ide_deleteConfirmTitle",
+    "ide_deleteFileConfirm",
+    "ide_deleteDirConfirm",
+    "ide_fileName",
+    "ide_dirName",
+    "ide_unsavedChanges",
+    "ide_discardTitle",
+    "ide_discardConfirm",
+    "ide_discardAction",
+    "ide_saveAction"
   ],
 
   "nl": [
     "appSettings_developerCard",
     "appSettings_ide",
-    "appSettings_ideSubtitle"
+    "appSettings_ideSubtitle",
+    "ide_newFile",
+    "ide_newDirectory",
+    "ide_deleteConfirmTitle",
+    "ide_deleteFileConfirm",
+    "ide_deleteDirConfirm",
+    "ide_fileName",
+    "ide_dirName",
+    "ide_unsavedChanges",
+    "ide_discardTitle",
+    "ide_discardConfirm",
+    "ide_discardAction",
+    "ide_saveAction"
   ],
 
   "pl": [
     "appSettings_developerCard",
     "appSettings_ide",
-    "appSettings_ideSubtitle"
+    "appSettings_ideSubtitle",
+    "ide_newFile",
+    "ide_newDirectory",
+    "ide_deleteConfirmTitle",
+    "ide_deleteFileConfirm",
+    "ide_deleteDirConfirm",
+    "ide_fileName",
+    "ide_dirName",
+    "ide_unsavedChanges",
+    "ide_discardTitle",
+    "ide_discardConfirm",
+    "ide_discardAction",
+    "ide_saveAction"
   ],
 
   "pt": [
     "appSettings_developerCard",
     "appSettings_ide",
-    "appSettings_ideSubtitle"
+    "appSettings_ideSubtitle",
+    "ide_newFile",
+    "ide_newDirectory",
+    "ide_deleteConfirmTitle",
+    "ide_deleteFileConfirm",
+    "ide_deleteDirConfirm",
+    "ide_fileName",
+    "ide_dirName",
+    "ide_unsavedChanges",
+    "ide_discardTitle",
+    "ide_discardConfirm",
+    "ide_discardAction",
+    "ide_saveAction"
   ],
 
   "ru": [
     "appSettings_developerCard",
     "appSettings_ide",
-    "appSettings_ideSubtitle"
+    "appSettings_ideSubtitle",
+    "ide_newFile",
+    "ide_newDirectory",
+    "ide_deleteConfirmTitle",
+    "ide_deleteFileConfirm",
+    "ide_deleteDirConfirm",
+    "ide_fileName",
+    "ide_dirName",
+    "ide_unsavedChanges",
+    "ide_discardTitle",
+    "ide_discardConfirm",
+    "ide_discardAction",
+    "ide_saveAction"
   ],
 
   "sk": [
     "appSettings_developerCard",
     "appSettings_ide",
-    "appSettings_ideSubtitle"
+    "appSettings_ideSubtitle",
+    "ide_newFile",
+    "ide_newDirectory",
+    "ide_deleteConfirmTitle",
+    "ide_deleteFileConfirm",
+    "ide_deleteDirConfirm",
+    "ide_fileName",
+    "ide_dirName",
+    "ide_unsavedChanges",
+    "ide_discardTitle",
+    "ide_discardConfirm",
+    "ide_discardAction",
+    "ide_saveAction"
   ],
 
   "sl": [
     "appSettings_developerCard",
     "appSettings_ide",
-    "appSettings_ideSubtitle"
+    "appSettings_ideSubtitle",
+    "ide_newFile",
+    "ide_newDirectory",
+    "ide_deleteConfirmTitle",
+    "ide_deleteFileConfirm",
+    "ide_deleteDirConfirm",
+    "ide_fileName",
+    "ide_dirName",
+    "ide_unsavedChanges",
+    "ide_discardTitle",
+    "ide_discardConfirm",
+    "ide_discardAction",
+    "ide_saveAction"
   ],
 
   "sv": [
     "appSettings_developerCard",
     "appSettings_ide",
-    "appSettings_ideSubtitle"
+    "appSettings_ideSubtitle",
+    "ide_newFile",
+    "ide_newDirectory",
+    "ide_deleteConfirmTitle",
+    "ide_deleteFileConfirm",
+    "ide_deleteDirConfirm",
+    "ide_fileName",
+    "ide_dirName",
+    "ide_unsavedChanges",
+    "ide_discardTitle",
+    "ide_discardConfirm",
+    "ide_discardAction",
+    "ide_saveAction"
   ],
 
   "uk": [
     "appSettings_developerCard",
     "appSettings_ide",
-    "appSettings_ideSubtitle"
+    "appSettings_ideSubtitle",
+    "ide_newFile",
+    "ide_newDirectory",
+    "ide_deleteConfirmTitle",
+    "ide_deleteFileConfirm",
+    "ide_deleteDirConfirm",
+    "ide_fileName",
+    "ide_dirName",
+    "ide_unsavedChanges",
+    "ide_discardTitle",
+    "ide_discardConfirm",
+    "ide_discardAction",
+    "ide_saveAction"
   ],
 
   "zh": [
     "appSettings_developerCard",
     "appSettings_ide",
-    "appSettings_ideSubtitle"
+    "appSettings_ideSubtitle",
+    "ide_newFile",
+    "ide_newDirectory",
+    "ide_deleteConfirmTitle",
+    "ide_deleteFileConfirm",
+    "ide_deleteDirConfirm",
+    "ide_fileName",
+    "ide_dirName",
+    "ide_unsavedChanges",
+    "ide_discardTitle",
+    "ide_discardConfirm",
+    "ide_discardAction",
+    "ide_saveAction"
   ]
 }
