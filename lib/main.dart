@@ -171,6 +171,11 @@ class MeshCoreApp extends StatelessWidget {
             theme: ThemeData(
               colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
               useMaterial3: true,
+              fontFamilyFallback: const [
+                'NotoSans',
+                'NotoSansSymbols',
+                'NotoSansSC',
+              ],
               snackBarTheme: const SnackBarThemeData(
                 behavior: SnackBarBehavior.floating,
               ),
@@ -181,6 +186,11 @@ class MeshCoreApp extends StatelessWidget {
                 brightness: Brightness.dark,
               ),
               useMaterial3: true,
+              fontFamilyFallback: const [
+                'NotoSans',
+                'NotoSansSymbols',
+                'NotoSansSC',
+              ],
               snackBarTheme: const SnackBarThemeData(
                 behavior: SnackBarBehavior.floating,
               ),
