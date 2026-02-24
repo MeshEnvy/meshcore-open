@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 import 'package:path/path.dart' as p;
 import 'vfs.dart';
@@ -5,6 +6,11 @@ import '../kv/kv_store.dart';
 
 /// Provides the KvVfs implementation.
 VirtualFileSystem getWebVfs(MeshKvStore kvStore) => KvVfs(kvStore);
+
+/// Provides the NativeVfs implementation. Throws an error if called on web.
+VirtualFileSystem getNativeVfs() {
+  throw UnsupportedError('getNativeVfs is not supported on web platforms.');
+}
 
 /// A VirtualFileSystem implementation that uses `MeshKvStore` to simulate
 /// a file system. This is primarily used as a fallback on the Web or in
@@ -101,12 +107,34 @@ class KvVfs extends VirtualFileSystem {
   // to keep the VFS scope focused, but it can be added if Lua scripts need binary images.
   @override
   Future<void> writeAsBytes(String path, Uint8List bytes) async {
-    throw UnimplementedError('Binary write not currently implemented in KvVfs');
+    await _ensureParentDirExists(path);
+    final key = _toKvKey(path);
+
+    // Store as base64 encoded binary
+    final encoded = base64.encode(bytes);
+    await _kvStore.set(key, '__BIN__$encoded');
   }
 
   @override
   Future<Uint8List> readAsBytes(String path) async {
-    throw UnimplementedError('Binary read not currently implemented in KvVfs');
+    final key = _toKvKey(path);
+    final val = await _kvStore.get(key);
+
+    if (val == null) {
+      throw FileSystemException('File not found', path);
+    }
+    if (val == '__DIR__') {
+      throw FileSystemException('Path is a directory, not a file', path);
+    }
+
+    if (val.startsWith('__BIN__')) {
+      return base64.decode(val.substring(7));
+    } else if (val.startsWith('__TXT__')) {
+      return Uint8List.fromList(utf8.encode(val.substring(7)));
+    } else {
+      // Handle legacy or plain strings if any
+      return Uint8List.fromList(utf8.encode(val));
+    }
   }
 
   @override
