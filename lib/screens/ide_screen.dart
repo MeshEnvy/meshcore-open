@@ -1,11 +1,11 @@
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:flutter_code_editor/flutter_code_editor.dart';
 import 'package:flutter_highlight/themes/monokai-sublime.dart';
 import 'package:highlight/languages/lua.dart' as highlight_lua;
+
+import '../services/vfs/vfs.dart';
 
 import '../l10n/l10n.dart';
 
@@ -18,9 +18,9 @@ class IdeScreen extends StatefulWidget {
 
 class _IdeScreenState extends State<IdeScreen> {
   String _drivePath = '';
-  List<FileSystemEntity> _files = [];
-  FileSystemEntity? _selectedNode;
-  File? _selectedFile;
+  List<VfsNode> _files = [];
+  VfsNode? _selectedNode;
+  VfsNode? _selectedFile;
   CodeController? _codeController;
   String? _originalContent;
   bool _hasUnsavedChanges = false;
@@ -46,18 +46,17 @@ class _IdeScreenState extends State<IdeScreen> {
 
   Future<void> _initDriveDirs() async {
     try {
-      final docsDir = await getApplicationDocumentsDirectory();
-      final driveDir = Directory('${docsDir.path}/drive');
-      if (!await driveDir.exists()) {
-        await driveDir.create(recursive: true);
+      // TODO: Get actual nodeId
+      final nodeId = 'default_node';
+      final vfs = VirtualFileSystem.get();
+      _drivePath = await vfs.init(nodeId);
 
-        // Let's create an autoexec.lua dummy file if it doesn't exist
-        final autoexecFile = File('${driveDir.path}/autoexec.lua');
-        if (!await autoexecFile.exists()) {
-          await autoexecFile.writeAsString('print("hello world")\n');
-        }
+      // Let's create an autoexec.lua dummy file if it doesn't exist
+      final autoexecPath = '$_drivePath/autoexec.lua';
+      if (!await vfs.exists(autoexecPath)) {
+        await vfs.writeAsString(autoexecPath, 'print("hello world")\n');
       }
-      _drivePath = driveDir.path;
+
       await _loadFiles();
     } catch (e) {
       debugPrint('Error initializing IDE drive directory: $e');
@@ -71,9 +70,22 @@ class _IdeScreenState extends State<IdeScreen> {
 
   Future<void> _loadFiles() async {
     try {
-      final dir = Directory(_drivePath);
-      if (await dir.exists()) {
-        final files = dir.listSync(recursive: true);
+      final vfs = VirtualFileSystem.get();
+      if (await vfs.exists(_drivePath)) {
+        // Simple recursive load helper
+        final files = <VfsNode>[];
+        Future<void> loadDir(String path) async {
+          final children = await vfs.list(path);
+          for (final child in children) {
+            files.add(child);
+            if (child.isDir) {
+              await loadDir(child.path);
+            }
+          }
+        }
+
+        await loadDir(_drivePath);
+
         files.sort((a, b) {
           final aRelative = a.path.replaceFirst('$_drivePath/', '');
           final bRelative = b.path.replaceFirst('$_drivePath/', '');
@@ -86,10 +98,8 @@ class _IdeScreenState extends State<IdeScreen> {
 
           for (var i = 0; i < minLen; i++) {
             if (aSegments[i] != bSegments[i]) {
-              final isADirAtSegment =
-                  (i < aSegments.length - 1) || (a is Directory);
-              final isBDirAtSegment =
-                  (i < bSegments.length - 1) || (b is Directory);
+              final isADirAtSegment = (i < aSegments.length - 1) || a.isDir;
+              final isBDirAtSegment = (i < bSegments.length - 1) || b.isDir;
 
               if (isADirAtSegment && !isBDirAtSegment) return -1;
               if (!isADirAtSegment && isBDirAtSegment) return 1;
@@ -153,9 +163,9 @@ class _IdeScreenState extends State<IdeScreen> {
     return confirm == true;
   }
 
-  Future<void> _selectNode(FileSystemEntity entity) async {
+  Future<void> _selectNode(VfsNode entity) async {
     if (_hasUnsavedChanges &&
-        entity is File &&
+        !entity.isDir &&
         entity.path != _selectedFile?.path) {
       final canSwitch = await _promptDiscardChanges();
       if (!canSwitch) return;
@@ -164,13 +174,14 @@ class _IdeScreenState extends State<IdeScreen> {
     setState(() {
       _selectedNode = entity;
     });
-    if (entity is File) {
+    if (!entity.isDir) {
       try {
         setState(() {
           _selectedFile = entity;
           _hasUnsavedChanges = false;
         });
-        final content = await entity.readAsString();
+        final vfs = VirtualFileSystem.get();
+        final content = await vfs.readAsString(entity.path);
         if (mounted) {
           _originalContent = content;
           final controller = CodeController(
@@ -199,7 +210,7 @@ class _IdeScreenState extends State<IdeScreen> {
   void _showContextMenu(
     BuildContext context,
     Offset position,
-    FileSystemEntity? entity,
+    VfsNode? entity,
   ) {
     if (entity != null && _selectedNode != entity) {
       _selectNode(entity);
@@ -265,7 +276,8 @@ class _IdeScreenState extends State<IdeScreen> {
   Future<void> _saveCurrentFile() async {
     if (_selectedFile != null && _codeController != null) {
       try {
-        await _selectedFile!.writeAsString(_codeController!.text);
+        final vfs = VirtualFileSystem.get();
+        await vfs.writeAsString(_selectedFile!.path, _codeController!.text);
         if (mounted) {
           _originalContent = _codeController!.text;
           setState(() {
@@ -324,20 +336,22 @@ class _IdeScreenState extends State<IdeScreen> {
       if (value != null && value is String && value.trim().isNotEmpty) {
         String basePath = _drivePath;
         if (_selectedNode != null) {
-          if (_selectedNode is Directory) {
+          if (_selectedNode!.isDir) {
             basePath = _selectedNode!.path;
           } else {
-            basePath = _selectedNode!.parent.path;
+            // Need to get parent dir path
+            final parts = _selectedNode!.path.split('/');
+            parts.removeLast();
+            basePath = parts.join('/');
           }
         }
         final path = '$basePath/${value.trim()}';
         try {
+          final vfs = VirtualFileSystem.get();
           if (isFile) {
-            final newFile = File(path);
-            await newFile.create(recursive: true);
+            await vfs.createFile(path);
           } else {
-            final newDir = Directory(path);
-            await newDir.create(recursive: true);
+            await vfs.createDir(path);
           }
           await _loadFiles();
         } catch (e) {
@@ -352,8 +366,8 @@ class _IdeScreenState extends State<IdeScreen> {
     });
   }
 
-  Future<void> _deleteEntity(FileSystemEntity entity) async {
-    final isFile = entity is File;
+  Future<void> _deleteEntity(VfsNode entity) async {
+    final isFile = !entity.isDir;
     final relativePath = entity.path.replaceFirst('$_drivePath/', '');
 
     final confirm = await showDialog<bool>(
@@ -383,7 +397,8 @@ class _IdeScreenState extends State<IdeScreen> {
 
     if (confirm == true) {
       try {
-        await entity.delete(recursive: true);
+        final vfs = VirtualFileSystem.get();
+        await vfs.delete(entity.path);
         if (_selectedFile?.path == entity.path ||
             (!isFile &&
                 _selectedFile?.path.startsWith('${entity.path}/') == true)) {
@@ -519,7 +534,7 @@ class _IdeScreenState extends State<IdeScreen> {
                                     itemCount: _files.length,
                                     itemBuilder: (context, index) {
                                       final entity = _files[index];
-                                      final isFile = entity is File;
+                                      final isFile = !entity.isDir;
                                       final relativePath = entity.path
                                           .replaceFirst('$_drivePath/', '');
                                       final isSelected =

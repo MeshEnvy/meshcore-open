@@ -1,31 +1,33 @@
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:lua_dardo/lua.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/app_logger.dart';
+import 'vfs/vfs.dart';
 
 class LuaService {
   Future<void> initialize() async {
     appLogger.info('Initializing LuaService', tag: 'LuaService');
     if (kDebugMode) print('[LuaService] Initializing...');
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      appLogger.info('LuaService: ${dir.path}', tag: 'LuaService');
-      if (kDebugMode) print('[LuaService] Dir: ${dir.path}');
+      // TODO: Get actual nodeId securely
+      final nodeId = 'default_node';
+      final vfs = VirtualFileSystem.get();
+      final drivePath = await vfs.init(nodeId);
 
-      // The sandbox path will be: {appDocsDir}/drive/autoexec.lua
-      final autoexecFile = File('${dir.path}/drive/autoexec.lua');
-      appLogger.info('LuaService: ${autoexecFile.path}', tag: 'LuaService');
-      if (kDebugMode) print('[LuaService] Autoexec file: ${autoexecFile.path}');
+      appLogger.info('LuaService Drive: $drivePath', tag: 'LuaService');
+      if (kDebugMode) print('[LuaService] Dir: $drivePath');
 
-      if (await autoexecFile.exists()) {
+      final autoexecPath = '$drivePath/autoexec.lua';
+      appLogger.info('LuaService: $autoexecPath', tag: 'LuaService');
+      if (kDebugMode) print('[LuaService] Autoexec file: $autoexecPath');
+
+      if (await vfs.exists(autoexecPath)) {
         appLogger.info(
-          'Found autoexec.lua at ${autoexecFile.path}, executing...',
+          'Found autoexec.lua at $autoexecPath, executing...',
           tag: 'LuaService',
         );
         if (kDebugMode) print('[LuaService] Found autoexec.lua, executing...');
-        final content = await autoexecFile.readAsString();
+        final content = await vfs.readAsString(autoexecPath);
 
         LuaState state = LuaState.newState();
         state.openLibs();
@@ -69,7 +71,7 @@ class LuaService {
         if (kDebugMode) print('[LuaService] Execution completed.');
       } else {
         appLogger.info(
-          'No autoexec.lua found at ${autoexecFile.path}',
+          'No autoexec.lua found at $autoexecPath',
           tag: 'LuaService',
         );
         if (kDebugMode) print('[LuaService] No autoexec.lua found.');
