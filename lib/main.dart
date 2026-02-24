@@ -18,6 +18,7 @@ import 'services/ble_debug_log_service.dart';
 import 'services/app_debug_log_service.dart';
 import 'services/background_service.dart';
 import 'services/map_tile_cache_service.dart';
+import 'services/lua_service.dart';
 import 'storage/prefs_manager.dart';
 import 'utils/app_logger.dart';
 
@@ -37,6 +38,7 @@ void main() async {
   final appDebugLogService = AppDebugLogService();
   final backgroundService = BackgroundService();
   final mapTileCacheService = MapTileCacheService();
+  final luaService = LuaService();
 
   // Load settings
   await appSettingsService.loadSettings();
@@ -51,6 +53,7 @@ void main() async {
   final notificationService = NotificationService();
   await notificationService.initialize();
   await backgroundService.initialize();
+  await luaService.initialize();
   _registerThirdPartyLicenses();
 
   // Wire up connector with services

@@ -63,6 +63,7 @@ dependencies:
   build_pipe: ^0.3.1
   web: ^1.1.1
   flutter_svg: ^2.0.10+1
+  lua_dardo: ^0.0.5
 
 dev_dependencies:
   flutter_test:
