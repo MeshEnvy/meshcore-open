@@ -673,6 +673,35 @@ class AppLocalizationsSv extends AppLocalizations {
   String get appSettings_ideSubtitle => 'Integrerad utvecklingsmiljö';
 
   @override
+  String get appSettings_secrets => 'Environment Variables';
+
+  @override
+  String get appSettings_secretsSubtitle => 'Environment variables for scripts';
+
+  @override
+  String get appSettings_addSecret => 'Add Variable';
+
+  @override
+  String get appSettings_editSecret => 'Edit Variable';
+
+  @override
+  String get appSettings_secretKey => 'Variable Name';
+
+  @override
+  String get appSettings_secretValue => 'Value';
+
+  @override
+  String get appSettings_deleteSecretTitle => 'Delete Variable';
+
+  @override
+  String appSettings_deleteSecretConfirm(String key) {
+    return 'Are you sure you want to delete the variable \"$key\"?';
+  }
+
+  @override
+  String get appSettings_noSecrets => 'No environment variables found';
+
+  @override
   String get ide_newFile => 'Ny fil';
 
   @override

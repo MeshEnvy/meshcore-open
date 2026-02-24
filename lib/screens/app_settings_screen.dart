@@ -9,6 +9,7 @@ import '../services/notification_service.dart';
 import '../widgets/adaptive_app_bar_title.dart';
 import 'map_cache_screen.dart';
 import 'ide_screen.dart';
+import 'env_vars_screen.dart';
 
 class AppSettingsScreen extends StatelessWidget {
   const AppSettingsScreen({super.key});
@@ -839,6 +840,19 @@ class AppSettingsScreen extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const IdeScreen()),
+              );
+            },
+          ),
+          const Divider(height: 1),
+          ListTile(
+            leading: const Icon(Icons.vpn_key_outlined),
+            title: Text(context.l10n.appSettings_secrets),
+            subtitle: Text(context.l10n.appSettings_secretsSubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const EnvVarsScreen()),
               );
             },
           ),

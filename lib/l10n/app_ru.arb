@@ -989,5 +989,21 @@
         "type": "String"
       }
     }
-  }
+  },
+  "appSettings_secrets": "Environment Variables",
+  "appSettings_secretsSubtitle": "Environment variables for scripts",
+  "appSettings_addSecret": "Add Variable",
+  "appSettings_editSecret": "Edit Variable",
+  "appSettings_secretKey": "Variable Name",
+  "appSettings_secretValue": "Value",
+  "appSettings_deleteSecretTitle": "Delete Variable",
+  "appSettings_deleteSecretConfirm": "Are you sure you want to delete the variable \"{key}\"?",
+  "@appSettings_deleteSecretConfirm": {
+    "placeholders": {
+      "key": {
+        "type": "String"
+      }
+    }
+  },
+  "appSettings_noSecrets": "No environment variables found"
 }

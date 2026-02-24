@@ -1348,6 +1348,60 @@ abstract class AppLocalizations {
   /// **'Integrated Development Environment'**
   String get appSettings_ideSubtitle;
 
+  /// No description provided for @appSettings_secrets.
+  ///
+  /// In en, this message translates to:
+  /// **'Environment Variables'**
+  String get appSettings_secrets;
+
+  /// No description provided for @appSettings_secretsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Environment variables for scripts'**
+  String get appSettings_secretsSubtitle;
+
+  /// No description provided for @appSettings_addSecret.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Variable'**
+  String get appSettings_addSecret;
+
+  /// No description provided for @appSettings_editSecret.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Variable'**
+  String get appSettings_editSecret;
+
+  /// No description provided for @appSettings_secretKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Variable Name'**
+  String get appSettings_secretKey;
+
+  /// No description provided for @appSettings_secretValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Value'**
+  String get appSettings_secretValue;
+
+  /// No description provided for @appSettings_deleteSecretTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Variable'**
+  String get appSettings_deleteSecretTitle;
+
+  /// No description provided for @appSettings_deleteSecretConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete the variable \"{key}\"?'**
+  String appSettings_deleteSecretConfirm(String key);
+
+  /// No description provided for @appSettings_noSecrets.
+  ///
+  /// In en, this message translates to:
+  /// **'No environment variables found'**
+  String get appSettings_noSecrets;
+
   /// No description provided for @ide_newFile.
   ///
   /// In en, this message translates to:
