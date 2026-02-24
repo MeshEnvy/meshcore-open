@@ -674,54 +674,54 @@ class AppLocalizationsDe extends AppLocalizations {
       'App-Debug-Protokollierung deaktiviert';
 
   @override
-  String get appSettings_developerCard => 'Developer';
+  String get appSettings_developerCard => 'Entwickler';
 
   @override
   String get appSettings_ide => 'IDE';
 
   @override
-  String get appSettings_ideSubtitle => 'Integrated Development Environment';
+  String get appSettings_ideSubtitle => 'Integrierte Entwicklungsumgebung';
 
   @override
-  String get ide_newFile => 'New File';
+  String get ide_newFile => 'Neue Datei';
 
   @override
-  String get ide_newDirectory => 'New Directory';
+  String get ide_newDirectory => 'Neues Verzeichnis';
 
   @override
-  String get ide_deleteConfirmTitle => 'Delete';
+  String get ide_deleteConfirmTitle => 'Löschen';
 
   @override
   String ide_deleteFileConfirm(String name) {
-    return 'Are you sure you want to delete the file \"$name\"?';
+    return 'Sind Sie sicher, dass Sie die Datei \"$name\" löschen möchten?';
   }
 
   @override
   String ide_deleteDirConfirm(String name) {
-    return 'Are you sure you want to delete the directory \"$name\" and all its contents?';
+    return 'Sind Sie sicher, dass Sie das Verzeichnis \"$name\" und seinen gesamten Inhalt löschen möchten?';
   }
 
   @override
-  String get ide_fileName => 'File Name';
+  String get ide_fileName => 'Dateiname';
 
   @override
-  String get ide_dirName => 'Directory Name';
+  String get ide_dirName => 'Verzeichnisname';
 
   @override
-  String get ide_unsavedChanges => 'Unsaved changes';
+  String get ide_unsavedChanges => 'Ungespeicherte Änderungen';
 
   @override
-  String get ide_discardTitle => 'Discard Changes?';
+  String get ide_discardTitle => 'Änderungen verwerfen?';
 
   @override
   String get ide_discardConfirm =>
-      'You have unsaved changes. Are you sure you want to discard them?';
+      'Sie haben ungespeicherte Änderungen. Sind Sie sicher, dass Sie diese verwerfen möchten?';
 
   @override
-  String get ide_discardAction => 'Discard';
+  String get ide_discardAction => 'Verwerfen';
 
   @override
-  String get ide_saveAction => 'Save';
+  String get ide_saveAction => 'Speichern';
 
   @override
   String get contacts_title => 'Kontakte';

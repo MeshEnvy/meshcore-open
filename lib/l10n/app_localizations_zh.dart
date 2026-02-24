@@ -635,54 +635,53 @@ class AppLocalizationsZh extends AppLocalizations {
   String get appSettings_appDebugLoggingDisabled => '应用程序调试日志已禁用';
 
   @override
-  String get appSettings_developerCard => 'Developer';
+  String get appSettings_developerCard => '开发者';
 
   @override
   String get appSettings_ide => 'IDE';
 
   @override
-  String get appSettings_ideSubtitle => 'Integrated Development Environment';
+  String get appSettings_ideSubtitle => '集成开发环境';
 
   @override
-  String get ide_newFile => 'New File';
+  String get ide_newFile => '新建文件';
 
   @override
-  String get ide_newDirectory => 'New Directory';
+  String get ide_newDirectory => '新建目录';
 
   @override
-  String get ide_deleteConfirmTitle => 'Delete';
+  String get ide_deleteConfirmTitle => '删除';
 
   @override
   String ide_deleteFileConfirm(String name) {
-    return 'Are you sure you want to delete the file \"$name\"?';
+    return '您确定要删除文件 \"$name\" 吗？';
   }
 
   @override
   String ide_deleteDirConfirm(String name) {
-    return 'Are you sure you want to delete the directory \"$name\" and all its contents?';
+    return '您确定要删除目录 \"$name\" 及其所有内容吗？';
   }
 
   @override
-  String get ide_fileName => 'File Name';
+  String get ide_fileName => '文件名';
 
   @override
-  String get ide_dirName => 'Directory Name';
+  String get ide_dirName => '目录名';
 
   @override
-  String get ide_unsavedChanges => 'Unsaved changes';
+  String get ide_unsavedChanges => '未保存的更改';
 
   @override
-  String get ide_discardTitle => 'Discard Changes?';
+  String get ide_discardTitle => '放弃更改？';
 
   @override
-  String get ide_discardConfirm =>
-      'You have unsaved changes. Are you sure you want to discard them?';
+  String get ide_discardConfirm => '您有未保存的更改。您确定要放弃它们吗？';
 
   @override
-  String get ide_discardAction => 'Discard';
+  String get ide_discardAction => '放弃';
 
   @override
-  String get ide_saveAction => 'Save';
+  String get ide_saveAction => '保存';
 
   @override
   String get contacts_title => '联系方式';

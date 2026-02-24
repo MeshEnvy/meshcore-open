@@ -1720,5 +1720,34 @@
   "losPointName": "Назва точки",
   "losShowPanelTooltip": "Показати панель LOS",
   "losHidePanelTooltip": "Приховати панель LOS",
-  "losElevationAttribution": "Дані про висоту: Open-Meteo (CC BY 4.0)"
+  "losElevationAttribution": "Дані про висоту: Open-Meteo (CC BY 4.0)",
+  "appSettings_developerCard": "Розробник",
+  "appSettings_ide": "IDE",
+  "appSettings_ideSubtitle": "Інтегроване середовище розробки",
+  "ide_newFile": "Новий файл",
+  "ide_newDirectory": "Нова директорія",
+  "ide_deleteConfirmTitle": "Видалити",
+  "ide_deleteFileConfirm": "Ви впевнені, що хочете видалити файл \"{name}\"?",
+  "ide_deleteDirConfirm": "Ви впевнені, що хочете видалити каталог \"{name}\" та весь його вміст?",
+  "ide_fileName": "Ім'я файлу",
+  "ide_dirName": "Ім'я директорії",
+  "ide_unsavedChanges": "Незбережені зміни",
+  "ide_discardTitle": "Скасувати зміни?",
+  "ide_discardConfirm": "У вас є незбережені зміни. Ви впевнені, що хочете їх скасувати?",
+  "ide_discardAction": "Скасувати",
+  "ide_saveAction": "Зберегти",
+  "@ide_deleteFileConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@ide_deleteDirConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

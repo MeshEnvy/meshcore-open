@@ -414,212 +414,222 @@ class _IdeScreenState extends State<IdeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: !_hasUnsavedChanges,
-      onPopInvokedWithResult: (didPop, result) async {
-        if (didPop) return;
-        final shouldPop = await _promptDiscardChanges();
-        if (shouldPop && context.mounted) {
-          setState(() {
-            _hasUnsavedChanges = false;
-          });
-          if (Navigator.canPop(context)) {
-            Navigator.pop(context, result);
-          }
-        }
+    return CallbackShortcuts(
+      bindings: {
+        const SingleActivator(LogicalKeyboardKey.keyS, control: true): () =>
+            _saveCurrentFile(),
+        const SingleActivator(LogicalKeyboardKey.keyS, meta: true): () =>
+            _saveCurrentFile(),
       },
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(
-            '${context.l10n.appSettings_ide}${_hasUnsavedChanges ? '*' : ''}',
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.delete_outline),
-              onPressed: _selectedNode != null
-                  ? () => _deleteEntity(_selectedNode!)
-                  : null,
-              tooltip: context.l10n.common_delete,
-            ),
-            PopupMenuButton<String>(
-              icon: const Icon(Icons.add),
-              tooltip: 'New',
-              onSelected: (action) {
-                if (action == 'file') {
-                  _showCreateDialog(isFile: true);
-                } else if (action == 'dir') {
-                  _showCreateDialog(isFile: false);
-                }
-              },
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: 'file',
-                  child: Row(
-                    children: [
-                      const Icon(Icons.insert_drive_file, size: 20),
-                      const SizedBox(width: 8),
-                      Text(context.l10n.ide_newFile),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  value: 'dir',
-                  child: Row(
-                    children: [
-                      const Icon(Icons.folder, size: 20),
-                      const SizedBox(width: 8),
-                      Text(context.l10n.ide_newDirectory),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            if (_selectedFile != null)
-              IconButton(
-                icon: const Icon(Icons.save),
-                onPressed: _saveCurrentFile,
-                tooltip: context.l10n.common_save,
+      child: Focus(
+        autofocus: true,
+        child: PopScope(
+          canPop: !_hasUnsavedChanges,
+          onPopInvokedWithResult: (didPop, result) async {
+            if (didPop) return;
+            final shouldPop = await _promptDiscardChanges();
+            if (shouldPop && context.mounted) {
+              setState(() {
+                _hasUnsavedChanges = false;
+              });
+              if (Navigator.canPop(context)) {
+                Navigator.pop(context, result);
+              }
+            }
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text(
+                '${context.l10n.appSettings_ide}${_hasUnsavedChanges ? '*' : ''}',
               ),
-          ],
-        ),
-        body: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : Row(
-                children: [
-                  // Left pane: file tree
-                  Expanded(
-                    flex: 1,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border(
-                          right: BorderSide(
-                            color: Colors.grey.withValues(alpha: 0.5),
-                          ),
-                        ),
-                      ),
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.translucent,
-                        onSecondaryTapDown: (details) => _showContextMenu(
-                          context,
-                          details.globalPosition,
-                          null,
-                        ),
-                        child: _files.isEmpty
-                            ? const Center(child: Text('No files found'))
-                            : ListView.builder(
-                                itemCount: _files.length,
-                                itemBuilder: (context, index) {
-                                  final entity = _files[index];
-                                  final isFile = entity is File;
-                                  final relativePath = entity.path.replaceFirst(
-                                    '$_drivePath/',
-                                    '',
-                                  );
-                                  final isSelected =
-                                      _selectedNode?.path == entity.path;
-
-                                  // Add padding to simulate folder depth
-                                  final depth =
-                                      relativePath.split('/').length - 1;
-
-                                  return GestureDetector(
-                                    behavior: HitTestBehavior.translucent,
-                                    onSecondaryTapDown: (details) {
-                                      _showContextMenu(
-                                        context,
-                                        details.globalPosition,
-                                        entity,
-                                      );
-                                    },
-                                    child: ListTile(
-                                      leading: Padding(
-                                        padding: EdgeInsets.only(
-                                          left: depth * 12.0,
-                                        ),
-                                        child: Icon(
-                                          isFile
-                                              ? Icons.insert_drive_file
-                                              : Icons.folder,
-                                          size: 20,
-                                          color: isFile
-                                              ? null
-                                              : Theme.of(
-                                                  context,
-                                                ).colorScheme.primary,
-                                        ),
-                                      ),
-                                      title: Text(
-                                        relativePath.split('/').last,
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight:
-                                              (isSelected && _hasUnsavedChanges)
-                                              ? FontWeight.bold
-                                              : FontWeight.normal,
-                                        ),
-                                      ),
-                                      selected: isSelected,
-                                      selectedTileColor: Theme.of(
-                                        context,
-                                      ).colorScheme.primaryContainer,
-                                      onTap: () {
-                                        _selectNode(entity);
-                                      },
-                                    ),
-                                  );
-                                },
-                              ),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.delete_outline),
+                  onPressed: _selectedNode != null
+                      ? () => _deleteEntity(_selectedNode!)
+                      : null,
+                  tooltip: context.l10n.common_delete,
+                ),
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.add),
+                  tooltip: 'New',
+                  onSelected: (action) {
+                    if (action == 'file') {
+                      _showCreateDialog(isFile: true);
+                    } else if (action == 'dir') {
+                      _showCreateDialog(isFile: false);
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'file',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.insert_drive_file, size: 20),
+                          const SizedBox(width: 8),
+                          Text(context.l10n.ide_newFile),
+                        ],
                       ),
                     ),
+                    PopupMenuItem(
+                      value: 'dir',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.folder, size: 20),
+                          const SizedBox(width: 8),
+                          Text(context.l10n.ide_newDirectory),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                if (_selectedFile != null)
+                  IconButton(
+                    icon: const Icon(Icons.save),
+                    onPressed: _saveCurrentFile,
+                    tooltip: context.l10n.common_save,
                   ),
-                  // Right pane: code editor
-                  Expanded(
-                    flex: 2,
-                    child: _selectedFile == null || _codeController == null
-                        ? const Center(child: Text('Select a file to edit'))
-                        : Column(
-                            children: [
-                              if (_hasUnsavedChanges)
-                                Container(
-                                  width: double.infinity,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.errorContainer,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 4,
-                                    horizontal: 8,
+              ],
+            ),
+            body: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : Row(
+                    children: [
+                      // Left pane: file tree
+                      Expanded(
+                        flex: 1,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border(
+                              right: BorderSide(
+                                color: Colors.grey.withValues(alpha: 0.5),
+                              ),
+                            ),
+                          ),
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.translucent,
+                            onSecondaryTapDown: (details) => _showContextMenu(
+                              context,
+                              details.globalPosition,
+                              null,
+                            ),
+                            child: _files.isEmpty
+                                ? const Center(child: Text('No files found'))
+                                : ListView.builder(
+                                    itemCount: _files.length,
+                                    itemBuilder: (context, index) {
+                                      final entity = _files[index];
+                                      final isFile = entity is File;
+                                      final relativePath = entity.path
+                                          .replaceFirst('$_drivePath/', '');
+                                      final isSelected =
+                                          _selectedNode?.path == entity.path;
+
+                                      // Add padding to simulate folder depth
+                                      final depth =
+                                          relativePath.split('/').length - 1;
+
+                                      return GestureDetector(
+                                        behavior: HitTestBehavior.translucent,
+                                        onSecondaryTapDown: (details) {
+                                          _showContextMenu(
+                                            context,
+                                            details.globalPosition,
+                                            entity,
+                                          );
+                                        },
+                                        child: ListTile(
+                                          leading: Padding(
+                                            padding: EdgeInsets.only(
+                                              left: depth * 12.0,
+                                            ),
+                                            child: Icon(
+                                              isFile
+                                                  ? Icons.insert_drive_file
+                                                  : Icons.folder,
+                                              size: 20,
+                                              color: isFile
+                                                  ? null
+                                                  : Theme.of(
+                                                      context,
+                                                    ).colorScheme.primary,
+                                            ),
+                                          ),
+                                          title: Text(
+                                            relativePath.split('/').last,
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight:
+                                                  (isSelected &&
+                                                      _hasUnsavedChanges)
+                                                  ? FontWeight.bold
+                                                  : FontWeight.normal,
+                                            ),
+                                          ),
+                                          selected: isSelected,
+                                          selectedTileColor: Theme.of(
+                                            context,
+                                          ).colorScheme.primaryContainer,
+                                          onTap: () {
+                                            _selectNode(entity);
+                                          },
+                                        ),
+                                      );
+                                    },
                                   ),
-                                  child: Text(
-                                    context.l10n.ide_unsavedChanges,
-                                    style: TextStyle(
+                          ),
+                        ),
+                      ),
+                      // Right pane: code editor
+                      Expanded(
+                        flex: 2,
+                        child: _selectedFile == null || _codeController == null
+                            ? const Center(child: Text('Select a file to edit'))
+                            : Column(
+                                children: [
+                                  if (_hasUnsavedChanges)
+                                    Container(
+                                      width: double.infinity,
                                       color: Theme.of(
                                         context,
-                                      ).colorScheme.onErrorContainer,
-                                      fontSize: 12,
+                                      ).colorScheme.errorContainer,
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 4,
+                                        horizontal: 8,
+                                      ),
+                                      child: Text(
+                                        context.l10n.ide_unsavedChanges,
+                                        style: TextStyle(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onErrorContainer,
+                                          fontSize: 12,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
                                     ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              Expanded(
-                                child: CodeTheme(
-                                  data: CodeThemeData(
-                                    styles: monokaiSublimeTheme,
-                                  ),
-                                  child: CodeField(
-                                    controller: _codeController!,
-                                    expands: true,
-                                    textStyle: const TextStyle(
-                                      fontFamily: 'monospace',
-                                      fontSize: 14,
+                                  Expanded(
+                                    child: CodeTheme(
+                                      data: CodeThemeData(
+                                        styles: monokaiSublimeTheme,
+                                      ),
+                                      child: CodeField(
+                                        controller: _codeController!,
+                                        expands: true,
+                                        textStyle: const TextStyle(
+                                          fontFamily: 'monospace',
+                                          fontSize: 14,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
+                                ],
                               ),
-                            ],
-                          ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+          ),
+        ),
       ),
     );
   }

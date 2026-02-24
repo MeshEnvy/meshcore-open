@@ -1720,5 +1720,34 @@
   "losPointName": "Názov bodu",
   "losShowPanelTooltip": "Zobraziť panel LOS",
   "losHidePanelTooltip": "Skryť panel LOS",
-  "losElevationAttribution": "Údaje o nadmorskej výške: Open-Meteo (CC BY 4.0)"
+  "losElevationAttribution": "Údaje o nadmorskej výške: Open-Meteo (CC BY 4.0)",
+  "appSettings_developerCard": "Vývojár",
+  "appSettings_ide": "IDE",
+  "appSettings_ideSubtitle": "Integrované vývojové prostredie",
+  "ide_newFile": "Nový súbor",
+  "ide_newDirectory": "Nový adresár",
+  "ide_deleteConfirmTitle": "Odstrániť",
+  "ide_deleteFileConfirm": "Naozaj chcete odstrániť súbor \"{name}\"?",
+  "ide_deleteDirConfirm": "Naozaj chcete odstrániť adresár \"{name}\" a celý jeho obsah?",
+  "ide_fileName": "Názov súboru",
+  "ide_dirName": "Názov adresára",
+  "ide_unsavedChanges": "Neuložené zmeny",
+  "ide_discardTitle": "Zahodiť zmeny?",
+  "ide_discardConfirm": "Máte neuložené zmeny. Naozaj ich chcete zahodiť?",
+  "ide_discardAction": "Zahodiť",
+  "ide_saveAction": "Uložiť",
+  "@ide_deleteFileConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@ide_deleteDirConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

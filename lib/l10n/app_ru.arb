@@ -960,5 +960,34 @@
   "losPointName": "Имя точки",
   "losShowPanelTooltip": "Показать панель LOS",
   "losHidePanelTooltip": "Скрыть панель LOS",
-  "losElevationAttribution": "Данные о высоте: Open-Meteo (CC BY 4.0)"
+  "losElevationAttribution": "Данные о высоте: Open-Meteo (CC BY 4.0)",
+  "appSettings_developerCard": "Разработчик",
+  "appSettings_ide": "IDE",
+  "appSettings_ideSubtitle": "Интегрированная среда разработки",
+  "ide_newFile": "Новый файл",
+  "ide_newDirectory": "Новая директория",
+  "ide_deleteConfirmTitle": "Удалить",
+  "ide_deleteFileConfirm": "Вы уверены, что хотите удалить файл \"{name}\"?",
+  "ide_deleteDirConfirm": "Вы уверены, что хотите удалить каталог \"{name}\" и всё его содержимое?",
+  "ide_fileName": "Имя файла",
+  "ide_dirName": "Имя директории",
+  "ide_unsavedChanges": "Несохраненные изменения",
+  "ide_discardTitle": "Отменить изменения?",
+  "ide_discardConfirm": "У вас есть несохраненные изменения. Вы уверены, что хотите отменить их?",
+  "ide_discardAction": "Отменить",
+  "ide_saveAction": "Сохранить",
+  "@ide_deleteFileConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@ide_deleteDirConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

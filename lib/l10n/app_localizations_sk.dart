@@ -668,54 +668,54 @@ class AppLocalizationsSk extends AppLocalizations {
       'Zabudované ladenie aplikácie je vypnuté.';
 
   @override
-  String get appSettings_developerCard => 'Developer';
+  String get appSettings_developerCard => 'Vývojár';
 
   @override
   String get appSettings_ide => 'IDE';
 
   @override
-  String get appSettings_ideSubtitle => 'Integrated Development Environment';
+  String get appSettings_ideSubtitle => 'Integrované vývojové prostredie';
 
   @override
-  String get ide_newFile => 'New File';
+  String get ide_newFile => 'Nový súbor';
 
   @override
-  String get ide_newDirectory => 'New Directory';
+  String get ide_newDirectory => 'Nový adresár';
 
   @override
-  String get ide_deleteConfirmTitle => 'Delete';
+  String get ide_deleteConfirmTitle => 'Odstrániť';
 
   @override
   String ide_deleteFileConfirm(String name) {
-    return 'Are you sure you want to delete the file \"$name\"?';
+    return 'Naozaj chcete odstrániť súbor \"$name\"?';
   }
 
   @override
   String ide_deleteDirConfirm(String name) {
-    return 'Are you sure you want to delete the directory \"$name\" and all its contents?';
+    return 'Naozaj chcete odstrániť adresár \"$name\" a celý jeho obsah?';
   }
 
   @override
-  String get ide_fileName => 'File Name';
+  String get ide_fileName => 'Názov súboru';
 
   @override
-  String get ide_dirName => 'Directory Name';
+  String get ide_dirName => 'Názov adresára';
 
   @override
-  String get ide_unsavedChanges => 'Unsaved changes';
+  String get ide_unsavedChanges => 'Neuložené zmeny';
 
   @override
-  String get ide_discardTitle => 'Discard Changes?';
+  String get ide_discardTitle => 'Zahodiť zmeny?';
 
   @override
   String get ide_discardConfirm =>
-      'You have unsaved changes. Are you sure you want to discard them?';
+      'Máte neuložené zmeny. Naozaj ich chcete zahodiť?';
 
   @override
-  String get ide_discardAction => 'Discard';
+  String get ide_discardAction => 'Zahodiť';
 
   @override
-  String get ide_saveAction => 'Save';
+  String get ide_saveAction => 'Uložiť';
 
   @override
   String get contacts_title => 'Kontakty';

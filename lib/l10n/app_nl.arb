@@ -1720,5 +1720,34 @@
   "losPointName": "Puntnaam",
   "losShowPanelTooltip": "Toon LOS-paneel",
   "losHidePanelTooltip": "LOS-paneel verbergen",
-  "losElevationAttribution": "Hoogtegegevens: Open-Meteo (CC BY 4.0)"
+  "losElevationAttribution": "Hoogtegegevens: Open-Meteo (CC BY 4.0)",
+  "appSettings_developerCard": "Ontwikkelaar",
+  "appSettings_ide": "IDE",
+  "appSettings_ideSubtitle": "Geïntegreerde ontwikkelomgeving",
+  "ide_newFile": "Nieuw bestand",
+  "ide_newDirectory": "Nieuwe map",
+  "ide_deleteConfirmTitle": "Verwijderen",
+  "ide_deleteFileConfirm": "Weet u zeker dat u het bestand \"{name}\" wilt verwijderen?",
+  "ide_deleteDirConfirm": "Weet u zeker dat u de map \"{name}\" en alle inhoud wilt verwijderen?",
+  "ide_fileName": "Bestandsnaam",
+  "ide_dirName": "Mapnaam",
+  "ide_unsavedChanges": "Niet-opgeslagen wijzigingen",
+  "ide_discardTitle": "Wijzigingen negeren?",
+  "ide_discardConfirm": "Je hebt niet-opgeslagen wijzigingen. Weet je zeker dat je ze wilt negeren?",
+  "ide_discardAction": "Negeren",
+  "ide_saveAction": "Opslaan",
+  "@ide_deleteFileConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@ide_deleteDirConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

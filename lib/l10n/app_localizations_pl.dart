@@ -675,54 +675,55 @@ class AppLocalizationsPl extends AppLocalizations {
       'Zasubskrybowane logi debugowania aplikacji wyłączone.';
 
   @override
-  String get appSettings_developerCard => 'Developer';
+  String get appSettings_developerCard => 'Programista';
 
   @override
   String get appSettings_ide => 'IDE';
 
   @override
-  String get appSettings_ideSubtitle => 'Integrated Development Environment';
+  String get appSettings_ideSubtitle =>
+      'Zintegrowane środowisko programistyczne';
 
   @override
-  String get ide_newFile => 'New File';
+  String get ide_newFile => 'Nowy plik';
 
   @override
-  String get ide_newDirectory => 'New Directory';
+  String get ide_newDirectory => 'Nowy katalog';
 
   @override
-  String get ide_deleteConfirmTitle => 'Delete';
+  String get ide_deleteConfirmTitle => 'Usuń';
 
   @override
   String ide_deleteFileConfirm(String name) {
-    return 'Are you sure you want to delete the file \"$name\"?';
+    return 'Czy na pewno chcesz usunąć plik \"$name\"?';
   }
 
   @override
   String ide_deleteDirConfirm(String name) {
-    return 'Are you sure you want to delete the directory \"$name\" and all its contents?';
+    return 'Czy na pewno chcesz usunąć katalog \"$name\" i całą jego zawartość?';
   }
 
   @override
-  String get ide_fileName => 'File Name';
+  String get ide_fileName => 'Nazwa pliku';
 
   @override
-  String get ide_dirName => 'Directory Name';
+  String get ide_dirName => 'Nazwa katalogu';
 
   @override
-  String get ide_unsavedChanges => 'Unsaved changes';
+  String get ide_unsavedChanges => 'Niezapisane zmiany';
 
   @override
-  String get ide_discardTitle => 'Discard Changes?';
+  String get ide_discardTitle => 'Odrzucić zmiany?';
 
   @override
   String get ide_discardConfirm =>
-      'You have unsaved changes. Are you sure you want to discard them?';
+      'Masz niezapisane zmiany. Czy na pewno chcesz je odrzucić?';
 
   @override
-  String get ide_discardAction => 'Discard';
+  String get ide_discardAction => 'Odrzuć';
 
   @override
-  String get ide_saveAction => 'Save';
+  String get ide_saveAction => 'Zapisz';
 
   @override
   String get contacts_title => 'Kontakty';

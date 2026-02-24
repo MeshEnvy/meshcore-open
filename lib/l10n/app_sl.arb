@@ -1720,5 +1720,34 @@
   "losPointName": "Ime točke",
   "losShowPanelTooltip": "Pokaži ploščo LOS",
   "losHidePanelTooltip": "Skrij ploščo LOS",
-  "losElevationAttribution": "Podatki o višini: Open-Meteo (CC BY 4.0)"
+  "losElevationAttribution": "Podatki o višini: Open-Meteo (CC BY 4.0)",
+  "appSettings_developerCard": "Razvijalec",
+  "appSettings_ide": "IDE",
+  "appSettings_ideSubtitle": "Integrirano razvojno okolje",
+  "ide_newFile": "Nova datoteka",
+  "ide_newDirectory": "Nov imenik",
+  "ide_deleteConfirmTitle": "Izbriši",
+  "ide_deleteFileConfirm": "Ste prepričani, da želite izbrisati datoteko \"{name}\"?",
+  "ide_deleteDirConfirm": "Ste prepričani, da želite izbrisati imenik \"{name}\" in vso njegovo vsebino?",
+  "ide_fileName": "Ime datoteke",
+  "ide_dirName": "Ime imenika",
+  "ide_unsavedChanges": "Neshranjene spremembe",
+  "ide_discardTitle": "Zavrzi spremembe?",
+  "ide_discardConfirm": "Imate neshranjene spremembe. Ste prepričani, da jih želite zavreči?",
+  "ide_discardAction": "Zavrzi",
+  "ide_saveAction": "Shrani",
+  "@ide_deleteFileConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@ide_deleteDirConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

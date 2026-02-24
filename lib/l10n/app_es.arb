@@ -1748,5 +1748,34 @@
   "losPointName": "Nombre del punto",
   "losShowPanelTooltip": "Mostrar panel LOS",
   "losHidePanelTooltip": "Ocultar panel LOS",
-  "losElevationAttribution": "Datos de elevación: Open-Meteo (CC BY 4.0)"
+  "losElevationAttribution": "Datos de elevación: Open-Meteo (CC BY 4.0)",
+  "appSettings_developerCard": "Desarrollador",
+  "appSettings_ide": "IDE",
+  "appSettings_ideSubtitle": "Entorno de Desarrollo Integrado",
+  "ide_newFile": "Nuevo archivo",
+  "ide_newDirectory": "Nuevo directorio",
+  "ide_deleteConfirmTitle": "Eliminar",
+  "ide_deleteFileConfirm": "¿Está seguro de que desea eliminar el archivo \"{name}\"?",
+  "ide_deleteDirConfirm": "¿Está seguro de que desea eliminar el directorio \"{name}\" y todo su contenido?",
+  "ide_fileName": "Nombre del archivo",
+  "ide_dirName": "Nombre del directorio",
+  "ide_unsavedChanges": "Cambios sin guardar",
+  "ide_discardTitle": "¿Descartar cambios?",
+  "ide_discardConfirm": "Tiene cambios sin guardar. ¿Está seguro de que desea descartarlos?",
+  "ide_discardAction": "Descartar",
+  "ide_saveAction": "Guardar",
+  "@ide_deleteFileConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@ide_deleteDirConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

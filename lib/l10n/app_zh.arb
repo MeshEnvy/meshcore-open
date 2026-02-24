@@ -1720,5 +1720,34 @@
   "losPointName": "点名称",
   "losShowPanelTooltip": "显示 LOS 面板",
   "losHidePanelTooltip": "隐藏 LOS 面板",
-  "losElevationAttribution": "高程数据：Open-Meteo (CC BY 4.0)"
+  "losElevationAttribution": "高程数据：Open-Meteo (CC BY 4.0)",
+  "appSettings_developerCard": "开发者",
+  "appSettings_ide": "IDE",
+  "appSettings_ideSubtitle": "集成开发环境",
+  "ide_newFile": "新建文件",
+  "ide_newDirectory": "新建目录",
+  "ide_deleteConfirmTitle": "删除",
+  "ide_deleteFileConfirm": "您确定要删除文件 \"{name}\" 吗？",
+  "ide_deleteDirConfirm": "您确定要删除目录 \"{name}\" 及其所有内容吗？",
+  "ide_fileName": "文件名",
+  "ide_dirName": "目录名",
+  "ide_unsavedChanges": "未保存的更改",
+  "ide_discardTitle": "放弃更改？",
+  "ide_discardConfirm": "您有未保存的更改。您确定要放弃它们吗？",
+  "ide_discardAction": "放弃",
+  "ide_saveAction": "保存",
+  "@ide_deleteFileConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@ide_deleteDirConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }
