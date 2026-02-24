@@ -171,6 +171,7 @@ class MeshCoreApp extends StatelessWidget {
             theme: ThemeData(
               colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
               useMaterial3: true,
+              fontFamily: 'NotoSans',
               fontFamilyFallback: const [
                 'NotoSans',
                 'NotoSansSymbols',
@@ -186,6 +187,7 @@ class MeshCoreApp extends StatelessWidget {
                 brightness: Brightness.dark,
               ),
               useMaterial3: true,
+              fontFamily: 'NotoSans',
               fontFamilyFallback: const [
                 'NotoSans',
                 'NotoSansSymbols',
