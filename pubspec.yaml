@@ -64,7 +64,8 @@ dependencies:
   material_symbols_icons: ^4.2906.0
   web: ^1.1.1
   flutter_svg: ^2.0.10+1
-  lua_dardo: ^0.0.5
+  lua_dardo:
+    path: vendor/lua_dardo
   flutter_code_editor: ^0.3.5
   highlight: ^0.7.0
   flutter_highlight: ^0.7.0

@@ -118,20 +118,20 @@ class _IdeScreenState extends State<IdeScreen> {
                       // Drag handle
                       HorizontalResizeHandle(
                         onDrag: (dx) => setState(() {
-                          _sidePaneWidth =
-                              (_sidePaneWidth + dx).clamp(150.0, 600.0);
+                          _sidePaneWidth = (_sidePaneWidth + dx).clamp(
+                            150.0,
+                            600.0,
+                          );
                         }),
                       ),
                       // Right pane
                       Expanded(
-                        child: (ctrl.selectedFile == null &&
+                        child:
+                            (ctrl.selectedFile == null &&
                                 ctrl.selectedEnvKey == null &&
-                                ctrl.displayMode !=
-                                    FileDisplayMode.processLogs)
+                                ctrl.displayMode != FileDisplayMode.processLogs)
                             ? const Center(
-                                child: Text(
-                                  'Select a file or env var to edit',
-                                ),
+                                child: Text('Select a file or env var to edit'),
                               )
                             : IdeFileViewer(ctrl: ctrl),
                       ),

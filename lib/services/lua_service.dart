@@ -142,6 +142,23 @@ class LuaService extends ChangeNotifier {
     }
   }
 
+  /// Wraps [content] in a Lua xpcall envelope so that any runtime error
+  /// (including internal lua_dardo throws like "Null, not a table!") is caught
+  /// at the Lua level and surfaced as a clean error message in the process log.
+  static String _wrapInXpcall(String content, String scriptName) {
+    // level=0 on the re-raise so Lua's error() doesn't prepend a second
+    // source location — the location is already inside __err from the
+    // innermost error that xpcall caught.
+    return '''
+local __ok, __err = xpcall(function()
+$content
+end, tostring)
+if not __ok then
+  error("[$scriptName] " .. tostring(__err or "unknown error"), 0)
+end
+''';
+  }
+
   Future<LuaProcess> runScript(
     MalApi malApi,
     String content, {
@@ -203,7 +220,15 @@ class LuaService extends ChangeNotifier {
         process: process,
       );
 
-      final result = state.doString(content);
+      // Wrap user script in xpcall so Lua runtime errors (e.g.
+      // "Null, not a table!") are caught at the Lua level and reported
+      // with the script name rather than as opaque Dart exceptions.
+      // Pass the script name as chunkName so proto.source is set correctly
+      // (ensures line numbers reference the right file).
+      final result = state.doString(
+        _wrapInXpcall(content, name),
+        chunkName: name,
+      );
 
       // Await all KV writes triggered during the script so they are committed
       // to the backing store before any subsequent run loads the cache.
@@ -230,6 +255,10 @@ class LuaService extends ChangeNotifier {
             errorMsg = state.toStr(-1);
           }
           errorMsg ??= 'Unknown error ($result)';
+          // Strip "Exception: " boilerplate that Dart injects into thrown
+          // exceptions. Use replaceAll because our [scriptName] prefix
+          // may appear before it.
+          errorMsg = errorMsg.replaceAll('Exception: ', '');
 
           process.addLog('Error: $errorMsg');
           process.updateStatus(LuaProcessStatus.error);
@@ -257,14 +286,21 @@ class LuaService extends ChangeNotifier {
           if (kDebugMode) print('[LuaService] $name Execution completed.');
         }
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (process.status != LuaProcessStatus.killed) {
-        process.addLog('Exception: $e');
+        // Strip the "Exception: " prefix Dart wraps around thrown exceptions.
+        String msg = e.toString().replaceAll('Exception: ', '');
+        process.addLog('Runtime error in $name: $msg');
         process.updateStatus(LuaProcessStatus.error);
         notifyListeners();
       }
-      appLogger.error('Error executing $name: $e', tag: 'LuaService');
-      if (kDebugMode) print('[LuaService] $name Error: $e');
+      appLogger.error(
+        'Unhandled exception while executing $name: $e\n$stackTrace',
+        tag: 'LuaService',
+      );
+      if (kDebugMode) {
+        print('[LuaService] $name Unhandled exception: $e\n$stackTrace');
+      }
     }
 
     return process;
