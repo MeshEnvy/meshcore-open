@@ -1,0 +1,3 @@
+[submodule "vendor/lua_dardo"]
+	path = vendor/lua_dardo
+	url = git@github.com:MeshEnvy/LuaDardo.git
