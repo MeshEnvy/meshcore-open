@@ -21,7 +21,16 @@ class IdeLogViewer extends StatelessWidget {
           allLogs.add('[${p.name}] $log');
         }
       }
-      allLogs.sort();
+      // Sort by the timestamp that LuaProcess.addLog embeds in each entry.
+      // Each entry is formatted as "[processName] [HH:MM:SS.mmm] message",
+      // so the timestamp starts after the first "] [" sequence.
+      allLogs.sort((a, b) {
+        final aIdx = a.indexOf('] [');
+        final bIdx = b.indexOf('] [');
+        final aTs = aIdx >= 0 ? a.substring(aIdx) : a;
+        final bTs = bIdx >= 0 ? b.substring(bIdx) : b;
+        return aTs.compareTo(bTs);
+      });
       logs = allLogs;
     } else if (ctrl.selectedProcess != null) {
       title = '${ctrl.selectedProcess!.name} Logs';
