@@ -821,6 +821,11 @@ class AppLocalizationsSk extends AppLocalizations {
   }
 
   @override
+  String channels_channelDeleteFailed(String name) {
+    return 'Kanál \"$name\" sa nepodarilo odstrániť';
+  }
+
+  @override
   String channels_channelDeleted(String name) {
     return 'Kanál \"$name\" bol odstránený';
   }
@@ -2857,6 +2862,34 @@ class AppLocalizationsSk extends AppLocalizations {
   @override
   String get losElevationAttribution =>
       'Údaje o nadmorskej výške: Open-Meteo (CC BY 4.0)';
+
+  @override
+  String get losLegendRadioHorizon => 'Rádiový horizont';
+
+  @override
+  String get losLegendLosBeam => 'Priama viditeľnosť';
+
+  @override
+  String get losLegendTerrain => 'Terén';
+
+  @override
+  String get losFrequencyLabel => 'Frekvencia';
+
+  @override
+  String get losFrequencyInfoTooltip => 'Zobraziť podrobnosti výpočtu';
+
+  @override
+  String get losFrequencyDialogTitle => 'Výpočet rádiového horizontu';
+
+  @override
+  String losFrequencyDialogDescription(
+    double baselineK,
+    double baselineFreq,
+    double frequencyMHz,
+    double kFactor,
+  ) {
+    return 'Počnúc od k=$baselineK pri $baselineFreq MHz výpočet upraví k-faktor pre aktuálne pásmo $frequencyMHz MHz, ktorý definuje zakrivený strop rádiového horizontu.';
+  }
 
   @override
   String get contacts_pathTrace => 'Sledovanie lúčov';
