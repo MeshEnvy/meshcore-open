@@ -91,6 +91,11 @@ class LuaService extends ChangeNotifier {
 
   List<LuaProcess> get processes => List.unmodifiable(_processes);
 
+  /// Public wrapper around [notifyListeners] so that external callers
+  /// (e.g., the Tasks panel) can trigger a UI rebuild after mutating
+  /// process state (e.g., calling [LuaProcess.kill]).
+  void notify() => notifyListeners();
+
   Future<void> initialize(MalApi malApi) async {
     if (_isInitialized) {
       appLogger.info(

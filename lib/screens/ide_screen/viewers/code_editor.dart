@@ -104,17 +104,15 @@ class _IdeCodeEditorState extends State<IdeCodeEditor> {
       }
     }
 
-    await LuaService().runScript(
+    final process = await LuaService().runScript(
       malApi,
       ctrl.codeController!.text,
       name: file.path.split('/').last,
     );
 
-    // Attach the freshly-started process and reset the clear offset.
-    if (LuaService().processes.isNotEmpty) {
-      ctrl.inlineProcess = LuaService().processes.last;
-      ctrl.notify();
-    }
+    // Attach the freshly-started process for this file and reset the clear offset.
+    ctrl.inlineProcess = process;
+    ctrl.notify();
     _logClearOffset = 0;
 
     if (!_logOpen) setState(() => _logOpen = true);

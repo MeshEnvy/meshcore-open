@@ -1,6 +1,7 @@
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 
+import '../../../services/lua_service.dart';
 import '../../../services/mal/vfs/vfs.dart';
 import '../ide_controller.dart';
 
@@ -116,6 +117,11 @@ class IdeFilePanel extends StatelessWidget {
                           final depth = relativePath.split('/').length - 1;
                           final isSelected =
                               ctrl.selectedNode?.path == entity.path;
+                          final fileProcess = isFile
+                              ? ctrl.processForFile(entity.path)
+                              : null;
+                          final isRunning =
+                              fileProcess?.status == LuaProcessStatus.running;
 
                           return DropTarget(
                             onDragDone: (details) {
@@ -172,7 +178,16 @@ class IdeFilePanel extends StatelessWidget {
                                   ctx,
                                 ).colorScheme.primaryContainer,
                                 onTap: () => ctrl.selectNode(entity, ctx),
-                                trailing: isSelected
+                                trailing: isRunning
+                                    ? const Tooltip(
+                                        message: 'Running',
+                                        child: Icon(
+                                          Icons.circle,
+                                          size: 8,
+                                          color: Colors.green,
+                                        ),
+                                      )
+                                    : isSelected
                                     ? IconButton(
                                         icon: const Icon(
                                           Icons.delete_outline,

@@ -45,9 +45,28 @@ class IdeController extends ChangeNotifier {
   LuaProcess? selectedProcess;
   bool showAllProcesses = false;
 
-  /// Process attached to the *inline* log pane inside the code editor.
-  /// Set independently of [selectedProcess] so the right pane doesn't switch.
-  LuaProcess? inlineProcess;
+  /// Per-file processes: file path → last LuaProcess launched from that file.
+  /// This keeps run/stop states independent per script.
+  final Map<String, LuaProcess> _processPerFile = {};
+
+  /// Returns the inline process for the currently selected file, if any.
+  LuaProcess? get inlineProcess =>
+      selectedFile == null ? null : _processPerFile[selectedFile!.path];
+
+  /// Returns the process associated with [path], or null.
+  /// Used by the file panel to show a running indicator.
+  LuaProcess? processForFile(String path) => _processPerFile[path];
+
+  /// Associates [process] with the currently selected file.
+  set inlineProcess(LuaProcess? process) {
+    if (selectedFile == null) return;
+    if (process == null) {
+      _processPerFile.remove(selectedFile!.path);
+    } else {
+      _processPerFile[selectedFile!.path] = process;
+    }
+  }
+
   final ScrollController logScrollController = ScrollController();
 
   // ── Internals ────────────────────────────────────────────────────────────────

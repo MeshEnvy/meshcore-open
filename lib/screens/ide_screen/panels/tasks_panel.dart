@@ -80,7 +80,12 @@ class IdeTasksPanel extends StatelessWidget {
                             ? IconButton(
                                 icon: const Icon(Icons.stop, color: Colors.red),
                                 tooltip: 'Kill',
-                                onPressed: process.kill,
+                                onPressed: () {
+                                  process.kill();
+                                  // Notify LuaService listeners (including
+                                  // IdeScreen) so the toolbar/status updates.
+                                  LuaService().notify();
+                                },
                               )
                             : null,
                       );
