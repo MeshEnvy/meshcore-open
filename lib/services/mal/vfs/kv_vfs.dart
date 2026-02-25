@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'vfs.dart';
@@ -254,8 +253,9 @@ class KvVfs extends VirtualFileSystem {
     }
 
     final result = nodes.values.toList();
-    if (kDebugMode)
+    if (kDebugMode) {
       print('[KvVfs] list(path: $path) found ${result.length} items');
+    }
     return result;
   }
 }

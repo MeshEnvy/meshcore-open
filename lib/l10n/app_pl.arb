@@ -1,4 +1,6 @@
 {
+  "channels_channelDeleteFailed": "Nie udało się usunąć kanału \"{name}\"",
+  "@channels_channelDeleteFailed": { "placeholders": { "name": { "type": "String" } } },
   "@@locale": "pl",
   "appTitle": "MeshCore Open",
   "nav_contacts": "Kontakty",
@@ -1721,6 +1723,30 @@
   "losShowPanelTooltip": "Pokaż panel LOS",
   "losHidePanelTooltip": "Ukryj panel LOS",
   "losElevationAttribution": "Dane dotyczące wysokości: Open-Meteo (CC BY 4.0)",
+  "losLegendRadioHorizon": "Horyzont radiowy",
+  "losLegendLosBeam": "Linia widoczności",
+  "losLegendTerrain": "Teren",
+  "losFrequencyLabel": "Częstotliwość",
+  "losFrequencyInfoTooltip": "Zobacz szczegóły obliczenia",
+  "losFrequencyDialogTitle": "Obliczanie horyzontu radiowego",
+  "losFrequencyDialogDescription": "Zaczynając od k={baselineK} przy {baselineFreq} MHz, obliczenia korygują współczynnik k dla bieżącego pasma {frequencyMHz} MHz, które definiuje zakrzywiony limit horyzontu radiowego.",
+  "@losFrequencyDialogDescription": {
+    "description": "Explain how the calculation uses the baseline frequency and derived k-factor.",
+    "placeholders": {
+      "baselineK": {
+        "type": "double"
+      },
+      "baselineFreq": {
+        "type": "double"
+      },
+      "frequencyMHz": {
+        "type": "double"
+      },
+      "kFactor": {
+        "type": "double"
+      }
+    }
+  },
   "appSettings_developerCard": "Programista",
   "appSettings_ide": "IDE",
   "appSettings_ideSubtitle": "Zintegrowane środowisko programistyczne",

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 import '../../../models/contact.dart';
 import '../../../models/channel.dart';
 import '../../../connector/meshcore_connector.dart';
@@ -106,8 +105,9 @@ class ConnectorMalApi implements MalApi {
         return message?.messageId;
       }
 
-      if (kDebugMode)
+      if (kDebugMode) {
         print('[MalApi] sendText failed: No destination provided.');
+      }
       return null;
     } catch (e) {
       if (kDebugMode) print('[MalApi] sendText failed: $e');

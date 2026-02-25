@@ -63,8 +63,9 @@ class IndexedDbKvStore implements MeshKvStore {
     if (kDebugMode) print('[IndexedDbKvStore] _getStore(mode: $mode)...');
     await init();
     if (_db == null) {
-      if (kDebugMode)
+      if (kDebugMode) {
         print('[IndexedDbKvStore] _getStore: Database not initialized!');
+      }
       throw StateError('Database not initialized');
     }
     final transaction = _db!.transaction([(_storeName).toJS].toJS, mode);
@@ -73,8 +74,9 @@ class IndexedDbKvStore implements MeshKvStore {
 
   @override
   Future<String?> get(String key, {String? scope}) async {
-    if (kDebugMode)
+    if (kDebugMode) {
       print('[IndexedDbKvStore] get(key: $key, scope: $scope)...');
+    }
     final store = await _getStore();
     final completer = Completer<String?>();
     final compositeKey = [key.toJS, (scope ?? 'global').toJS].toJS;
@@ -99,8 +101,9 @@ class IndexedDbKvStore implements MeshKvStore {
 
   @override
   Future<void> set(String key, String value, {String? scope}) async {
-    if (kDebugMode)
+    if (kDebugMode) {
       print('[IndexedDbKvStore] set(key: $key, scope: $scope)...');
+    }
     final store = await _getStore('readwrite');
     final completer = Completer<void>();
     final obj = JSObject();
@@ -176,17 +179,19 @@ class IndexedDbKvStore implements MeshKvStore {
       try {
         final result = request.result;
         if (result == null || result.isUndefinedOrNull) {
-          if (kDebugMode)
+          if (kDebugMode) {
             print('[IndexedDbKvStore] getValues: result is null or undefined');
+          }
           completer.complete({});
           return;
         }
 
         final results = (result as JSArray).toDart;
-        if (kDebugMode)
+        if (kDebugMode) {
           print(
             '[IndexedDbKvStore] getValues found ${results.length} raw results',
           );
+        }
 
         final Map<String, String> map = {};
         for (var i = 0; i < results.length; i++) {
@@ -196,10 +201,11 @@ class IndexedDbKvStore implements MeshKvStore {
           final valJs = obj.getProperty('value'.toJS);
 
           if (keyJs.isUndefinedOrNull || valJs.isUndefinedOrNull) {
-            if (kDebugMode)
+            if (kDebugMode) {
               print(
                 '[IndexedDbKvStore] getValues: entry $i has null key or value',
               );
+            }
             continue;
           }
 
@@ -207,14 +213,16 @@ class IndexedDbKvStore implements MeshKvStore {
           final value = (valJs as JSString).toDart;
           map[key] = value;
         }
-        if (kDebugMode)
+        if (kDebugMode) {
           print(
             '[IndexedDbKvStore] getValues returning map with ${map.length} entries',
           );
+        }
         completer.complete(map);
       } catch (err) {
-        if (kDebugMode)
+        if (kDebugMode) {
           print('[IndexedDbKvStore] getValues error during processing: $err');
+        }
         completer.completeError('Error processing getValues results: $err');
       }
     }.toJS;

@@ -74,8 +74,9 @@ class _IdeScreenState extends State<IdeScreen> {
         await malApi.fwrite(autoexecPath, 'print("hello world")\n');
       }
 
-      if (kDebugMode)
+      if (kDebugMode) {
         print('[IdeScreen] autoexec.lua checked. Loading files...');
+      }
       await _loadFiles();
       await _loadEnvVars();
     } catch (e) {
@@ -108,13 +109,15 @@ class _IdeScreenState extends State<IdeScreen> {
           }
         }
 
-        if (kDebugMode)
+        if (kDebugMode) {
           print('[IdeScreen] loadDir basic path: $_drivePath starting...');
+        }
         await loadDir(_drivePath);
-        if (kDebugMode)
+        if (kDebugMode) {
           print(
             '[IdeScreen] loadDir finished. Found ${files.length} flat entities',
           );
+        }
 
         files.sort((a, b) {
           final aRelative = a.path.replaceFirst('$_drivePath/', '');
@@ -142,10 +145,11 @@ class _IdeScreenState extends State<IdeScreen> {
 
           return aSegments.length.compareTo(bSegments.length);
         });
-        if (kDebugMode)
+        if (kDebugMode) {
           print(
             '[IdeScreen] _loadFiles: setState called with ${files.length} files',
           );
+        }
         if (mounted) {
           setState(() {
             _files = files;
@@ -153,10 +157,11 @@ class _IdeScreenState extends State<IdeScreen> {
           });
         }
       } else {
-        if (kDebugMode)
+        if (kDebugMode) {
           print(
             '[IdeScreen] _loadFiles: _drivePath $_drivePath does not exist',
           );
+        }
         if (mounted) {
           setState(() {
             _isLoading = false;
@@ -258,6 +263,7 @@ class _IdeScreenState extends State<IdeScreen> {
     );
     if (confirm == true) {
       try {
+        if (!mounted) return;
         final malApi = context.read<MalApi>();
         await malApi.deleteKey(key, scope: 'env');
         if (_selectedEnvKey == key) {
@@ -303,14 +309,16 @@ class _IdeScreenState extends State<IdeScreen> {
               if (key.isNotEmpty) {
                 Navigator.pop(context);
                 try {
+                  if (!mounted) return;
                   final malApi = context.read<MalApi>();
                   await malApi.setEnv(key, "");
                   await _loadEnvVars();
+                  if (!mounted) return;
                   _selectEnvVar(key, "");
                 } catch (e) {
                   if (mounted) {
                     ScaffoldMessenger.of(
-                      context,
+                      this.context,
                     ).showSnackBar(SnackBar(content: Text('Error: $e')));
                   }
                 }
@@ -416,6 +424,7 @@ class _IdeScreenState extends State<IdeScreen> {
           _hasUnsavedChanges = false;
           _isLoadingFile = true;
         });
+        if (!mounted) return;
         final malApi = context.read<MalApi>();
         final ext = entity.path.split('.').last.toLowerCase();
 
@@ -638,6 +647,7 @@ class _IdeScreenState extends State<IdeScreen> {
               _hasUnsavedChanges = false;
             });
             await _loadEnvVars();
+            if (!mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('${context.l10n.common_save} successful')),
             );
@@ -690,6 +700,7 @@ class _IdeScreenState extends State<IdeScreen> {
       },
     ).then((value) async {
       if (value != null && value is String && value.trim().isNotEmpty) {
+        if (!mounted) return;
         String basePath = _drivePath;
         if (_selectedNode != null) {
           if (_selectedNode!.isDir) {
@@ -753,6 +764,7 @@ class _IdeScreenState extends State<IdeScreen> {
 
     if (confirm == true) {
       try {
+        if (!mounted) return;
         final malApi = context.read<MalApi>();
         await malApi.rm(entity.path);
         if (_selectedFile?.path == entity.path ||
@@ -861,8 +873,9 @@ class _IdeScreenState extends State<IdeScreen> {
       );
     }
     if (item is DropItemDirectory) {
-      if (kDebugMode)
+      if (kDebugMode) {
         print('[IdeScreen] detected DropItemDirectory: $fileName');
+      }
       if (!await malApi.fexists(path)) {
         await malApi.mkdir(path);
       }

@@ -22,6 +22,7 @@ import 'services/app_debug_log_service.dart';
 import 'services/background_service.dart';
 import 'services/map_tile_cache_service.dart';
 import 'services/lua_service.dart';
+import 'services/chat_text_scale_service.dart';
 import 'storage/prefs_manager.dart';
 import 'utils/app_logger.dart';
 
@@ -88,6 +89,7 @@ class _MeshCoreAppState extends State<MeshCoreApp> {
   late final MapTileCacheService _mapTileCacheService;
   late final BackgroundService _backgroundService;
   late final NotificationService _notificationService;
+  late final ChatTextScaleService _chatTextScaleService;
 
   @override
   void initState() {
@@ -109,6 +111,7 @@ class _MeshCoreAppState extends State<MeshCoreApp> {
     _mapTileCacheService = MapTileCacheService();
     _luaService = LuaService();
     _notificationService = NotificationService();
+    _chatTextScaleService = ChatTextScaleService();
 
     // Initialize app logger
     appLogger.initialize(
@@ -120,6 +123,7 @@ class _MeshCoreAppState extends State<MeshCoreApp> {
 
     await _notificationService.initialize();
     await _backgroundService.initialize();
+    await _chatTextScaleService.initialize();
 
     _malApi = ConnectorMalApi(connector: connector);
     await _malApi.init();
@@ -192,6 +196,7 @@ class _MeshCoreAppState extends State<MeshCoreApp> {
             ChangeNotifierProvider.value(value: widget.appSettingsService),
             ChangeNotifierProvider.value(value: _bleDebugLogService),
             ChangeNotifierProvider.value(value: widget.appDebugLogService),
+            ChangeNotifierProvider.value(value: _chatTextScaleService),
             Provider.value(value: _malApi),
             Provider.value(value: widget.storage),
             Provider.value(value: _mapTileCacheService),

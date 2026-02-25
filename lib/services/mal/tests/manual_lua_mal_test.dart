@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_print
 import 'package:flutter/widgets.dart';
 import 'package:lua_dardo/lua.dart';
 // ignore: implementation_imports
@@ -85,9 +86,12 @@ print("Test complete.")
 ''';
 
   final result = ls.doString(testScript);
-  if (result == 0) {
+  final resultStr = result.toString();
+  if (resultStr.contains('LUA_OK') ||
+      resultStr == '0' ||
+      (result as dynamic) == 0) {
     print("Script executed successfully.");
   } else {
-    print("Script Execution failed. Code: \$result");
+    print("Script Execution failed. Code: $result");
   }
 }

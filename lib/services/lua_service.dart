@@ -102,11 +102,13 @@ class LuaService {
 
         // In some versions of lua_dardo, doString returns ThreadStatus (enum)
         // In others it might return int or bool.
+        final String resultStr = result.toString();
         final bool isSuccess =
-            (result == 0 ||
-            result == true ||
-            result.toString().endsWith('LUA_OK') ||
-            result.toString().endsWith('lua_ok'));
+            (resultStr.contains('LUA_OK') ||
+            resultStr.contains('lua_ok') ||
+            resultStr == '0' ||
+            (result as dynamic) == 0 ||
+            (result as dynamic) == true);
 
         if (!isSuccess) {
           String? errorMsg;
