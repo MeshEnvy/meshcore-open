@@ -40,6 +40,10 @@ class _IdeScreenState extends State<IdeScreen> {
   bool _dragging = false;
   String? _hoveredNodePath;
 
+  List<MapEntry<String, String>> _envVars = [];
+  bool _isLoadingEnv = true;
+  String? _selectedEnvKey;
+
   @override
   void initState() {
     super.initState();
@@ -73,6 +77,7 @@ class _IdeScreenState extends State<IdeScreen> {
       if (kDebugMode)
         print('[IdeScreen] autoexec.lua checked. Loading files...');
       await _loadFiles();
+      await _loadEnvVars();
     } catch (e) {
       appLogger.error(
         'Error initializing IDE drive directory: $e',
@@ -203,16 +208,212 @@ class _IdeScreenState extends State<IdeScreen> {
     return confirm == true;
   }
 
+  Future<void> _loadEnvVars() async {
+    setState(() => _isLoadingEnv = true);
+    try {
+      final malApi = context.read<MalApi>();
+      final keys = await malApi.getKeys(scope: 'env');
+      final List<MapEntry<String, String>> vars = [];
+
+      for (final key in keys) {
+        if (!key.startsWith('vfs:')) {
+          final value = await malApi.getEnv(key) ?? '';
+          vars.add(MapEntry(key, value));
+        }
+      }
+
+      vars.sort((a, b) => a.key.compareTo(b.key));
+      if (mounted) {
+        setState(() {
+          _envVars = vars;
+          _isLoadingEnv = false;
+        });
+      }
+    } catch (e) {
+      appLogger.error('Error loading env vars: $e', tag: 'IdeScreen');
+      if (mounted) {
+        setState(() => _isLoadingEnv = false);
+      }
+    }
+  }
+
+  Future<void> _deleteEnvVar(String key) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(context.l10n.appSettings_deleteSecretTitle),
+        content: Text(context.l10n.appSettings_deleteSecretConfirm(key)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(context.l10n.common_cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: Text(context.l10n.common_delete),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      try {
+        final malApi = context.read<MalApi>();
+        await malApi.deleteKey(key, scope: 'env');
+        if (_selectedEnvKey == key) {
+          setState(() {
+            _selectedEnvKey = null;
+            _codeController = null;
+            _hasUnsavedChanges = false;
+          });
+        }
+        await _loadEnvVars();
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        }
+      }
+    }
+  }
+
+  void _showCreateEnvDialog() {
+    final keyController = TextEditingController();
+    final l10n = context.l10n;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.appSettings_addSecret),
+        content: TextField(
+          controller: keyController,
+          decoration: InputDecoration(
+            labelText: l10n.appSettings_secretKey,
+            border: const OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.common_cancel),
+          ),
+          TextButton(
+            onPressed: () async {
+              final key = keyController.text.trim();
+              if (key.isNotEmpty) {
+                Navigator.pop(context);
+                try {
+                  final malApi = context.read<MalApi>();
+                  await malApi.setEnv(key, "");
+                  await _loadEnvVars();
+                  _selectEnvVar(key, "");
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text('Error: $e')));
+                  }
+                }
+              }
+            },
+            child: Text(l10n.common_create),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _selectEnvVar(String key, String value) async {
+    if (_hasUnsavedChanges) {
+      final canSwitch = await _promptDiscardChanges();
+      if (!canSwitch) return;
+    }
+
+    setState(() {
+      _selectedFile = null;
+      _selectedNode = null;
+      _selectedEnvKey = key;
+      _hasUnsavedChanges = false;
+      _isLoadingFile = false;
+      _originalContent = value;
+
+      final controller = CodeController(text: value);
+      controller.addListener(() {
+        if (!mounted) return;
+        final isChanged = controller.text != _originalContent;
+        if (_hasUnsavedChanges != isChanged) {
+          setState(() {
+            _hasUnsavedChanges = isChanged;
+          });
+        }
+      });
+      _codeController = controller;
+      _fileBytes = null;
+      _displayMode = FileDisplayMode.code;
+    });
+  }
+
+  Widget _buildEnvVarList() {
+    if (_isLoadingEnv) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ElevatedButton.icon(
+            onPressed: _showCreateEnvDialog,
+            icon: const Icon(Icons.add),
+            label: Text(context.l10n.appSettings_addSecret),
+          ),
+        ),
+        Expanded(
+          child: _envVars.isEmpty
+              ? Center(child: Text(context.l10n.appSettings_noSecrets))
+              : ListView.builder(
+                  itemCount: _envVars.length,
+                  itemBuilder: (context, index) {
+                    final envVar = _envVars[index];
+                    final isSelected = _selectedEnvKey == envVar.key;
+                    return ListTile(
+                      title: Text(envVar.key),
+                      selected: isSelected,
+                      selectedTileColor: Theme.of(
+                        context,
+                      ).colorScheme.primaryContainer,
+                      onTap: () {
+                        _selectEnvVar(envVar.key, envVar.value);
+                      },
+                      trailing: IconButton(
+                        icon: const Icon(
+                          Icons.delete_outline,
+                          color: Colors.red,
+                        ),
+                        onPressed: () => _deleteEnvVar(envVar.key),
+                      ),
+                    );
+                  },
+                ),
+        ),
+      ],
+    );
+  }
+
   Future<void> _selectNode(VfsNode entity) async {
     if (_hasUnsavedChanges &&
         !entity.isDir &&
-        entity.path != _selectedFile?.path) {
+        entity.path != _selectedFile?.path &&
+        _selectedEnvKey == null) {
+      final canSwitch = await _promptDiscardChanges();
+      if (!canSwitch) return;
+    } else if (_hasUnsavedChanges && _selectedEnvKey != null) {
       final canSwitch = await _promptDiscardChanges();
       if (!canSwitch) return;
     }
 
     setState(() {
       _selectedNode = entity;
+      _selectedEnvKey = null;
     });
     if (!entity.isDir) {
       try {
@@ -361,27 +562,49 @@ class _IdeScreenState extends State<IdeScreen> {
   }
 
   Future<void> _saveCurrentFile() async {
-    if (_selectedFile != null &&
-        _displayMode == FileDisplayMode.code &&
-        _codeController != null) {
-      try {
-        final malApi = context.read<MalApi>();
-        await malApi.fwrite(_selectedFile!.path, _codeController!.text);
-        if (mounted) {
-          _originalContent = _codeController!.text;
-          setState(() {
-            _hasUnsavedChanges = false;
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('${context.l10n.common_save} successful')),
-          );
+    if (_displayMode == FileDisplayMode.code && _codeController != null) {
+      if (_selectedFile != null) {
+        try {
+          final malApi = context.read<MalApi>();
+          await malApi.fwrite(_selectedFile!.path, _codeController!.text);
+          if (mounted) {
+            _originalContent = _codeController!.text;
+            setState(() {
+              _hasUnsavedChanges = false;
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('${context.l10n.common_save} successful')),
+            );
+          }
+        } catch (e) {
+          appLogger.error('Error saving file: $e', tag: 'IdeScreen');
+          if (mounted) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text('Failed to save file: $e')));
+          }
         }
-      } catch (e) {
-        appLogger.error('Error saving file: $e', tag: 'IdeScreen');
-        if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Failed to save file: $e')));
+      } else if (_selectedEnvKey != null) {
+        try {
+          final malApi = context.read<MalApi>();
+          await malApi.setEnv(_selectedEnvKey!, _codeController!.text);
+          if (mounted) {
+            _originalContent = _codeController!.text;
+            setState(() {
+              _hasUnsavedChanges = false;
+            });
+            await _loadEnvVars();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('${context.l10n.common_save} successful')),
+            );
+          }
+        } catch (e) {
+          appLogger.error('Error saving env var: $e', tag: 'IdeScreen');
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to save env var: $e')),
+            );
+          }
         }
       }
     }
@@ -741,7 +964,7 @@ class _IdeScreenState extends State<IdeScreen> {
                     ),
                   ],
                 ),
-                if (_selectedFile != null &&
+                if ((_selectedFile != null || _selectedEnvKey != null) &&
                     _displayMode == FileDisplayMode.code)
                   IconButton(
                     icon: const Icon(Icons.save),
@@ -754,130 +977,204 @@ class _IdeScreenState extends State<IdeScreen> {
                 ? const Center(child: CircularProgressIndicator())
                 : Row(
                     children: [
-                      // Left pane: file tree
+                      // Left pane: file tree and env vars
                       Expanded(
                         flex: 1,
-                        child: DropTarget(
-                          onDragDone: _handleSidebarDrop,
-                          onDragEntered: (details) {
-                            setState(() {
-                              _dragging = true;
-                            });
-                          },
-                          onDragExited: (details) {
-                            setState(() {
-                              _dragging = false;
-                            });
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: _dragging
-                                  ? Theme.of(context)
-                                        .colorScheme
-                                        .primaryContainer
-                                        .withValues(alpha: 0.2)
-                                  : null,
-                              border: Border(
-                                right: BorderSide(
-                                  color: Colors.grey.withValues(alpha: 0.5),
-                                ),
+                        child: DefaultTabController(
+                          length: 2,
+                          child: Column(
+                            children: [
+                              const TabBar(
+                                tabs: [
+                                  Tab(text: 'Files'),
+                                  Tab(text: 'Env'),
+                                ],
                               ),
-                            ),
-                            child: GestureDetector(
-                              behavior: HitTestBehavior.translucent,
-                              onSecondaryTapDown: (details) => _showContextMenu(
-                                context,
-                                details.globalPosition,
-                                null,
-                              ),
-                              child: _files.isEmpty
-                                  ? const Center(child: Text('No files found'))
-                                  : ListView.builder(
-                                      itemCount: _files.length,
-                                      itemBuilder: (context, index) {
-                                        final entity = _files[index];
-                                        final isFile = !entity.isDir;
-                                        final relativePath = entity.path
-                                            .replaceFirst('$_drivePath/', '');
-                                        final isSelected =
-                                            _selectedNode?.path == entity.path;
-
-                                        // Add padding to simulate folder depth
-                                        final depth =
-                                            relativePath.split('/').length - 1;
-
-                                        return DropTarget(
-                                          onDragDone: (details) =>
-                                              _handleNodeDrop(details, entity),
-                                          onDragEntered: (details) => setState(
-                                            () =>
-                                                _hoveredNodePath = entity.path,
+                              Expanded(
+                                child: TabBarView(
+                                  children: [
+                                    // Files tab
+                                    DropTarget(
+                                      onDragDone: _handleSidebarDrop,
+                                      onDragEntered: (details) {
+                                        setState(() {
+                                          _dragging = true;
+                                        });
+                                      },
+                                      onDragExited: (details) {
+                                        setState(() {
+                                          _dragging = false;
+                                        });
+                                      },
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: _dragging
+                                              ? Theme.of(context)
+                                                    .colorScheme
+                                                    .primaryContainer
+                                                    .withValues(alpha: 0.2)
+                                              : null,
+                                          border: Border(
+                                            right: BorderSide(
+                                              color: Colors.grey.withValues(
+                                                alpha: 0.5,
+                                              ),
+                                            ),
                                           ),
-                                          onDragExited: (details) => setState(
-                                            () => _hoveredNodePath = null,
-                                          ),
-                                          child: GestureDetector(
-                                            behavior:
-                                                HitTestBehavior.translucent,
-                                            onSecondaryTapDown: (details) {
+                                        ),
+                                        child: GestureDetector(
+                                          behavior: HitTestBehavior.translucent,
+                                          onSecondaryTapDown: (details) =>
                                               _showContextMenu(
                                                 context,
                                                 details.globalPosition,
-                                                entity,
-                                              );
-                                            },
-                                            child: ListTile(
-                                              leading: Padding(
-                                                padding: EdgeInsets.only(
-                                                  left: depth * 12.0,
-                                                ),
-                                                child: Icon(
-                                                  isFile
-                                                      ? Icons.insert_drive_file
-                                                      : Icons.folder,
-                                                  size: 20,
-                                                  color: isFile
-                                                      ? null
-                                                      : Theme.of(
-                                                          context,
-                                                        ).colorScheme.primary,
-                                                ),
+                                                null,
                                               ),
-                                              title: Text(
-                                                relativePath.split('/').last,
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight:
-                                                      (isSelected &&
-                                                          _hasUnsavedChanges)
-                                                      ? FontWeight.bold
-                                                      : FontWeight.normal,
+                                          child: _files.isEmpty
+                                              ? const Center(
+                                                  child: Text('No files found'),
+                                                )
+                                              : ListView.builder(
+                                                  itemCount: _files.length,
+                                                  itemBuilder: (context, index) {
+                                                    final entity =
+                                                        _files[index];
+                                                    final isFile =
+                                                        !entity.isDir;
+                                                    final relativePath = entity
+                                                        .path
+                                                        .replaceFirst(
+                                                          '$_drivePath/',
+                                                          '',
+                                                        );
+                                                    final isSelected =
+                                                        _selectedNode?.path ==
+                                                        entity.path;
+
+                                                    // Add padding to simulate folder depth
+                                                    final depth =
+                                                        relativePath
+                                                            .split('/')
+                                                            .length -
+                                                        1;
+
+                                                    return DropTarget(
+                                                      onDragDone: (details) =>
+                                                          _handleNodeDrop(
+                                                            details,
+                                                            entity,
+                                                          ),
+                                                      onDragEntered:
+                                                          (details) => setState(
+                                                            () =>
+                                                                _hoveredNodePath =
+                                                                    entity.path,
+                                                          ),
+                                                      onDragExited: (details) =>
+                                                          setState(
+                                                            () =>
+                                                                _hoveredNodePath =
+                                                                    null,
+                                                          ),
+                                                      child: GestureDetector(
+                                                        behavior:
+                                                            HitTestBehavior
+                                                                .translucent,
+                                                        onSecondaryTapDown:
+                                                            (details) {
+                                                              _showContextMenu(
+                                                                context,
+                                                                details
+                                                                    .globalPosition,
+                                                                entity,
+                                                              );
+                                                            },
+                                                        child: ListTile(
+                                                          leading: Padding(
+                                                            padding:
+                                                                EdgeInsets.only(
+                                                                  left:
+                                                                      depth *
+                                                                      12.0,
+                                                                ),
+                                                            child: Icon(
+                                                              isFile
+                                                                  ? Icons
+                                                                        .insert_drive_file
+                                                                  : Icons
+                                                                        .folder,
+                                                              size: 20,
+                                                              color: isFile
+                                                                  ? null
+                                                                  : Theme.of(
+                                                                          context,
+                                                                        )
+                                                                        .colorScheme
+                                                                        .primary,
+                                                            ),
+                                                          ),
+                                                          title: Text(
+                                                            relativePath
+                                                                .split('/')
+                                                                .last,
+                                                            style: TextStyle(
+                                                              fontSize: 14,
+                                                              fontWeight:
+                                                                  (isSelected &&
+                                                                      _hasUnsavedChanges)
+                                                                  ? FontWeight
+                                                                        .bold
+                                                                  : FontWeight
+                                                                        .normal,
+                                                            ),
+                                                          ),
+                                                          selected:
+                                                              isSelected ||
+                                                              _hoveredNodePath ==
+                                                                  entity.path,
+                                                          selectedTileColor:
+                                                              Theme.of(context)
+                                                                  .colorScheme
+                                                                  .primaryContainer,
+                                                          onTap: () {
+                                                            _selectNode(entity);
+                                                          },
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
                                                 ),
-                                              ),
-                                              selected:
-                                                  isSelected ||
-                                                  _hoveredNodePath ==
-                                                      entity.path,
-                                              selectedTileColor: Theme.of(
-                                                context,
-                                              ).colorScheme.primaryContainer,
-                                              onTap: () {
-                                                _selectNode(entity);
-                                              },
+                                        ),
+                                      ),
+                                    ),
+                                    // Env tab
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        border: Border(
+                                          right: BorderSide(
+                                            color: Colors.grey.withValues(
+                                              alpha: 0.5,
                                             ),
                                           ),
-                                        );
-                                      },
+                                        ),
+                                      ),
+                                      child: _buildEnvVarList(),
                                     ),
-                            ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                       // Right pane: code editor
                       Expanded(
                         flex: 2,
-                        child: _selectedFile == null
-                            ? const Center(child: Text('Select a file to edit'))
+                        child:
+                            (_selectedFile == null && _selectedEnvKey == null)
+                            ? const Center(
+                                child: Text('Select a file or env var to edit'),
+                              )
                             : _buildFileViewer(),
                       ),
                     ],

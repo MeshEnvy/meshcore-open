@@ -26,6 +26,7 @@ import '../widgets/room_login_dialog.dart';
 import '../widgets/unread_badge.dart';
 import 'channels_screen.dart';
 import 'chat_screen.dart';
+import 'ide_screen.dart';
 import 'map_screen.dart';
 import 'repeater_hub_screen.dart';
 import 'settings_screen.dart';
@@ -317,6 +318,19 @@ class _ContactsScreenState extends State<ContactsScreen>
                     ],
                   ),
                   onTap: () => _disconnect(context, connector),
+                ),
+                PopupMenuItem(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.code),
+                      const SizedBox(width: 8),
+                      Text(context.l10n.appSettings_ide),
+                    ],
+                  ),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const IdeScreen()),
+                  ),
                 ),
                 PopupMenuItem(
                   child: Row(

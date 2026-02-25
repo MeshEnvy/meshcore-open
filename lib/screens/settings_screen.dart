@@ -12,8 +12,6 @@ import '../widgets/adaptive_app_bar_title.dart';
 import 'app_settings_screen.dart';
 import 'app_debug_log_screen.dart';
 import 'ble_debug_log_screen.dart';
-import 'ide_screen.dart';
-import 'env_vars_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -62,8 +60,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _buildNodeSettingsCard(context, connector),
                 const SizedBox(height: 16),
                 _buildActionsCard(context, connector),
-                const SizedBox(height: 16),
-                _buildDeveloperCard(context, connector),
                 const SizedBox(height: 16),
                 _buildDebugCard(context),
                 const SizedBox(height: 16),
@@ -390,53 +386,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 MaterialPageRoute(
                   builder: (context) => const AppDebugLogScreen(),
                 ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDeveloperCard(
-    BuildContext context,
-    MeshCoreConnector connector,
-  ) {
-    final l10n = context.l10n;
-
-    return Card(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text(
-              l10n.appSettings_developerCard,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.code),
-            title: Text(l10n.appSettings_ide),
-            subtitle: Text(l10n.appSettings_ideSubtitle),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const IdeScreen()),
-              );
-            },
-          ),
-          const Divider(height: 1),
-          ListTile(
-            leading: const Icon(Icons.vpn_key_outlined),
-            title: Text(l10n.appSettings_secrets),
-            subtitle: Text(l10n.appSettings_secretsSubtitle),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const EnvVarsScreen()),
               );
             },
           ),
