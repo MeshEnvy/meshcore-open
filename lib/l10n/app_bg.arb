@@ -1,6 +1,12 @@
 {
   "channels_channelDeleteFailed": "Неуспешно изтриване на канала \"{name}\"",
-  "@channels_channelDeleteFailed": { "placeholders": { "name": { "type": "String" } } },
+  "@channels_channelDeleteFailed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "@@locale": "bg",
   "appTitle": "MeshCore Open",
   "nav_contacts": "Контакти",
@@ -1744,5 +1750,8 @@
         "type": "double"
       }
     }
-  }
+  },
+  "listFilter_removeFromFavorites": "Премахване от списъка с любими",
+  "listFilter_addToFavorites": "Добави към любими",
+  "listFilter_favorites": "Любими"
 }

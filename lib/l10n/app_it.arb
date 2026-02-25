@@ -1,6 +1,12 @@
 {
   "channels_channelDeleteFailed": "Impossibile eliminare il canale \"{name}\"",
-  "@channels_channelDeleteFailed": { "placeholders": { "name": { "type": "String" } } },
+  "@channels_channelDeleteFailed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "@@locale": "it",
   "appTitle": "MeshCore Open",
   "nav_contacts": "Contatti",
@@ -1744,5 +1750,8 @@
         "type": "double"
       }
     }
-  }
+  },
+  "listFilter_addToFavorites": "Aggiungi ai preferiti",
+  "listFilter_removeFromFavorites": "Rimuovi dai preferiti",
+  "listFilter_favorites": "Preferiti"
 }

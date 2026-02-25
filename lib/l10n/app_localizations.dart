@@ -4772,6 +4772,24 @@ abstract class AppLocalizations {
   /// **'All'**
   String get listFilter_all;
 
+  /// No description provided for @listFilter_favorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get listFilter_favorites;
+
+  /// No description provided for @listFilter_addToFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to favorites'**
+  String get listFilter_addToFavorites;
+
+  /// No description provided for @listFilter_removeFromFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from favorites'**
+  String get listFilter_removeFromFavorites;
+
   /// No description provided for @listFilter_users.
   ///
   /// In en, this message translates to:

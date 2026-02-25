@@ -2713,6 +2713,15 @@ class AppLocalizationsSk extends AppLocalizations {
   String get listFilter_all => 'Všetko';
 
   @override
+  String get listFilter_favorites => 'Obľúbené';
+
+  @override
+  String get listFilter_addToFavorites => 'Pridaj do obľúbených';
+
+  @override
+  String get listFilter_removeFromFavorites => 'Odstrániť z označení';
+
+  @override
   String get listFilter_users => 'Používatelia';
 
   @override

@@ -1,6 +1,12 @@
 {
   "channels_channelDeleteFailed": "Det gick inte att ta bort kanalen \"{name}\"",
-  "@channels_channelDeleteFailed": { "placeholders": { "name": { "type": "String" } } },
+  "@channels_channelDeleteFailed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "@@locale": "sv",
   "appTitle": "MeshCore Open",
   "nav_contacts": "Kontakter",
@@ -1744,5 +1750,8 @@
         "type": "double"
       }
     }
-  }
+  },
+  "listFilter_removeFromFavorites": "Ta bort från favoriter",
+  "listFilter_addToFavorites": "Lägg till i favoriter",
+  "listFilter_favorites": "Favoriter"
 }

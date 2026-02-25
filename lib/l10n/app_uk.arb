@@ -1,6 +1,12 @@
 {
   "channels_channelDeleteFailed": "Не вдалося видалити канал \"{name}\"",
-  "@channels_channelDeleteFailed": { "placeholders": { "name": { "type": "String" } } },
+  "@channels_channelDeleteFailed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "@@locale": "uk",
   "appTitle": "MeshCore Open",
   "nav_contacts": "Контакти",
@@ -1744,5 +1750,8 @@
         "type": "double"
       }
     }
-  }
+  },
+  "listFilter_removeFromFavorites": "Видалити зі списку улюблених",
+  "listFilter_addToFavorites": "Додати до улюблених",
+  "listFilter_favorites": "Улюблені"
 }

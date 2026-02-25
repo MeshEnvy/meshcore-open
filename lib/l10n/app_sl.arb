@@ -1,6 +1,12 @@
 {
   "channels_channelDeleteFailed": "Kanala {name} ni bilo mogoče izbrisati",
-  "@channels_channelDeleteFailed": { "placeholders": { "name": { "type": "String" } } },
+  "@channels_channelDeleteFailed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "@@locale": "sl",
   "appTitle": "MeshCore Open",
   "nav_contacts": "Stiki",
@@ -1744,5 +1750,8 @@
         "type": "double"
       }
     }
-  }
+  },
+  "listFilter_favorites": "Priljubljene",
+  "listFilter_removeFromFavorites": "Odstrani iz priljubljenih",
+  "listFilter_addToFavorites": "Dodaj v priljubljene"
 }

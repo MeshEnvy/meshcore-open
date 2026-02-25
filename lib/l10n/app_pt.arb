@@ -1,6 +1,12 @@
 {
   "channels_channelDeleteFailed": "Falha ao excluir o canal \"{name}\"",
-  "@channels_channelDeleteFailed": { "placeholders": { "name": { "type": "String" } } },
+  "@channels_channelDeleteFailed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "@@locale": "pt",
   "appTitle": "MeshCore Open",
   "nav_contacts": "Contactos",
@@ -1744,5 +1750,8 @@
         "type": "double"
       }
     }
-  }
+  },
+  "listFilter_addToFavorites": "Adicionar aos favoritos",
+  "listFilter_removeFromFavorites": "Remover da lista de favoritos",
+  "listFilter_favorites": "Favoritos"
 }

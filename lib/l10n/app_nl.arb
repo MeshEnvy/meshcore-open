@@ -1,6 +1,12 @@
 {
   "channels_channelDeleteFailed": "Kan kanaal {name} niet verwijderen",
-  "@channels_channelDeleteFailed": { "placeholders": { "name": { "type": "String" } } },
+  "@channels_channelDeleteFailed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "@@locale": "nl",
   "appTitle": "MeshCore Open",
   "nav_contacts": "Contacten",
@@ -1744,5 +1750,8 @@
         "type": "double"
       }
     }
-  }
+  },
+  "listFilter_removeFromFavorites": "Verwijderen uit favorieten",
+  "listFilter_favorites": "Favorieten",
+  "listFilter_addToFavorites": "Toevoegen aan favorieten"
 }
