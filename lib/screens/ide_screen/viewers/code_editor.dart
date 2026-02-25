@@ -27,19 +27,6 @@ class IdeCodeEditor extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 4),
           child: Row(
             children: [
-              if (ctrl.hasUnsavedChanges)
-                Expanded(
-                  child: Text(
-                    'Unsaved changes',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                      fontSize: 12,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                )
-              else
-                const Spacer(),
               if (isLua)
                 IconButton(
                   icon: Icon(
@@ -75,6 +62,17 @@ class IdeCodeEditor extends StatelessWidget {
                     ? () => ctrl.saveCurrentFile(context)
                     : null,
               ),
+              if (ctrl.hasUnsavedChanges)
+                Expanded(
+                  child: Text(
+                    'Unsaved changes',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                      fontSize: 12,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
             ],
           ),
         ),
