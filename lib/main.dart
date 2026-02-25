@@ -123,7 +123,6 @@ class _MeshCoreAppState extends State<MeshCoreApp> {
 
     _malApi = ConnectorMalApi(connector: connector);
     await _malApi.init();
-    await _luaService.initialize(_malApi);
 
     // Wire up connector with services
     connector.initialize(
@@ -160,7 +159,7 @@ class _MeshCoreAppState extends State<MeshCoreApp> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Image.asset(
-                      'mesh-icon.png',
+                      'assets/images/mesh-icon.png',
                       width: 80,
                       height: 80,
                       errorBuilder: (context, error, stackTrace) =>

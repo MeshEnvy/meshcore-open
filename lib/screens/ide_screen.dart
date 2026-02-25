@@ -7,12 +7,16 @@ import 'package:flutter_highlight/themes/monokai-sublime.dart';
 import 'package:highlight/languages/lua.dart' as highlight_lua;
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:cross_file/cross_file.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 import 'package:provider/provider.dart';
 import '../services/mal/vfs/vfs.dart';
 import '../services/mal/mal_api.dart';
 import '../utils/app_logger.dart';
+
 import '../l10n/l10n.dart';
+
+enum FileDisplayMode { code, image, pdf, unsupported }
 
 class IdeScreen extends StatefulWidget {
   const IdeScreen({super.key});
@@ -28,6 +32,9 @@ class _IdeScreenState extends State<IdeScreen> {
   VfsNode? _selectedFile;
   CodeController? _codeController;
   String? _originalContent;
+  FileDisplayMode _displayMode = FileDisplayMode.code;
+  Uint8List? _fileBytes;
+  bool _isLoadingFile = false;
   bool _hasUnsavedChanges = false;
   bool _isLoading = true;
   bool _dragging = false;
@@ -212,30 +219,77 @@ class _IdeScreenState extends State<IdeScreen> {
         setState(() {
           _selectedFile = entity;
           _hasUnsavedChanges = false;
+          _isLoadingFile = true;
         });
         final malApi = context.read<MalApi>();
-        final content = await malApi.fread(entity.path);
-        if (mounted) {
-          _originalContent = content;
-          final controller = CodeController(
-            text: content,
-            language: highlight_lua.lua,
-          );
-          controller.addListener(() {
-            if (!mounted) return;
-            final isChanged = controller.text != _originalContent;
-            if (_hasUnsavedChanges != isChanged) {
+        final ext = entity.path.split('.').last.toLowerCase();
+
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].contains(ext)) {
+          final bytes = await malApi.freadBytes(entity.path);
+          if (mounted) {
+            setState(() {
+              _fileBytes = bytes;
+              _displayMode = FileDisplayMode.image;
+              _codeController = null;
+              _isLoadingFile = false;
+            });
+          }
+        } else if (ext == 'pdf') {
+          final bytes = await malApi.freadBytes(entity.path);
+          if (mounted) {
+            setState(() {
+              _fileBytes = bytes;
+              _displayMode = FileDisplayMode.pdf;
+              _codeController = null;
+              _isLoadingFile = false;
+            });
+          }
+        } else {
+          try {
+            final content = await malApi.fread(entity.path);
+            if (mounted) {
+              _originalContent = content;
+              final controller = CodeController(
+                text: content,
+                language: highlight_lua.lua,
+              );
+              controller.addListener(() {
+                if (!mounted) return;
+                final isChanged = controller.text != _originalContent;
+                if (_hasUnsavedChanges != isChanged) {
+                  setState(() {
+                    _hasUnsavedChanges = isChanged;
+                  });
+                }
+              });
               setState(() {
-                _hasUnsavedChanges = isChanged;
+                _codeController = controller;
+                _fileBytes = null;
+                _displayMode = FileDisplayMode.code;
+                _isLoadingFile = false;
               });
             }
-          });
-          setState(() {
-            _codeController = controller;
-          });
+          } catch (e) {
+            if (mounted) {
+              setState(() {
+                _codeController = null;
+                _fileBytes = null;
+                _displayMode = FileDisplayMode.unsupported;
+                _isLoadingFile = false;
+              });
+            }
+          }
         }
       } catch (e) {
         appLogger.error('Error selecting file: $e', tag: 'IdeScreen');
+        if (mounted) {
+          setState(() {
+            _isLoadingFile = false;
+            _codeController = null;
+            _fileBytes = null;
+            _displayMode = FileDisplayMode.unsupported;
+          });
+        }
       }
     }
   }
@@ -307,7 +361,9 @@ class _IdeScreenState extends State<IdeScreen> {
   }
 
   Future<void> _saveCurrentFile() async {
-    if (_selectedFile != null && _codeController != null) {
+    if (_selectedFile != null &&
+        _displayMode == FileDisplayMode.code &&
+        _codeController != null) {
       try {
         final malApi = context.read<MalApi>();
         await malApi.fwrite(_selectedFile!.path, _codeController!.text);
@@ -498,6 +554,11 @@ class _IdeScreenState extends State<IdeScreen> {
 
     try {
       for (final file in details.files) {
+        if (kDebugMode) {
+          print(
+            '[IdeScreen] Dropped file: ${file.name}, type: ${file.runtimeType}, path: ${file.path}',
+          );
+        }
         await _uploadItem(file, basePath, malApi);
       }
       await _loadFiles();
@@ -532,6 +593,17 @@ class _IdeScreenState extends State<IdeScreen> {
         '[IdeScreen] _uploadItem: name=$fileName path=${item.path} target=$path',
       );
     }
+    if (item is DropItemDirectory) {
+      if (kDebugMode)
+        print('[IdeScreen] detected DropItemDirectory: $fileName');
+      if (!await malApi.fexists(path)) {
+        await malApi.mkdir(path);
+      }
+      for (final child in item.children) {
+        await _uploadItem(child, path, malApi);
+      }
+      return;
+    }
 
     if (!kIsWeb) {
       final fileSystemEntity = io.FileSystemEntity.typeSync(item.path);
@@ -549,7 +621,53 @@ class _IdeScreenState extends State<IdeScreen> {
     }
 
     final bytes = await item.readAsBytes();
-    await malApi.fwrite(path, String.fromCharCodes(bytes));
+    await malApi.fwriteBytes(path, bytes);
+  }
+
+  Widget _buildFileViewer() {
+    if (_isLoadingFile) {
+      return const Center(child: CircularProgressIndicator());
+    } else if (_displayMode == FileDisplayMode.image && _fileBytes != null) {
+      return Center(child: InteractiveViewer(child: Image.memory(_fileBytes!)));
+    } else if (_displayMode == FileDisplayMode.pdf && _fileBytes != null) {
+      return SfPdfViewer.memory(_fileBytes!);
+    } else if (_displayMode == FileDisplayMode.unsupported) {
+      return const Center(child: Text('Unsupported file format for display'));
+    } else if (_displayMode == FileDisplayMode.code &&
+        _codeController != null) {
+      return Column(
+        children: [
+          if (_hasUnsavedChanges)
+            Container(
+              width: double.infinity,
+              color: Theme.of(context).colorScheme.errorContainer,
+              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+              child: Text(
+                context.l10n.ide_unsavedChanges,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onErrorContainer,
+                  fontSize: 12,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          Expanded(
+            child: CodeTheme(
+              data: CodeThemeData(styles: monokaiSublimeTheme),
+              child: CodeField(
+                controller: _codeController!,
+                expands: true,
+                textStyle: const TextStyle(
+                  fontFamily: 'monospace',
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+    return const Center(child: Text('Select a file to edit'));
   }
 
   @override
@@ -623,7 +741,8 @@ class _IdeScreenState extends State<IdeScreen> {
                     ),
                   ],
                 ),
-                if (_selectedFile != null)
+                if (_selectedFile != null &&
+                    _displayMode == FileDisplayMode.code)
                   IconButton(
                     icon: const Icon(Icons.save),
                     onPressed: _saveCurrentFile,
@@ -757,48 +876,9 @@ class _IdeScreenState extends State<IdeScreen> {
                       // Right pane: code editor
                       Expanded(
                         flex: 2,
-                        child: _selectedFile == null || _codeController == null
+                        child: _selectedFile == null
                             ? const Center(child: Text('Select a file to edit'))
-                            : Column(
-                                children: [
-                                  if (_hasUnsavedChanges)
-                                    Container(
-                                      width: double.infinity,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.errorContainer,
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 4,
-                                        horizontal: 8,
-                                      ),
-                                      child: Text(
-                                        context.l10n.ide_unsavedChanges,
-                                        style: TextStyle(
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.onErrorContainer,
-                                          fontSize: 12,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  Expanded(
-                                    child: CodeTheme(
-                                      data: CodeThemeData(
-                                        styles: monokaiSublimeTheme,
-                                      ),
-                                      child: CodeField(
-                                        controller: _codeController!,
-                                        expands: true,
-                                        textStyle: const TextStyle(
-                                          fontFamily: 'monospace',
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                            : _buildFileViewer(),
                       ),
                     ],
                   ),
