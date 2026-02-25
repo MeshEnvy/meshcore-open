@@ -2708,6 +2708,15 @@ class AppLocalizationsSv extends AppLocalizations {
   String get listFilter_all => 'Alla';
 
   @override
+  String get listFilter_favorites => 'Favoriter';
+
+  @override
+  String get listFilter_addToFavorites => 'Lägg till i favoriter';
+
+  @override
+  String get listFilter_removeFromFavorites => 'Ta bort från favoriter';
+
+  @override
   String get listFilter_users => 'Användare';
 
   @override
