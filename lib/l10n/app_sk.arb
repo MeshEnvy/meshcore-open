@@ -1,4 +1,6 @@
 {
+  "channels_channelDeleteFailed": "Kanál \"{name}\" sa nepodarilo odstrániť",
+  "@channels_channelDeleteFailed": { "placeholders": { "name": { "type": "String" } } },
   "@@locale": "sk",
   "appTitle": "MeshCore Open",
   "nav_contacts": "Kontakty",
@@ -1721,6 +1723,30 @@
   "losShowPanelTooltip": "Zobraziť panel LOS",
   "losHidePanelTooltip": "Skryť panel LOS",
   "losElevationAttribution": "Údaje o nadmorskej výške: Open-Meteo (CC BY 4.0)",
+  "losLegendRadioHorizon": "Rádiový horizont",
+  "losLegendLosBeam": "Priama viditeľnosť",
+  "losLegendTerrain": "Terén",
+  "losFrequencyLabel": "Frekvencia",
+  "losFrequencyInfoTooltip": "Zobraziť podrobnosti výpočtu",
+  "losFrequencyDialogTitle": "Výpočet rádiového horizontu",
+  "losFrequencyDialogDescription": "Počnúc od k={baselineK} pri {baselineFreq} MHz výpočet upraví k-faktor pre aktuálne pásmo {frequencyMHz} MHz, ktorý definuje zakrivený strop rádiového horizontu.",
+  "@losFrequencyDialogDescription": {
+    "description": "Explain how the calculation uses the baseline frequency and derived k-factor.",
+    "placeholders": {
+      "baselineK": {
+        "type": "double"
+      },
+      "baselineFreq": {
+        "type": "double"
+      },
+      "frequencyMHz": {
+        "type": "double"
+      },
+      "kFactor": {
+        "type": "double"
+      }
+    }
+  },
   "chat_dropImageToUpload": "Presuňte obrázok na nahranie",
   "chat_sendImage": "Odoslať obrázok",
   "chat_image": "Obrázok",

@@ -1,4 +1,6 @@
 {
+  "channels_channelDeleteFailed": "Échec de la suppression de la chaîne \"{name}\"",
+  "@channels_channelDeleteFailed": { "placeholders": { "name": { "type": "String" } } },
   "@@locale": "fr",
   "appTitle": "MeshCore Open",
   "nav_contacts": "Contacts",
@@ -262,7 +264,7 @@
     }
   },
   "contacts_manageRepeater": "Gérer le répéteur",
-  "contacts_roomLogin": "Connexion Salle",
+  "contacts_roomLogin": "Connexion Room Server",
   "contacts_openChat": "Ouverture du Chat",
   "contacts_editGroup": "Modifier le groupe",
   "contacts_deleteGroup": "Supprimer le groupe",
@@ -798,7 +800,7 @@
   "dialog_disconnect": "Déconnecter",
   "dialog_disconnectConfirm": "Êtes-vous sûr de vouloir vous déconnecter de cet appareil ?",
   "login_repeaterLogin": "Connexion au répéteur",
-  "login_roomLogin": "Connexion Salle",
+  "login_roomLogin": "Connexion Room Server",
   "login_password": "Mot de passe",
   "login_enterPassword": "Entrez votre mot de passe",
   "login_savePassword": "Sauvegarder le mot de passe",
@@ -1393,7 +1395,7 @@
   "settings_locationIntervalSec": "Intervalle de mise-à-jour du GPS (Secondes)",
   "settings_locationIntervalInvalid": "L'intervalle doit être compris entre 60 et 86400 secondes.",
   "contacts_manageRoom": "Gérer le Room Server",
-  "room_management": "Administración del Servidor de Habitación",
+  "room_management": "Administrattion Room Server",
   "@community_joinConfirmation": {
     "placeholders": {
       "name": {
@@ -1720,6 +1722,31 @@
   "losPointName": "Nom du point",
   "losShowPanelTooltip": "Afficher le panneau LOS",
   "losHidePanelTooltip": "Masquer le panneau LOS",
+  "losElevationAttribution": "Données d’altitude : Open-Meteo (CC BY 4.0)",
+  "losLegendRadioHorizon": "Horizon radio",
+  "losLegendLosBeam": "Ligne de visée",
+  "losLegendTerrain": "Terrain",
+  "losFrequencyLabel": "Fréquence",
+  "losFrequencyInfoTooltip": "Voir les détails du calcul",
+  "losFrequencyDialogTitle": "Calcul de l’horizon radio",
+  "losFrequencyDialogDescription": "À partir de k={baselineK} à {baselineFreq} MHz, le calcul ajuste le facteur k pour la bande actuelle de {frequencyMHz} MHz, ce qui définit la limite incurvée de l'horizon radio.",
+  "@losFrequencyDialogDescription": {
+    "description": "Explain how the calculation uses the baseline frequency and derived k-factor.",
+    "placeholders": {
+      "baselineK": {
+        "type": "double"
+      },
+      "baselineFreq": {
+        "type": "double"
+      },
+      "frequencyMHz": {
+        "type": "double"
+      },
+      "kFactor": {
+        "type": "double"
+      }
+    }
+  },
   "losElevationAttribution": "Données d'altitude : Open-Meteo (CC BY 4.0)",
   "chat_dropImageToUpload": "Déposer l'image pour la télécharger",
   "chat_sendImage": "Envoyer l'image",

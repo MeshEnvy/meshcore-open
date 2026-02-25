@@ -1,4 +1,6 @@
 {
+  "channels_channelDeleteFailed": "Kanala {name} ni bilo mogoče izbrisati",
+  "@channels_channelDeleteFailed": { "placeholders": { "name": { "type": "String" } } },
   "@@locale": "sl",
   "appTitle": "MeshCore Open",
   "nav_contacts": "Stiki",
@@ -1721,6 +1723,30 @@
   "losShowPanelTooltip": "Pokaži ploščo LOS",
   "losHidePanelTooltip": "Skrij ploščo LOS",
   "losElevationAttribution": "Podatki o višini: Open-Meteo (CC BY 4.0)",
+  "losLegendRadioHorizon": "Radijski horizont",
+  "losLegendLosBeam": "Linija vidnosti",
+  "losLegendTerrain": "Teren",
+  "losFrequencyLabel": "Frekvenca",
+  "losFrequencyInfoTooltip": "Prikaži podrobnosti izračuna",
+  "losFrequencyDialogTitle": "Izračun radijskega horizonta",
+  "losFrequencyDialogDescription": "Začenši od k={baselineK} pri {baselineFreq} MHz, izračun prilagodi k-faktor za trenutni pas {frequencyMHz} MHz, ki določa ukrivljeno zgornjo mejo radijskega horizonta.",
+  "@losFrequencyDialogDescription": {
+    "description": "Explain how the calculation uses the baseline frequency and derived k-factor.",
+    "placeholders": {
+      "baselineK": {
+        "type": "double"
+      },
+      "baselineFreq": {
+        "type": "double"
+      },
+      "frequencyMHz": {
+        "type": "double"
+      },
+      "kFactor": {
+        "type": "double"
+      }
+    }
+  },
   "chat_dropImageToUpload": "Spustite sliko za prenos",
   "chat_sendImage": "Pošlji sliko",
   "chat_image": "Slika",
