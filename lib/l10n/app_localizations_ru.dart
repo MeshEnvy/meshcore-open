@@ -2817,6 +2817,15 @@ class AppLocalizationsRu extends AppLocalizations {
   String get listFilter_all => 'Все';
 
   @override
+  String get listFilter_favorites => 'Избранное';
+
+  @override
+  String get listFilter_addToFavorites => 'Добавить в избранное';
+
+  @override
+  String get listFilter_removeFromFavorites => 'Удалить из избранного';
+
+  @override
   String get listFilter_users => 'Пользователи';
 
   @override

@@ -1,6 +1,12 @@
 {
   "channels_channelDeleteFailed": "Échec de la suppression de la chaîne \"{name}\"",
-  "@channels_channelDeleteFailed": { "placeholders": { "name": { "type": "String" } } },
+  "@channels_channelDeleteFailed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "@@locale": "fr",
   "appTitle": "MeshCore Open",
   "nav_contacts": "Contacts",
@@ -1747,6 +1753,9 @@
       }
     }
   },
+  "listFilter_addToFavorites": "Ajouter à mes favoris",
+  "listFilter_removeFromFavorites": "Supprimer des favoris",
+  "listFilter_favorites": "Préférences",
   "losElevationAttribution": "Données d'altitude : Open-Meteo (CC BY 4.0)",
   "appSettings_developerCard": "Développeur",
   "appSettings_ide": "IDE",

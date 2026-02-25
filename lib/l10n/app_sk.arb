@@ -1,6 +1,12 @@
 {
   "channels_channelDeleteFailed": "Kanál \"{name}\" sa nepodarilo odstrániť",
-  "@channels_channelDeleteFailed": { "placeholders": { "name": { "type": "String" } } },
+  "@channels_channelDeleteFailed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "@@locale": "sk",
   "appTitle": "MeshCore Open",
   "nav_contacts": "Kontakty",
@@ -1747,6 +1753,9 @@
       }
     }
   },
+  "listFilter_removeFromFavorites": "Odstrániť z označení",
+  "listFilter_addToFavorites": "Pridaj do obľúbených",
+  "listFilter_favorites": "Obľúbené",
   "appSettings_developerCard": "Vývojár",
   "appSettings_ide": "IDE",
   "appSettings_ideSubtitle": "Integrované vývojové prostredie",

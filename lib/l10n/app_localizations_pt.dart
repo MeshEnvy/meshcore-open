@@ -2814,6 +2814,15 @@ class AppLocalizationsPt extends AppLocalizations {
   String get listFilter_all => 'Tudo';
 
   @override
+  String get listFilter_favorites => 'Favoritos';
+
+  @override
+  String get listFilter_addToFavorites => 'Adicionar aos favoritos';
+
+  @override
+  String get listFilter_removeFromFavorites => 'Remover da lista de favoritos';
+
+  @override
   String get listFilter_users => 'Usuários';
 
   @override

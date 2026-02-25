@@ -1,6 +1,12 @@
 {
   "channels_channelDeleteFailed": "No se pudo eliminar el canal \"{name}\"",
-  "@channels_channelDeleteFailed": { "placeholders": { "name": { "type": "String" } } },
+  "@channels_channelDeleteFailed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "@@locale": "es",
   "appTitle": "MeshCore Open",
   "nav_contacts": "Contactos",
@@ -1775,6 +1781,9 @@
       }
     }
   },
+  "listFilter_favorites": "Favoritos",
+  "listFilter_removeFromFavorites": "Eliminar de las favoritas",
+  "listFilter_addToFavorites": "Añadir a favoritos",
   "appSettings_developerCard": "Desarrollador",
   "appSettings_ide": "IDE",
   "appSettings_ideSubtitle": "Entorno de Desarrollo Integrado",

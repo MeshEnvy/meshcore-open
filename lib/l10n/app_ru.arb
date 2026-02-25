@@ -1,6 +1,12 @@
 {
   "channels_channelDeleteFailed": "Не удалось удалить канал {name}.",
-  "@channels_channelDeleteFailed": { "placeholders": { "name": { "type": "String" } } },
+  "@channels_channelDeleteFailed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "@@locale": "ru",
   "appTitle": "MeshCore Open",
   "nav_contacts": "Контакты",
@@ -987,6 +993,9 @@
       }
     }
   },
+  "listFilter_addToFavorites": "Добавить в избранное",
+  "listFilter_favorites": "Избранное",
+  "listFilter_removeFromFavorites": "Удалить из избранного",
   "appSettings_developerCard": "Разработчик",
   "appSettings_ide": "IDE",
   "appSettings_ideSubtitle": "Интегрированная среда разработки",
