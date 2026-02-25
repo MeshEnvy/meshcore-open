@@ -80,15 +80,7 @@ class _IdeScreenState extends State<IdeScreen> {
                 '${context.l10n.appSettings_ide}'
                 '${ctrl.hasUnsavedChanges ? '*' : ''}',
               ),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.delete_outline),
-                  onPressed: ctrl.selectedNode != null
-                      ? () => ctrl.deleteEntity(ctrl.selectedNode!, context)
-                      : null,
-                  tooltip: context.l10n.common_delete,
-                ),
-              ],
+              actions: const [],
             ),
             body: ctrl.isLoading
                 ? const Center(child: CircularProgressIndicator())

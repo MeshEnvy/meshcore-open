@@ -172,6 +172,23 @@ class IdeFilePanel extends StatelessWidget {
                                   ctx,
                                 ).colorScheme.primaryContainer,
                                 onTap: () => ctrl.selectNode(entity, ctx),
+                                trailing: isSelected
+                                    ? IconButton(
+                                        icon: const Icon(
+                                          Icons.delete_outline,
+                                          size: 18,
+                                          color: Colors.red,
+                                        ),
+                                        tooltip: 'Delete',
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(
+                                          minWidth: 32,
+                                          minHeight: 32,
+                                        ),
+                                        onPressed: () =>
+                                            ctrl.deleteEntity(entity, ctx),
+                                      )
+                                    : null,
                               ),
                             ),
                           );
