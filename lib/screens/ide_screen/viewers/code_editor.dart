@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../../services/lua_service.dart';
 import '../../../services/mal/mal_api.dart';
+import '../ai/ai_assistant_pane.dart';
 import '../ide_controller.dart';
 import '../widgets/resize_handle.dart';
 import 'diagnostics_bar.dart';
@@ -25,6 +26,10 @@ class _IdeCodeEditorState extends State<IdeCodeEditor> {
   bool _logOpen = false;
   double _logPaneHeight = 200;
   final ScrollController _logScrollController = ScrollController();
+
+  // ── AI pane visibility & size ─────────────────────────────────────────────
+  bool _aiOpen = false;
+  double _aiPaneWidth = 320;
 
   // ── History management ────────────────────────────────────────────────────
   /// Lines captured from previous runs when Preserve History is on.
@@ -127,59 +132,84 @@ class _IdeCodeEditorState extends State<IdeCodeEditor> {
     final isLua =
         ctrl.selectedFile?.path.toLowerCase().endsWith('.lua') == true;
 
-    return Column(
+    return Row(
       children: [
-        // ── Toolbar ───────────────────────────────────────────────────────
-        IdeEditorToolbar(
-          isLua: isLua,
-          hasUnsavedChanges: ctrl.hasUnsavedChanges,
-          logPaneOpen: _logOpen,
-          onRun: _onRun,
-          onSave: ctrl.hasUnsavedChanges
-              ? () => ctrl.saveCurrentFile(context)
-              : null,
-          onToggleLog: () => setState(() => _logOpen = !_logOpen),
-        ),
-        const Divider(height: 1),
-
-        // ── Diagnostics bar (Lua only) ─────────────────────────────────────
-        if (isLua)
-          AnimatedBuilder(
-            animation: controller,
-            builder: (_, child) =>
-                DiagnosticsBar(analysisResult: controller.analysisResult),
-          ),
-
-        // ── Code editor ───────────────────────────────────────────────────
+        // ── Editor column ──────────────────────────────────────────────────
         Expanded(
-          child: CodeTheme(
-            data: CodeThemeData(styles: monokaiSublimeTheme),
-            child: CodeField(
-              controller: controller,
-              expands: true,
-              textStyle: const TextStyle(fontFamily: 'monospace', fontSize: 14),
-            ),
+          child: Column(
+            children: [
+              // ── Toolbar ─────────────────────────────────────────────────
+              IdeEditorToolbar(
+                isLua: isLua,
+                hasUnsavedChanges: ctrl.hasUnsavedChanges,
+                logPaneOpen: _logOpen,
+                aiPaneOpen: _aiOpen,
+                onRun: _onRun,
+                onSave: ctrl.hasUnsavedChanges
+                    ? () => ctrl.saveCurrentFile(context)
+                    : null,
+                onToggleLog: () => setState(() => _logOpen = !_logOpen),
+                onToggleAi: () => setState(() => _aiOpen = !_aiOpen),
+              ),
+              const Divider(height: 1),
+
+              // ── Diagnostics bar (Lua only) ───────────────────────────────
+              if (isLua)
+                AnimatedBuilder(
+                  animation: controller,
+                  builder: (_, child) =>
+                      DiagnosticsBar(analysisResult: controller.analysisResult),
+                ),
+
+              // ── Code editor ─────────────────────────────────────────────
+              Expanded(
+                child: CodeTheme(
+                  data: CodeThemeData(styles: monokaiSublimeTheme),
+                  child: CodeField(
+                    controller: controller,
+                    expands: true,
+                    textStyle: const TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
+
+              // ── Resizable log pane ───────────────────────────────────────
+              if (_logOpen) ...[
+                VerticalResizeHandle(
+                  onDrag: (dy) => setState(() {
+                    _logPaneHeight = (_logPaneHeight - dy).clamp(80.0, 600.0);
+                  }),
+                ),
+                SizedBox(
+                  height: _logPaneHeight,
+                  child: InlineLogPane(
+                    ctrl: ctrl,
+                    scrollController: _logScrollController,
+                    logs: _effectiveLogs,
+                    preserveHistory: _preserveHistory,
+                    onTogglePreserve: (v) =>
+                        setState(() => _preserveHistory = v ?? false),
+                    onClear: _onClear,
+                  ),
+                ),
+              ],
+            ],
           ),
         ),
 
-        // ── Resizable log pane ────────────────────────────────────────────
-        if (_logOpen) ...[
-          VerticalResizeHandle(
-            onDrag: (dy) => setState(() {
-              _logPaneHeight = (_logPaneHeight - dy).clamp(80.0, 600.0);
+        // ── AI assistant pane (resizable) ──────────────────────────────────
+        if (_aiOpen) ...[
+          HorizontalResizeHandle(
+            onDrag: (dx) => setState(() {
+              _aiPaneWidth = (_aiPaneWidth - dx).clamp(240.0, 520.0);
             }),
           ),
           SizedBox(
-            height: _logPaneHeight,
-            child: InlineLogPane(
-              ctrl: ctrl,
-              scrollController: _logScrollController,
-              logs: _effectiveLogs,
-              preserveHistory: _preserveHistory,
-              onTogglePreserve: (v) =>
-                  setState(() => _preserveHistory = v ?? false),
-              onClear: _onClear,
-            ),
+            width: _aiPaneWidth,
+            child: AiAssistantPane(ctrl: ctrl),
           ),
         ],
       ],

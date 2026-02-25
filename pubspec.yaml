@@ -104,6 +104,7 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/fonts/
+    - assets/ai/
 
 flutter_launcher_icons:
   android: true

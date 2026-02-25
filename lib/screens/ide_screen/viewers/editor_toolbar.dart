@@ -7,18 +7,22 @@ class IdeEditorToolbar extends StatelessWidget {
   final bool isLua;
   final bool hasUnsavedChanges;
   final bool logPaneOpen;
+  final bool aiPaneOpen;
   final VoidCallback? onRun;
   final VoidCallback? onSave;
   final VoidCallback onToggleLog;
+  final VoidCallback onToggleAi;
 
   const IdeEditorToolbar({
     super.key,
     required this.isLua,
     required this.hasUnsavedChanges,
     required this.logPaneOpen,
+    required this.aiPaneOpen,
     this.onRun,
     this.onSave,
     required this.onToggleLog,
+    required this.onToggleAi,
   });
 
   @override
@@ -62,6 +66,19 @@ class IdeEditorToolbar extends StatelessWidget {
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
             onPressed: onToggleLog,
+          ),
+
+          // AI pane toggle
+          IconButton(
+            icon: Icon(
+              Icons.auto_awesome,
+              size: 17,
+              color: aiPaneOpen ? scheme.primary : null,
+            ),
+            tooltip: aiPaneOpen ? 'Hide AI Assistant' : 'Show AI Assistant',
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            onPressed: onToggleAi,
           ),
 
           // Unsaved indicator
