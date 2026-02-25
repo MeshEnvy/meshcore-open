@@ -2919,7 +2919,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get losElevationAttribution =>
-      'Données d’altitude : Open-Meteo (CC BY 4.0)';
+      'Données d\'altitude : Open-Meteo (CC BY 4.0)';
 
   @override
   String get losLegendRadioHorizon => 'Horizon radio';
