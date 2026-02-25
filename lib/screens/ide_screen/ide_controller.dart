@@ -12,6 +12,7 @@ import '../../services/lua_service.dart';
 import '../../services/mal/mal_api.dart';
 import '../../services/mal/vfs/vfs.dart';
 import '../../utils/app_logger.dart';
+import 'analyzers/lua_syntax_analyzer.dart';
 
 enum FileDisplayMode { code, image, pdf, processLogs, unsupported }
 
@@ -193,9 +194,13 @@ class IdeController extends ChangeNotifier {
           try {
             final content = await malApi.fread(entity.path);
             originalContent = content;
+            final isLuaFile = entity.path.toLowerCase().endsWith('.lua');
             final controller = CodeController(
               text: content,
               language: highlight_lua.lua,
+              analyzer: isLuaFile
+                  ? const LuaSyntaxAnalyzer()
+                  : const DefaultLocalAnalyzer(),
             );
             controller.addListener(() {
               final changed = controller.text != originalContent;

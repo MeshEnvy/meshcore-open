@@ -7,6 +7,7 @@ import '../../../services/lua_service.dart';
 import '../../../services/mal/mal_api.dart';
 import '../ide_controller.dart';
 import '../widgets/resize_handle.dart';
+import 'diagnostics_bar.dart';
 import 'editor_toolbar.dart';
 import 'inline_log_pane.dart';
 
@@ -140,6 +141,14 @@ class _IdeCodeEditorState extends State<IdeCodeEditor> {
           onToggleLog: () => setState(() => _logOpen = !_logOpen),
         ),
         const Divider(height: 1),
+
+        // ── Diagnostics bar (Lua only) ─────────────────────────────────────
+        if (isLua)
+          AnimatedBuilder(
+            animation: controller,
+            builder: (_, child) =>
+                DiagnosticsBar(analysisResult: controller.analysisResult),
+          ),
 
         // ── Code editor ───────────────────────────────────────────────────
         Expanded(
