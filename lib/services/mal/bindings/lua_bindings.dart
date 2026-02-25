@@ -2,13 +2,66 @@ import 'package:lua_dardo/lua.dart';
 import '../mal_api.dart';
 import '../../lua_service.dart';
 
+/// Holds the synchronous KV cache and the list of async write futures that
+/// have been fired during a Lua script run.
+///
+/// Call [flush] after `doString` to ensure all writes are committed to the
+/// backing store before the next script run loads the cache.
+class LuaMalContext {
+  /// Write-through cache keyed by `"$scope:$key"` (or just `"$key"` when no
+  /// scope is provided).  Pre-populated before Lua execution begins.
+  final Map<String, String> kvCache;
+
+  final List<Future<void>> _pendingWrites = [];
+
+  LuaMalContext({required this.kvCache});
+
+  /// Register a write future so it can be awaited by [flush].
+  void addPendingWrite(Future<void> f) => _pendingWrites.add(f);
+
+  /// Awaits all pending KV store writes and clears the queue.
+  /// Must be called after `doString` to guarantee persistence before the next
+  /// script run's [LuaMalBindings.loadKvCache] executes.
+  Future<void> flush() async {
+    if (_pendingWrites.isEmpty) return;
+    await Future.wait(_pendingWrites);
+    _pendingWrites.clear();
+  }
+}
+
 /// Binds the native Dart `MalApi` implementation into a `lua_dardo` state
 /// under a single global `mal` table.
 class LuaMalBindings {
+  /// Pre-loads all KV entries (default scope) into a synchronous cache so that
+  /// `mal.getKey` can return values synchronously from within Lua.
+  ///
+  /// Call this before [register] and pass the returned [LuaMalContext].
+  static Future<LuaMalContext> loadKvCache(MalApi api) async {
+    final cache = <String, String>{};
+    try {
+      // Use getValues for a single round-trip where available.
+      final keys = await api.getKeys();
+      for (final key in keys) {
+        final val = await api.getKey(key);
+        if (val != null) {
+          cache[key] = val;
+        }
+      }
+    } catch (_) {
+      // If loading fails, start with an empty cache – writes will still work.
+    }
+    return LuaMalContext(kvCache: cache);
+  }
+
   /// Injects the `mal.*` namespace into the provided [state].
+  ///
+  /// [context] must be a [LuaMalContext] returned by [loadKvCache].  After
+  /// `doString` completes, the caller must `await context.flush()` to ensure
+  /// all writes have been committed to the backing store.
   static void register(
     LuaState state, {
     required MalApi api,
+    required LuaMalContext context,
     LuaProcess? process,
   }) {
     state.newTable(); // the `mal` table
@@ -138,23 +191,59 @@ class LuaMalBindings {
 
     // --------------------------------------------------------------------------
     // Key-Value Store
+    //
+    // Uses a synchronous write-through cache (context.kvCache) pre-populated
+    // before execution so reads are always consistent within a script run.
+    // Writes are tracked in context._pendingWrites; call context.flush() after
+    // doString to guarantee they have committed before the next run.
     // --------------------------------------------------------------------------
 
+    // mal.setKey(key, value [, scope])
     state.pushDartFunction((LuaState ls) {
       final key = ls.checkString(1);
       final val = ls.checkString(2);
+      final scope = ls.isString(3) ? ls.toStr(3) : null;
       if (key != null && val != null) {
-        api.setKey(key, val);
+        // Write-through: update cache immediately so getKey sees the new value.
+        final cacheKey = scope != null ? '$scope:$key' : key;
+        context.kvCache[cacheKey] = val;
+        // Track the write future so runScript can await it after doString.
+        context.addPendingWrite(api.setKey(key, val, scope: scope));
       }
       return 0;
     });
     state.setField(-2, "setKey");
 
+    // mal.getKey(key [, scope])
     state.pushDartFunction((LuaState ls) {
-      ls.pushNil();
+      final key = ls.checkString(1);
+      if (key == null) {
+        ls.pushNil();
+        return 1;
+      }
+      final scope = ls.isString(2) ? ls.toStr(2) : null;
+      final cacheKey = scope != null ? '$scope:$key' : key;
+      final val = context.kvCache[cacheKey];
+      if (val == null) {
+        ls.pushNil();
+      } else {
+        ls.pushString(val);
+      }
       return 1;
     });
     state.setField(-2, "getKey");
+
+    // mal.deleteKey(key [, scope])
+    state.pushDartFunction((LuaState ls) {
+      final key = ls.checkString(1);
+      if (key == null) return 0;
+      final scope = ls.isString(2) ? ls.toStr(2) : null;
+      final cacheKey = scope != null ? '$scope:$key' : key;
+      context.kvCache.remove(cacheKey);
+      context.addPendingWrite(api.deleteKey(key, scope: scope));
+      return 0;
+    });
+    state.setField(-2, "deleteKey");
 
     // --------------------------------------------------------------------------
     // Virtual File System

@@ -190,10 +190,24 @@ class LuaService extends ChangeNotifier {
         tag: 'LuaService',
       );
 
+      // Pre-load the KV write-through cache so synchronous getKey reads inside
+      // Lua see persisted values.  The context also tracks pending write Futures
+      // so we can flush them after doString.
+      final malContext = await LuaMalBindings.loadKvCache(malApi);
+
       // Inject MAL Bindings (Global 'mal' table), passing process context
-      LuaMalBindings.register(state, api: malApi, process: process);
+      LuaMalBindings.register(
+        state,
+        api: malApi,
+        context: malContext,
+        process: process,
+      );
 
       final result = state.doString(content);
+
+      // Await all KV writes triggered during the script so they are committed
+      // to the backing store before any subsequent run loads the cache.
+      await malContext.flush();
       if (kDebugMode) {
         print(
           '[LuaService] $name result: $result (type: ${result.runtimeType})',

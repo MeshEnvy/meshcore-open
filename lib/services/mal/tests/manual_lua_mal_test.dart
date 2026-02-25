@@ -41,8 +41,9 @@ void main() async {
   ls.requireF("math", MathLib.openMathLib, true);
   ls.pop(1);
 
-  // Register the single 'mal' table
-  LuaMalBindings.register(ls, api: malApi);
+  // Pre-load the KV cache and register the single 'mal' table
+  final malContext = await LuaMalBindings.loadKvCache(malApi);
+  LuaMalBindings.register(ls, api: malApi, context: malContext);
 
   // Execute a test script using the Flat API
   const testScript = '''
