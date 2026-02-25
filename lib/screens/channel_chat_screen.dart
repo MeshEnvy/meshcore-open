@@ -15,7 +15,9 @@ import '../l10n/l10n.dart';
 import '../models/channel.dart';
 import '../models/channel_message.dart';
 import '../services/app_settings_service.dart';
+import '../services/chat_text_scale_service.dart';
 import '../utils/emoji_utils.dart';
+import '../widgets/chat_zoom_wrapper.dart';
 import '../widgets/emoji_picker.dart';
 import '../widgets/gif_message.dart';
 import '../widgets/jump_to_bottom_button.dart';
@@ -216,37 +218,50 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
 
                   return Stack(
                     children: [
-                      ListView.builder(
-                        reverse: true, // List grows from bottom up
-                        controller: _scrollController,
-                        padding: const EdgeInsets.all(8),
-                        itemCount: itemCount,
-                        itemBuilder: (context, index) {
-                          // Loading indicator now appears at end (bottom) of reversed list
-                          if (_isLoadingOlder && index == itemCount - 1) {
-                            return const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                              child: Center(
-                                child: SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
+                      ChatZoomWrapper(
+                        child: ListView.builder(
+                          reverse: true, // List grows from bottom up
+                          controller: _scrollController,
+                          padding: const EdgeInsets.all(8),
+                          itemCount: itemCount,
+                          itemBuilder: (context, index) {
+                            // Loading indicator now appears at end (bottom) of reversed list
+                            if (_isLoadingOlder && index == itemCount - 1) {
+                              return const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 16),
+                                child: Center(
+                                  child: SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
                                   ),
                                 ),
+                              );
+                            }
+                            final messageIndex = index;
+                            final message = reversedMessages[messageIndex];
+                            if (!_messageKeys.containsKey(message.messageId)) {
+                              _messageKeys[message.messageId] = GlobalKey();
+                            }
+                            return Container(
+                              key: _messageKeys[message.messageId]!,
+                              child: Builder(
+                                builder: (context) {
+                                  final textScale = context
+                                      .select<ChatTextScaleService, double>(
+                                        (service) => service.scale,
+                                      );
+                                  return _buildMessageBubble(
+                                    message,
+                                    textScale,
+                                  );
+                                },
                               ),
                             );
-                          }
-                          final messageIndex = index;
-                          final message = reversedMessages[messageIndex];
-                          if (!_messageKeys.containsKey(message.messageId)) {
-                            _messageKeys[message.messageId] = GlobalKey();
-                          }
-                          return Container(
-                            key: _messageKeys[message.messageId]!,
-                            child: _buildMessageBubble(message),
-                          );
-                        },
+                          },
+                        ),
                       ),
                       JumpToBottomButton(scrollController: _scrollController),
                     ],
@@ -261,7 +276,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
     );
   }
 
-  Widget _buildMessageBubble(ChannelMessage message) {
+  Widget _buildMessageBubble(ChannelMessage message, double textScale) {
     final settingsService = context.watch<AppSettingsService>();
     final enableTracing = settingsService.settings.enableMessageTracing;
     final isOutgoing = message.isOutgoing;
@@ -275,6 +290,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
 
     const maxSwipeOffset = 64.0;
     const replySwipeThreshold = 64.0;
+    const bodyFontSize = 14.0;
     final messageBody = Column(
       crossAxisAlignment: isOutgoing
           ? CrossAxisAlignment.end
@@ -331,7 +347,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                         if (gifId == null) const SizedBox(height: 4),
                       ],
                       if (message.replyToMessageId != null) ...[
-                        _buildReplyPreview(message),
+                        _buildReplyPreview(message, textScale),
                         const SizedBox(height: 8),
                       ],
                       if (poi != null)
@@ -339,6 +355,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                           context,
                           poi,
                           isOutgoing,
+                          textScale,
                           trailing: (!enableTracing && isOutgoing)
                               ? Padding(
                                   padding: const EdgeInsets.only(bottom: 2),
@@ -412,9 +429,11 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                             Flexible(
                               child: Linkify(
                                 text: message.text,
-                                style: const TextStyle(fontSize: 14),
-                                linkStyle: const TextStyle(
-                                  fontSize: 14,
+                                style: TextStyle(
+                                  fontSize: bodyFontSize * textScale,
+                                ),
+                                linkStyle: TextStyle(
+                                  fontSize: bodyFontSize * textScale,
                                   color: Colors.green,
                                   decoration: TextDecoration.underline,
                                 ),
@@ -592,7 +611,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
     );
   }
 
-  Widget _buildReplyPreview(ChannelMessage message) {
+  Widget _buildReplyPreview(ChannelMessage message, double textScale) {
     final connector = context.read<MeshCoreConnector>();
     final isOwnNode = message.replyToSenderName == connector.selfName;
     final replyText = message.replyToText ?? '';
@@ -620,7 +639,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
           const SizedBox(width: 4),
           Text(
             context.l10n.chat_location,
-            style: TextStyle(fontSize: 12, color: previewTextColor),
+            style: TextStyle(fontSize: 12 * textScale, color: previewTextColor),
           ),
         ],
       );
@@ -630,7 +649,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
-          fontSize: 12,
+          fontSize: 12 * textScale,
           color: previewTextColor,
           fontStyle: FontStyle.italic,
         ),
@@ -654,7 +673,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
             Text(
               context.l10n.chat_replyTo(message.replyToSenderName ?? ''),
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 11 * textScale,
                 fontWeight: FontWeight.bold,
                 color: isOwnNode
                     ? Theme.of(context).colorScheme.primary
@@ -733,7 +752,8 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
   Widget _buildPoiMessage(
     BuildContext context,
     _PoiInfo poi,
-    bool isOutgoing, {
+    bool isOutgoing,
+    double textScale, {
     Widget? trailing,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -771,12 +791,16 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
             children: [
               Text(
                 context.l10n.chat_poiShared,
-                style: TextStyle(color: textColor, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  color: textColor,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14 * textScale,
+                ),
               ),
               if (poi.label.isNotEmpty)
                 Text(
                   poi.label,
-                  style: TextStyle(color: metaColor, fontSize: 12),
+                  style: TextStyle(color: metaColor, fontSize: 12 * textScale),
                 ),
             ],
           ),
@@ -846,7 +870,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
     return colors[hash.abs() % colors.length];
   }
 
-  Widget _buildReplyBanner() {
+  Widget _buildReplyBanner(double textScale) {
     final message = _replyingToMessage!;
     return Container(
       width: double.infinity,
@@ -872,7 +896,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                 Text(
                   context.l10n.chat_replyingTo(message.senderName),
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 12 * textScale,
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.onSecondaryContainer,
                   ),
@@ -882,7 +906,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 11 * textScale,
                     color: Theme.of(
                       context,
                     ).colorScheme.onSecondaryContainer.withValues(alpha: 0.7),
@@ -917,7 +941,15 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (_replyingToMessage != null) _buildReplyBanner(),
+        if (_replyingToMessage != null)
+          Builder(
+            builder: (context) {
+              final textScale = context.select<ChatTextScaleService, double>(
+                (service) => service.scale,
+              );
+              return _buildReplyBanner(textScale);
+            },
+          ),
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
