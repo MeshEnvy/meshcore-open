@@ -135,6 +135,10 @@ class MeshCoreConnector extends ChangeNotifier {
   final StreamController<Uint8List> _receivedFramesController =
       StreamController<Uint8List>.broadcast();
 
+  /// Fires every time a fully-parsed, non-self incoming direct message arrives.
+  final StreamController<Message> _incomingMessageController =
+      StreamController<Message>.broadcast();
+
   Uint8List? _selfPublicKey;
   String? _selfName;
   int? _currentTxPower;
@@ -246,6 +250,9 @@ class MeshCoreConnector extends ChangeNotifier {
   bool get isLoadingContacts => _isLoadingContacts;
   bool get isLoadingChannels => _isLoadingChannels;
   Stream<Uint8List> get receivedFrames => _receivedFramesController.stream;
+
+  /// Stream of fully-decoded incoming direct messages (excludes self-sent).
+  Stream<Message> get incomingMessages => _incomingMessageController.stream;
   Uint8List? get selfPublicKey => _selfPublicKey;
   String? get selfName => _selfName;
   double? get selfLatitude => _selfLatitude;
@@ -2502,6 +2509,11 @@ class MeshCoreConnector extends ChangeNotifier {
       _addMessage(message.senderKeyHex, message);
       _maybeIncrementContactUnread(message);
       notifyListeners();
+
+      // Notify Lua / MAL subscribers about the incoming message.
+      if (!message.isOutgoing && !message.isCli) {
+        _incomingMessageController.add(message);
+      }
 
       // Show notification for new incoming message
       if (!message.isOutgoing &&

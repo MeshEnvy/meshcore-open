@@ -1,6 +1,7 @@
 import 'dart:async';
 import '../../../models/contact.dart';
 import '../../../models/channel.dart';
+import '../../../models/message.dart';
 import '../../../connector/meshcore_connector.dart';
 import 'mal_api.dart';
 import 'kv/kv_store.dart';
@@ -20,6 +21,24 @@ class ConnectorMalApi implements MalApi {
 
   ConnectorMalApi({required MeshCoreConnector connector})
     : _connector = connector;
+
+  @override
+  Stream<MeshIncomingMessage> get incomingMessages =>
+      _connector.incomingMessages.map(
+        (Message msg) => MeshIncomingMessage(
+          text: msg.text,
+          from: msg.senderKeyHex,
+          senderName:
+              _connector.contacts
+                  .cast<Contact?>()
+                  .firstWhere(
+                    (c) => c?.publicKeyHex == msg.senderKeyHex,
+                    orElse: () => null,
+                  )
+                  ?.name ??
+              'Unknown',
+        ),
+      );
 
   @override
   Future<void> init() async {

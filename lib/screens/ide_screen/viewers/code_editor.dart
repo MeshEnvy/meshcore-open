@@ -123,6 +123,14 @@ class _IdeCodeEditorState extends State<IdeCodeEditor> {
     _restoreFocus();
   }
 
+  void _onStop() {
+    final process = ctrl.inlineProcess;
+    if (process == null) return;
+    process.kill();
+    ctrl.notify();
+    _restoreFocus();
+  }
+
   void _onClear() {
     setState(() {
       _historicalLogs.clear();
@@ -161,7 +169,10 @@ class _IdeCodeEditorState extends State<IdeCodeEditor> {
                 hasUnsavedChanges: ctrl.hasUnsavedChanges,
                 logPaneOpen: _logOpen,
                 aiPaneOpen: _aiOpen,
+                isRunning:
+                    ctrl.inlineProcess?.status == LuaProcessStatus.running,
                 onRun: _onRun,
+                onStop: _onStop,
                 onSave: ctrl.hasUnsavedChanges
                     ? () {
                         ctrl.saveCurrentFile(context);

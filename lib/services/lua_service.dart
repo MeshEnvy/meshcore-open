@@ -277,13 +277,29 @@ end
           if (process.activeListeners == 0) {
             process.updateStatus(LuaProcessStatus.completed);
             notifyListeners();
+            process.addLog('--- Script finished ---');
+            appLogger.info(
+              '$name execution completed (doString returned).',
+              tag: 'LuaService',
+            );
+            if (kDebugMode) print('[LuaService] $name Execution completed.');
+          } else {
+            process.addLog(
+              '--- Script finished, staying resident with '
+              '${process.activeListeners} active listener(s) — '
+              'press Stop to terminate ---',
+            );
+            appLogger.info(
+              '$name is staying resident with ${process.activeListeners} active listener(s).',
+              tag: 'LuaService',
+            );
+            if (kDebugMode) {
+              print(
+                '[LuaService] $name staying resident '
+                '(${process.activeListeners} listeners).',
+              );
+            }
           }
-
-          appLogger.info(
-            '$name execution completed (doString returned).',
-            tag: 'LuaService',
-          );
-          if (kDebugMode) print('[LuaService] $name Execution completed.');
         }
       }
     } catch (e, stackTrace) {

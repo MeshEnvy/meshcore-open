@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:lua_dardo/lua.dart';
+// ignore: implementation_imports
+import 'package:lua_dardo/src/api/lua_state.dart'; // luaRegistryIndex
 import '../mal_api.dart';
 import '../../lua_service.dart';
 
@@ -30,10 +34,17 @@ class LuaMalContext {
 }
 
 /// Binds the native Dart `MalApi` implementation into a `lua_dardo` state
-/// under a single global `mal` table.
+/// under a single global `mesh` table.
+///
+/// ## Stay-resident model
+/// A Lua script stays alive automatically as long as it has registered at
+/// least one `mesh.onMessage` (or similar) handler.  There is no need for an
+/// explicit `mesh.wait()` / event-loop call at the end of the script.  When
+/// the process is killed (via `LuaProcess.kill()`), all Stream subscriptions
+/// are cancelled via the disposal callbacks registered on [LuaProcess].
 class LuaMalBindings {
   /// Pre-loads all KV entries (default scope) into a synchronous cache so that
-  /// `mal.getKey` can return values synchronously from within Lua.
+  /// `mesh.getKey` can return values synchronously from within Lua.
   ///
   /// Call this before [register] and pass the returned [LuaMalContext].
   static Future<LuaMalContext> loadKvCache(MalApi api) async {
@@ -53,7 +64,7 @@ class LuaMalBindings {
     return LuaMalContext(kvCache: cache);
   }
 
-  /// Injects the `mal.*` namespace into the provided [state].
+  /// Injects the `mesh.*` namespace into the provided [state].
   ///
   /// [context] must be a [LuaMalContext] returned by [loadKvCache].  After
   /// `doString` completes, the caller must `await context.flush()` to ensure
@@ -64,13 +75,13 @@ class LuaMalBindings {
     required LuaMalContext context,
     LuaProcess? process,
   }) {
-    state.newTable(); // the `mal` table
+    state.newTable(); // the `mesh` table
 
     // --------------------------------------------------------------------------
     // Network
     // --------------------------------------------------------------------------
 
-    // mal.getKnownNodes
+    // mesh.getKnownNodes() → table<pubKeyHex, {longName, type}>
     state.pushDartFunction((LuaState ls) {
       final nodes = api.knownNodes;
       ls.newTable();
@@ -87,7 +98,7 @@ class LuaMalBindings {
     });
     state.setField(-2, "getKnownNodes");
 
-    // mal.getNode(id)
+    // mesh.getNode(id) → {longName, type} | nil
     state.pushDartFunction((LuaState ls) {
       final id = ls.checkString(1);
       if (id == null) return 0;
@@ -105,8 +116,8 @@ class LuaMalBindings {
     });
     state.setField(-2, "getNode");
 
-    // mal.sendText(text, destination)
-    // destination can be a string (node ID) or a number (channel index)
+    // mesh.sendText(text, destination)
+    // destination: string (node pubkey hex) or number (channel index)
     state.pushDartFunction((LuaState ls) {
       final text = ls.checkString(1);
       if (text == null) return 0;
@@ -135,8 +146,8 @@ class LuaMalBindings {
     });
     state.setField(-2, "sendText");
 
-    // mal.sendData(payload, port, destination)
-    // destination can be a string (node ID) or a number (channel index)
+    // mesh.sendData(payload, port, destination)
+    // destination: string (node pubkey hex) or number (channel index)
     state.pushDartFunction((LuaState ls) {
       final payload = ls.toStr(1);
       final port = ls.toNumber(2).toInt();
@@ -162,23 +173,96 @@ class LuaMalBindings {
     state.setField(-2, "sendBytes");
 
     // --------------------------------------------------------------------------
+    // Message events
+    //
+    // mesh.onMessage(fn)
+    //
+    // Registers [fn] to be called whenever an incoming direct message is
+    // received.  The callback receives a single Lua table:
+    //   { text = "...", from = "<pubkeyHex>", senderName = "..." }
+    //
+    // Calling mesh.onMessage() increments the process activeListeners counter
+    // so that the script is kept alive (daemon mode) after doString returns.
+    // When the process is killed, the Stream subscription is cancelled via the
+    // disposal callback registered on [process].
+    // --------------------------------------------------------------------------
+
+    state.pushDartFunction((LuaState ls) {
+      // The argument must be a Lua function.
+      if (!ls.isFunction(1)) {
+        ls.pushBoolean(false);
+        return 1;
+      }
+
+      // Store the callback in the Lua registry so it survives across calls.
+      // luaL_ref pops the value from the stack and returns an integer key.
+      ls.pushValue(1); // copy the function to the top
+      final callbackRef = ls.ref(luaRegistryIndex);
+
+      // Keep the process alive while the subscription is active.
+      process?.activeListeners++;
+
+      // Subscribe to the Dart-side stream on the Flutter event loop.
+      StreamSubscription<MeshIncomingMessage>? subscription;
+      subscription = api.incomingMessages.listen((msg) {
+        // Retrieve the LuaState from the process (may be null if killed).
+        final luaState = process?.state;
+        if (luaState == null) {
+          subscription?.cancel();
+          return;
+        }
+
+        try {
+          // Push the registered Lua callback onto the stack.
+          luaState.rawGetI(luaRegistryIndex, callbackRef);
+
+          // Build the msg table: { text, from, senderName }
+          luaState.newTable();
+          luaState.pushString(msg.text);
+          luaState.setField(-2, "text");
+          luaState.pushString(msg.from);
+          luaState.setField(-2, "from");
+          luaState.pushString(msg.senderName);
+          luaState.setField(-2, "senderName");
+
+          // Call the Lua function with 1 argument, 0 results.
+          luaState.pCall(1, 0, 0);
+        } catch (e) {
+          process?.addLog('mesh.onMessage callback error: $e');
+        }
+      });
+
+      // Register a disposal callback so the subscription is cancelled and the
+      // listener counter decremented when the process is killed.
+      process?.addDisposalCallback(() {
+        subscription?.cancel();
+        subscription = null;
+        // Release the Lua registry reference (avoids memory leak in the VM).
+        try {
+          ls.unRef(luaRegistryIndex, callbackRef);
+        } catch (_) {}
+      });
+
+      ls.pushBoolean(true);
+      return 1;
+    });
+    state.setField(-2, "onMessage");
+
+    // --------------------------------------------------------------------------
     // Environment Variables
     // --------------------------------------------------------------------------
 
-    // mal.getEnv
+    // mesh.getEnv(key) → string | nil
     state.pushDartFunction((LuaState ls) {
       final key = ls.checkString(1);
       if (key == null) return 0;
-
-      // Since we can't await in sync DartFunction, we return nil for now
-      // but trigger the fetch.
-      // TODO: Implement a sync cache for environment variables.
+      // Synchronous read is not possible for env vars; return nil for now.
       ls.pushNil();
       return 1;
     });
     state.setField(-2, "getEnv");
 
-    // mal.setEnv
+    // mesh.setEnv(key, value)
     state.pushDartFunction((LuaState ls) {
       final key = ls.checkString(1);
       final val = ls.checkString(2);
@@ -198,7 +282,7 @@ class LuaMalBindings {
     // doString to guarantee they have committed before the next run.
     // --------------------------------------------------------------------------
 
-    // mal.setKey(key, value [, scope])
+    // mesh.setKey(key, value [, scope])
     state.pushDartFunction((LuaState ls) {
       final key = ls.checkString(1);
       final val = ls.checkString(2);
@@ -214,7 +298,7 @@ class LuaMalBindings {
     });
     state.setField(-2, "setKey");
 
-    // mal.getKey(key [, scope])
+    // mesh.getKey(key [, scope]) → string | nil
     state.pushDartFunction((LuaState ls) {
       final key = ls.checkString(1);
       if (key == null) {
@@ -233,7 +317,7 @@ class LuaMalBindings {
     });
     state.setField(-2, "getKey");
 
-    // mal.deleteKey(key [, scope])
+    // mesh.deleteKey(key [, scope])
     state.pushDartFunction((LuaState ls) {
       final key = ls.checkString(1);
       if (key == null) return 0;
@@ -260,8 +344,7 @@ class LuaMalBindings {
     state.setField(-2, "fwrite");
 
     state.pushDartFunction((LuaState ls) {
-      // We can't return content sync, so we return nil.
-      // Scripts should use fwrite for now.
+      // Sync fread is not supported yet; return nil.
       ls.pushNil();
       return 1;
     });
@@ -295,14 +378,12 @@ class LuaMalBindings {
     state.setField(-2, "rmdir");
 
     state.pushDartFunction((LuaState ls) {
-      // fexists is hard to do sync without a cache.
-      // Returning false is safer than true if we don't know.
+      // fexists is hard to do sync without a cache; default to false.
       ls.pushBoolean(false);
       return 1;
     });
     state.setField(-2, "fexists");
 
-    // Dummy handle functions
     state.pushDartFunction((LuaState ls) {
       final path = ls.checkString(1);
       if (path != null) {
@@ -318,7 +399,7 @@ class LuaMalBindings {
     });
     state.setField(-2, "fclose");
 
-    // Push `mal` table to global
-    state.setGlobal("mal");
+    // Push `mesh` table to global
+    state.setGlobal("mesh");
   }
 }

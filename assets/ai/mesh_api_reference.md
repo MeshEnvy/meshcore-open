@@ -14,9 +14,9 @@ The following standard libraries are NOT available:
 
 ---
 
-## Global: `mal` — Mesh Abstraction Layer
+## Global: `mesh` — Mesh API
 
-All host interaction happens through the global `mal` table.
+All host interaction happens through the global `mesh` table.
 
 ---
 
@@ -25,21 +25,38 @@ All host interaction happens through the global `mal` table.
 ```lua
 -- Returns a table keyed by node public-key hex string.
 -- Each value is a table: { longName: string, type: string }
-local nodes = mal.getKnownNodes()
+local nodes = mesh.getKnownNodes()
 
 -- Returns a single node table { longName, type } or nil if not found.
-local node = mal.getNode(nodeId)   -- nodeId: string (public-key hex)
+local node = mesh.getNode(nodeId)   -- nodeId: string (public-key hex)
 
 -- Send a text message.
 -- destination: string nodeId  → direct message to that node
 -- destination: number         → channel index broadcast
 -- portNum: number (optional)  → override target port
-mal.sendText(text, destination, portNum)
+mesh.sendText(text, destination, portNum)
 
 -- Send raw binary data. payload is a Lua string of raw bytes.
 -- port: number (required)
 -- destination: string nodeId or number channelIndex
-mal.sendBytes(payload, port, destination)
+mesh.sendBytes(payload, port, destination)
+```
+
+---
+
+### Message events
+
+```lua
+-- Register a callback for incoming direct messages.
+-- msg: table { text: string, from: string (pubkeyHex), senderName: string }
+--
+-- The script stays resident automatically after doString() returns —
+-- no mesh.wait() or event loop call is needed.
+-- Press Stop in the IDE toolbar to terminate a resident script.
+mesh.onMessage(function(msg)
+    print("From " .. msg.senderName .. ": " .. msg.text)
+    mesh.sendText("copy: " .. msg.text, msg.from)
+end)
 ```
 
 ---
@@ -48,12 +65,12 @@ mal.sendBytes(payload, port, destination)
 
 ```lua
 -- Store a named string value in the environment.
-mal.setEnv(key, value)   -- key: string, value: string
+mesh.setEnv(key, value)   -- key: string, value: string
 
 -- Retrieve a named value.
 -- NOTE: currently returns nil due to async limitations.
 -- Use setKey/getKey for reliable round-trip persistence.
-mal.getEnv(key)
+mesh.getEnv(key)
 ```
 
 ---
@@ -64,11 +81,16 @@ Persist arbitrary string data that survives script restarts.
 
 ```lua
 -- Write a value.
-mal.setKey(key, value)   -- key: string, value: string
+mesh.setKey(key, value)          -- key: string, value: string
+mesh.setKey(key, value, scope)   -- optional scope prefix
 
--- Read a value.
--- NOTE: currently returns nil (async stub — read support coming soon).
-mal.getKey(key)
+-- Read a value (returns nil if not set).
+local v = mesh.getKey(key)
+local v = mesh.getKey(key, scope)
+
+-- Delete a key.
+mesh.deleteKey(key)
+mesh.deleteKey(key, scope)
 ```
 
 ---
@@ -77,24 +99,24 @@ mal.getKey(key)
 
 ```lua
 -- Write a file (creates or overwrites).
-mal.fwrite(path, content)   -- path: string, content: string
+mesh.fwrite(path, content)   -- path: string, content: string
 
 -- Read a file.
 -- NOTE: currently returns nil (async limitation).
-mal.fread(path)
+mesh.fread(path)
 
 -- Check if a file or directory exists.
 -- NOTE: currently returns false (async stub).
-mal.fexists(path)
+mesh.fexists(path)
 
 -- File handle helpers (path-passthrough stubs for now).
-local h = mal.fopen(path)
-mal.fclose(h)
+local h = mesh.fopen(path)
+mesh.fclose(h)
 
 -- Directory operations.
-mal.mkdir(path)
-mal.rmdir(path)
-mal.rm(path)
+mesh.mkdir(path)
+mesh.rmdir(path)
+mesh.rm(path)
 ```
 
 ---
@@ -107,12 +129,21 @@ print("value =", someVar)
 -- Output appears in the IDE inline log pane.
 ```
 
+### Echo bot (reply to every DM)
+```lua
+mesh.onMessage(function(msg)
+    mesh.sendText("copy: " .. msg.text, msg.from)
+end)
+-- Script body ends here, stays resident automatically.
+-- Press the Stop button in the toolbar to terminate.
+```
+
 ### Send a direct message to a named node
 ```lua
-local nodes = mal.getKnownNodes()
+local nodes = mesh.getKnownNodes()
 for id, node in pairs(nodes) do
   if node.longName == "Alice" then
-    mal.sendText("Hello!", id)
+    mesh.sendText("Hello!", id)
     break
   end
 end
@@ -120,13 +151,13 @@ end
 
 ### Broadcast on a channel
 ```lua
-mal.sendText("Hello mesh!", 0)   -- channel 0
-mal.sendText("Alert!", 2)        -- channel 2
+mesh.sendText("Hello mesh!", 0)   -- channel 0
+mesh.sendText("Alert!", 2)        -- channel 2
 ```
 
 ### Iterate all known nodes
 ```lua
-local nodes = mal.getKnownNodes()
+local nodes = mesh.getKnownNodes()
 for id, node in pairs(nodes) do
   print(node.longName, node.type, id)
 end
@@ -135,23 +166,24 @@ end
 ### Persist state between runs
 ```lua
 -- Write
-mal.setKey("counter", tostring(42))
+mesh.setKey("counter", tostring(42))
 
--- Read (returns nil currently — check for nil defensively)
-local v = mal.getKey("counter")
+-- Read
+local v = mesh.getKey("counter")
 local count = tonumber(v) or 0
+```
+
+### Counter that survives restarts
+```lua
+local raw = mesh.getKey("hits")
+local hits = (tonumber(raw) or 0) + 1
+mesh.setKey("hits", tostring(hits))
+print("This script has run " .. hits .. " time(s)")
 ```
 
 ### Write a log file
 ```lua
-mal.fwrite("/logs/run.txt", "script executed\n")
-```
-
-### Echo bot (reply to direct messages)
-```lua
--- NOTE: message callback registration is a planned feature.
--- Currently scripts run synchronously from top to bottom.
--- Daemon/listener patterns will be documented here when available.
+mesh.fwrite("/logs/run.txt", "script executed\n")
 ```
 
 ---
@@ -163,20 +195,24 @@ mal.fwrite("/logs/run.txt", "script executed\n")
 - **No coroutines** — the `coroutine` library is not loaded.
 - **No async/await** — execution is synchronous from script entry to return.
 - **No `os` library** — `os.time`, `os.clock`, `os.date` are unavailable.
-- **`getKey` / `getEnv` / `fread` / `fexists`** return `nil` or `false`
+- **`getEnv` / `fread` / `fexists`** return `nil` or `false`
   synchronously; their real values are fetched asynchronously by the host
   and are not yet plumbed back into the Lua VM.
-- **No network sockets** — all networking goes through `mal.sendText` /
-  `mal.sendBytes`.
-- Scripts that register event listeners stay alive as daemon processes and
-  appear in the IDE Tasks panel.
+- **`getKey` reads are synchronous** from a pre-populated cache — values
+  written before the script started are available, but values written by
+  other scripts concurrently may not be.
+- **No network sockets** — all networking goes through `mesh.sendText` /
+  `mesh.sendBytes`.
+- **Stay-resident scripts** — calling `mesh.onMessage()` keeps the process
+  alive after `doString` returns. The IDE toolbar shows a Stop (■) button
+  while the script is resident. The script is fully torn down when stopped.
 
 ---
 
 ## Response Style
 
 - Always produce complete, runnable Lua code.
-- **Never invent `mal.*` functions** that are not listed above.
+- **Never invent `mesh.*` functions** that are not listed above.
 - Use `print()` for diagnostic output — it surfaces in the log pane.
 - Prefer `tostring()` for number→string coercion.
 - When fixing an error, explain the root cause in one sentence before the fix.

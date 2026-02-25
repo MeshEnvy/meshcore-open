@@ -3,6 +3,24 @@ import 'dart:typed_data';
 import '../../models/contact.dart';
 import 'vfs/vfs.dart';
 
+/// A lightweight, Lua-friendly view of an incoming direct message.
+class MeshIncomingMessage {
+  /// Plain-text content of the message.
+  final String text;
+
+  /// Public-key hex of the sender — pass this to [MalApi.sendText] to reply.
+  final String from;
+
+  /// Display name of the sender, if known.
+  final String senderName;
+
+  const MeshIncomingMessage({
+    required this.text,
+    required this.from,
+    required this.senderName,
+  });
+}
+
 /// The unified Mesh Abstraction Layer (MAL) API interface.
 /// This interface provides a global, flat namespace for interacting with the
 /// underlying mesh network, scoped key-value store, environment variables,
@@ -10,6 +28,14 @@ import 'vfs/vfs.dart';
 abstract class MalApi {
   /// Initializes the MAL provider.
   Future<void> init();
+
+  // --------------------------------------------------------------------------
+  // Messaging Events
+  // --------------------------------------------------------------------------
+
+  /// Broadcast stream of incoming direct messages.
+  /// Emits one [MeshIncomingMessage] for every received, non-CLI, non-self DM.
+  Stream<MeshIncomingMessage> get incomingMessages;
 
   // --------------------------------------------------------------------------
   // Network / Mesh Operations
