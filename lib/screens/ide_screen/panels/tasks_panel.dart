@@ -10,7 +10,11 @@ class IdeTasksPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final processes = LuaService().processes.reversed.toList();
+    final processes = LuaService().processes
+        .where((p) => p.status == LuaProcessStatus.running)
+        .toList()
+        .reversed
+        .toList();
 
     return Container(
       decoration: BoxDecoration(
