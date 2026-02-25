@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 
 import 'ai_assistant_service.dart';
+import 'ai_code_block_builder.dart';
 import 'ai_context_builder.dart';
 
 /// The chat interface shown when Ollama is connected.
@@ -9,10 +10,15 @@ class AiChatView extends StatefulWidget {
   final AiAssistantService service;
   final AiContextBuilder contextBuilder;
 
+  /// Called when the user presses "Apply" on a code block.
+  /// Replaces the active editor content with [code].
+  final void Function(String code)? onApply;
+
   const AiChatView({
     super.key,
     required this.service,
     required this.contextBuilder,
+    this.onApply,
   });
 
   @override
@@ -120,8 +126,10 @@ class _AiChatViewState extends State<AiChatView> {
                   controller: _scrollCtrl,
                   padding: const EdgeInsets.all(12),
                   itemCount: svc.messages.length,
-                  itemBuilder: (context, i) =>
-                      _MessageBubble(message: svc.messages[i]),
+                  itemBuilder: (context, i) => _MessageBubble(
+                    message: svc.messages[i],
+                    onApply: widget.onApply,
+                  ),
                 ),
         ),
 
@@ -155,8 +163,9 @@ class _AiChatViewState extends State<AiChatView> {
 
 class _MessageBubble extends StatelessWidget {
   final AiChatMessage message;
+  final void Function(String)? onApply;
 
-  const _MessageBubble({required this.message});
+  const _MessageBubble({required this.message, this.onApply});
 
   @override
   Widget build(BuildContext context) {
@@ -205,7 +214,7 @@ class _MessageBubble extends StatelessWidget {
                         color: cs.onPrimaryContainer,
                       ),
                     )
-                  : _AiMarkdownBody(text: text),
+                  : _AiMarkdownBody(text: text, onApply: onApply),
             ),
           ),
           if (isUser) const SizedBox(width: 8),
@@ -219,8 +228,9 @@ class _MessageBubble extends StatelessWidget {
 
 class _AiMarkdownBody extends StatelessWidget {
   final String text;
+  final void Function(String)? onApply;
 
-  const _AiMarkdownBody({required this.text});
+  const _AiMarkdownBody({required this.text, this.onApply});
 
   @override
   Widget build(BuildContext context) {
@@ -236,6 +246,7 @@ class _AiMarkdownBody extends StatelessWidget {
       data: text,
       selectable: true,
       softLineBreak: true,
+      builders: {'pre': AiCodeBlockBuilder(onApply: onApply)},
       styleSheet: MarkdownStyleSheet(
         // Body text
         p: TextStyle(fontSize: 12, color: cs.onSurface, height: 1.5),

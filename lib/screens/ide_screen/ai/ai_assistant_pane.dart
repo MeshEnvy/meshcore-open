@@ -119,6 +119,9 @@ class _AiAssistantPaneState extends State<AiAssistantPane> {
                   return AiChatView(
                     service: svc,
                     contextBuilder: _contextBuilder,
+                    onApply: (code) {
+                      ctrl.codeController?.text = code;
+                    },
                   );
                 }
                 return AiSetupView(service: svc);

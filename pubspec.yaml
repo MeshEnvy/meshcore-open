@@ -76,6 +76,7 @@ dependencies:
   cross_file: ^0.3.4+2
   syncfusion_flutter_pdfviewer: ^32.2.7
   flutter_markdown_plus: ^1.0.7
+  markdown: ^7.3.0
 
 dev_dependencies:
   flutter_test:
