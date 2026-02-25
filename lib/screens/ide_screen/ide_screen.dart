@@ -9,6 +9,7 @@ import 'panels/env_panel.dart';
 import 'panels/file_panel.dart';
 import 'panels/tasks_panel.dart';
 import 'viewers/file_viewer.dart';
+import 'widgets/resize_handle.dart';
 
 export 'ide_controller.dart' show FileDisplayMode;
 
@@ -21,6 +22,7 @@ class IdeScreen extends StatefulWidget {
 
 class _IdeScreenState extends State<IdeScreen> {
   late final IdeController _ctrl;
+  double _sidePaneWidth = 260;
 
   @override
   void initState() {
@@ -86,9 +88,9 @@ class _IdeScreenState extends State<IdeScreen> {
                 ? const Center(child: CircularProgressIndicator())
                 : Row(
                     children: [
-                      // ── Left pane ───────────────────────────────────────
-                      Expanded(
-                        flex: 1,
+                      // Left pane (resizable)
+                      SizedBox(
+                        width: _sidePaneWidth,
                         child: DefaultTabController(
                           length: 3,
                           child: Column(
@@ -113,15 +115,23 @@ class _IdeScreenState extends State<IdeScreen> {
                           ),
                         ),
                       ),
-                      // ── Right pane ──────────────────────────────────────
+                      // Drag handle
+                      HorizontalResizeHandle(
+                        onDrag: (dx) => setState(() {
+                          _sidePaneWidth =
+                              (_sidePaneWidth + dx).clamp(150.0, 600.0);
+                        }),
+                      ),
+                      // Right pane
                       Expanded(
-                        flex: 2,
-                        child:
-                            (ctrl.selectedFile == null &&
+                        child: (ctrl.selectedFile == null &&
                                 ctrl.selectedEnvKey == null &&
-                                ctrl.displayMode != FileDisplayMode.processLogs)
+                                ctrl.displayMode !=
+                                    FileDisplayMode.processLogs)
                             ? const Center(
-                                child: Text('Select a file or env var to edit'),
+                                child: Text(
+                                  'Select a file or env var to edit',
+                                ),
                               )
                             : IdeFileViewer(ctrl: ctrl),
                       ),

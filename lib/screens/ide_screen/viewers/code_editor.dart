@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../../services/lua_service.dart';
 import '../../../services/mal/mal_api.dart';
 import '../ide_controller.dart';
+import '../widgets/resize_handle.dart';
 import 'editor_toolbar.dart';
 import 'inline_log_pane.dart';
 
@@ -154,7 +155,7 @@ class _IdeCodeEditorState extends State<IdeCodeEditor> {
 
         // ── Resizable log pane ────────────────────────────────────────────
         if (_logOpen) ...[
-          _ResizeHandle(
+          VerticalResizeHandle(
             onDrag: (dy) => setState(() {
               _logPaneHeight = (_logPaneHeight - dy).clamp(80.0, 600.0);
             }),
@@ -173,37 +174,6 @@ class _IdeCodeEditorState extends State<IdeCodeEditor> {
           ),
         ],
       ],
-    );
-  }
-}
-
-// ── Resize handle ─────────────────────────────────────────────────────────────
-
-/// Thin draggable divider between the editor and the log pane.
-class _ResizeHandle extends StatelessWidget {
-  final void Function(double dy) onDrag;
-  const _ResizeHandle({required this.onDrag});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onVerticalDragUpdate: (d) => onDrag(d.delta.dy),
-      child: MouseRegion(
-        cursor: SystemMouseCursors.resizeRow,
-        child: Container(
-          height: 6,
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          child: Center(
-            child: Icon(
-              Icons.drag_handle,
-              size: 14,
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
-            ),
-          ),
-        ),
-      ),
     );
   }
 }
