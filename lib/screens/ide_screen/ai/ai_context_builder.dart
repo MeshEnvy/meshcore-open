@@ -3,21 +3,34 @@ import 'package:flutter_code_editor/flutter_code_editor.dart';
 /// Assembles a context-rich prompt from the current editor state.
 ///
 /// Injected into every AI request so the model always knows what script
-/// is open and what errors are present — without the user needing to paste
-/// anything manually.
+/// is open, what errors are present, and what the script printed last time
+/// it ran — without the user needing to paste anything manually.
 class AiContextBuilder {
   final String? fileName;
   final String? scriptContent;
   final AnalysisResult? analysisResult;
 
+  /// Lines from the most recent script run (stdout + errors).
+  /// Capped to the last [_maxLogLines] to avoid flooding the context.
+  final List<String>? logs;
+
+  /// Text currently selected in the editor.
+  /// When non-empty, injected as a ## Selected code section so references
+  /// to "this" resolve to the highlighted region rather than the whole script.
+  final String? selectedText;
+
+  static const int _maxLogLines = 80;
+
   const AiContextBuilder({
     this.fileName,
     this.scriptContent,
     this.analysisResult,
+    this.logs,
+    this.selectedText,
   });
 
   /// Returns the full prompt to send to the model, merging the user's
-  /// message with the current script context and diagnostic information.
+  /// message with the current script context, diagnostics, and runtime output.
   String buildPrompt(String userMessage) {
     final sb = StringBuffer();
 
@@ -53,6 +66,33 @@ class AiContextBuilder {
         }
         sb.writeln();
       }
+    }
+
+    final logLines = logs;
+    if (logLines != null && logLines.isNotEmpty) {
+      sb.writeln('## Runtime output (last run)');
+      sb.writeln('```');
+      final omitted = logLines.length > _maxLogLines
+          ? logLines.length - _maxLogLines
+          : 0;
+      if (omitted > 0) {
+        sb.writeln('... ($omitted earlier lines omitted)');
+      }
+      final tail = omitted > 0 ? logLines.sublist(omitted) : logLines;
+      for (final line in tail) {
+        sb.writeln(line);
+      }
+      sb.writeln('```');
+      sb.writeln();
+    }
+
+    final sel = selectedText;
+    if (sel != null && sel.isNotEmpty) {
+      sb.writeln('## Selected code (the user is referring to "this")');
+      sb.writeln('```lua');
+      sb.writeln(sel);
+      sb.writeln('```');
+      sb.writeln();
     }
 
     sb.writeln('## Request');

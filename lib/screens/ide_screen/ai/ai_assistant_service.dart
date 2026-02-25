@@ -180,19 +180,25 @@ class AiAssistantService extends ChangeNotifier {
 
   // ── Chat ─────────────────────────────────────────────────────────────────────
 
-  /// Sends [userMessage] to the model, optionally enriching context with
-  /// the current script and diagnostic information from [contextBuilder].
+  /// Sends [userMessage] to the model via /api/chat.
   ///
-  /// Streams the response into the last [AiChatMessage] in [messages].
+  /// The full [messages] history is forwarded so the model has complete
+  /// memory of the session. Context (script, errors, logs) from
+  /// [contextBuilder] is injected into the current user turn only.
   Future<void> sendMessage(
     String userMessage, {
     AiContextBuilder? contextBuilder,
   }) async {
     if (isGenerating) return;
 
+    // Enrich just the current turn's prompt; previous turns stay as-is.
+    final enrichedText = contextBuilder != null
+        ? contextBuilder.buildPrompt(userMessage)
+        : userMessage;
+
     final userMsg = AiChatMessage(
       isUser: true,
-      text: userMessage,
+      text: userMessage, // raw text shown in UI
       timestamp: DateTime.now(),
     );
     messages.add(userMsg);
@@ -207,14 +213,23 @@ class AiAssistantService extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final fullPrompt = contextBuilder != null
-          ? contextBuilder.buildPrompt(userMessage)
-          : userMessage;
+      // Build the history array for /api/chat from all previous messages,
+      // substituting the enriched prompt for the most recent user turn.
+      final history = <Map<String, String>>[];
+      for (int i = 0; i < messages.length - 1; i++) {
+        final m = messages[i];
+        if (!m.isUser && m.text.isEmpty) continue; // skip empty placeholders
+        history.add({
+          'role': m.isUser ? 'user' : 'assistant',
+          'content': (m.isUser && i == messages.length - 2)
+              ? enrichedText
+              : m.text,
+        });
+      }
 
       final buffer = StringBuffer();
-      await for (final chunk in _streamGenerate(fullPrompt)) {
+      await for (final chunk in _streamChat(history)) {
         buffer.write(chunk);
-        // Update the last message in place
         messages[messages.length - 1] = assistantMsg.copyWith(
           text: buffer.toString(),
         );
@@ -244,18 +259,27 @@ class AiAssistantService extends ChangeNotifier {
 
   // ── Streaming ─────────────────────────────────────────────────────────────────
 
-  Stream<String> _streamGenerate(String prompt) async* {
-    final uri = Uri.parse('${_normalizedEndpoint()}/api/generate');
-    final body = jsonEncode({
-      'model': model,
-      'system': MeshApiPrompt.systemPrompt,
-      'prompt': prompt,
-      'stream': true,
-    });
+  /// Streams a response from Ollama's /api/chat endpoint.
+  ///
+  /// [history] is the full conversation so far; the system prompt is
+  /// always prepended automatically.
+  Stream<String> _streamChat(List<Map<String, String>> history) async* {
+    final uri = Uri.parse('${_normalizedEndpoint()}/api/chat');
 
     // Replace the client so each generation can be cancelled cleanly.
     _httpClient.close();
     _httpClient = http.Client();
+
+    final apiMessages = [
+      {'role': 'system', 'content': MeshApiPrompt.systemPrompt},
+      ...history,
+    ];
+
+    final body = jsonEncode({
+      'model': model,
+      'messages': apiMessages,
+      'stream': true,
+    });
 
     final request = http.Request('POST', uri)
       ..headers['Content-Type'] = 'application/json'
@@ -265,8 +289,6 @@ class AiAssistantService extends ChangeNotifier {
         .send(request)
         .timeout(const Duration(seconds: 30));
 
-    // Surface non-200 responses as actionable errors rather than
-    // silently yielding nothing while the spinner keeps spinning.
     if (streamedResponse.statusCode != 200) {
       final errorBody = await streamedResponse.stream
           .transform(utf8.decoder)
@@ -290,15 +312,15 @@ class AiAssistantService extends ChangeNotifier {
       if (chunk.isEmpty) continue;
       try {
         final data = jsonDecode(chunk) as Map<String, dynamic>;
-        // Ollama can surface errors mid-stream too (e.g. context exceeded).
         if (data.containsKey('error')) {
           throw Exception('Ollama: ${data['error']}');
         }
-        final token = data['response'] as String? ?? '';
+        // /api/chat response shape: { message: { role, content }, done }
+        final token = (data['message'] as Map?)?['content'] as String? ?? '';
         if (token.isNotEmpty) yield token;
         if (data['done'] == true) break;
       } catch (e) {
-        if (e is Exception) rethrow; // propagate structured errors
+        if (e is Exception) rethrow;
         // Malformed JSON chunk — skip silently
       }
     }

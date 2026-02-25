@@ -64,6 +64,11 @@ class _AiChatViewState extends State<AiChatView> {
     _scrollToBottom();
   }
 
+  String _selectionLabel(String sel) {
+    final lines = '\n'.allMatches(sel).length + 1;
+    return lines == 1 ? 'selection' : '$lines lines selected';
+  }
+
   Future<void> _quickAction(String Function() promptBuilder) async {
     if (svc.isGenerating) return;
     svc.addListener(_scrollToBottom);
@@ -110,6 +115,40 @@ class _AiChatViewState extends State<AiChatView> {
                   'in context',
                   style: TextStyle(fontSize: 10, color: cs.primary),
                 ),
+                // Selection indicator
+                if (ctx.selectedText != null &&
+                    ctx.selectedText!.isNotEmpty) ...[
+                  const SizedBox(width: 10),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: cs.secondaryContainer,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.text_fields,
+                          size: 10,
+                          color: cs.onSecondaryContainer,
+                        ),
+                        const SizedBox(width: 3),
+                        Text(
+                          _selectionLabel(ctx.selectedText!),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: cs.onSecondaryContainer,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

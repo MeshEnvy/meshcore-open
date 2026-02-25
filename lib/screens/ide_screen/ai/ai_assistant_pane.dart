@@ -65,10 +65,23 @@ class _AiAssistantPaneState extends State<AiAssistantPane> {
   AiContextBuilder get _contextBuilder {
     final file = ctrl.selectedFile;
     final code = ctrl.codeController;
+
+    // Extract highlighted text (if any) so "this" references are unambiguous.
+    String? selectedText;
+    final sel = code?.selection;
+    if (sel != null && sel.isValid && !sel.isCollapsed) {
+      final text = code!.text;
+      final start = sel.start.clamp(0, text.length);
+      final end = sel.end.clamp(0, text.length);
+      if (end > start) selectedText = text.substring(start, end);
+    }
+
     return AiContextBuilder(
       fileName: file?.path.split('/').last,
       scriptContent: code?.text,
       analysisResult: code?.analysisResult,
+      logs: ctrl.inlineProcess?.logs,
+      selectedText: selectedText,
     );
   }
 

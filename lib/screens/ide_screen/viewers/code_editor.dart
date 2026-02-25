@@ -31,6 +31,11 @@ class _IdeCodeEditorState extends State<IdeCodeEditor> {
   bool _aiOpen = false;
   double _aiPaneWidth = 320;
 
+  // ── Editor focus ──────────────────────────────────────────────────────────
+  /// Dedicated focus node for the CodeField so we can restore focus (and
+  /// therefore the selection highlight) after toolbar button presses.
+  final FocusNode _editorFocusNode = FocusNode();
+
   // ── History management ────────────────────────────────────────────────────
   /// Lines captured from previous runs when Preserve History is on.
   final List<String> _historicalLogs = [];
@@ -54,11 +59,20 @@ class _IdeCodeEditorState extends State<IdeCodeEditor> {
   void dispose() {
     ctrl.removeListener(_onCtrlUpdate);
     _logScrollController.dispose();
+    _editorFocusNode.dispose();
     super.dispose();
   }
 
   void _onCtrlUpdate() {
     if (mounted && _logOpen) _scrollLogToBottom();
+  }
+
+  /// Returns focus to the code editor on the next frame so the selection
+  /// highlight survives toolbar button clicks (which temporarily steal focus).
+  void _restoreFocus() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _editorFocusNode.requestFocus();
+    });
   }
 
   // ── Computed log list ─────────────────────────────────────────────────────
@@ -104,6 +118,8 @@ class _IdeCodeEditorState extends State<IdeCodeEditor> {
 
     if (!_logOpen) setState(() => _logOpen = true);
     _scrollLogToBottom();
+    // Running a script opens the log pane which may steal focus — restore it.
+    _restoreFocus();
   }
 
   void _onClear() {
@@ -146,10 +162,19 @@ class _IdeCodeEditorState extends State<IdeCodeEditor> {
                 aiPaneOpen: _aiOpen,
                 onRun: _onRun,
                 onSave: ctrl.hasUnsavedChanges
-                    ? () => ctrl.saveCurrentFile(context)
+                    ? () {
+                        ctrl.saveCurrentFile(context);
+                        _restoreFocus();
+                      }
                     : null,
-                onToggleLog: () => setState(() => _logOpen = !_logOpen),
-                onToggleAi: () => setState(() => _aiOpen = !_aiOpen),
+                onToggleLog: () {
+                  setState(() => _logOpen = !_logOpen);
+                  _restoreFocus();
+                },
+                onToggleAi: () {
+                  setState(() => _aiOpen = !_aiOpen);
+                  _restoreFocus();
+                },
               ),
               const Divider(height: 1),
 
@@ -167,6 +192,7 @@ class _IdeCodeEditorState extends State<IdeCodeEditor> {
                   data: CodeThemeData(styles: monokaiSublimeTheme),
                   child: CodeField(
                     controller: controller,
+                    focusNode: _editorFocusNode,
                     expands: true,
                     textStyle: const TextStyle(
                       fontFamily: 'monospace',
@@ -202,10 +228,14 @@ class _IdeCodeEditorState extends State<IdeCodeEditor> {
 
         // ── AI assistant pane (resizable) ──────────────────────────────────
         if (_aiOpen) ...[
-          HorizontalResizeHandle(
-            onDrag: (dx) => setState(() {
-              _aiPaneWidth = (_aiPaneWidth - dx).clamp(240.0, 520.0);
-            }),
+          // ExcludeFocus: pointer events in the resize handle must not steal
+          // focus from the editor.
+          ExcludeFocus(
+            child: HorizontalResizeHandle(
+              onDrag: (dx) => setState(() {
+                _aiPaneWidth = (_aiPaneWidth - dx).clamp(240.0, 520.0);
+              }),
+            ),
           ),
           SizedBox(
             width: _aiPaneWidth,
