@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 
 import 'ai_assistant_service.dart';
 import 'ai_context_builder.dart';
@@ -119,7 +120,7 @@ class _AiChatViewState extends State<AiChatView> {
                   controller: _scrollCtrl,
                   padding: const EdgeInsets.all(12),
                   itemCount: svc.messages.length,
-                  itemBuilder: (_, i) =>
+                  itemBuilder: (context, i) =>
                       _MessageBubble(message: svc.messages[i]),
                 ),
         ),
@@ -161,6 +162,7 @@ class _MessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final isUser = message.isUser;
+    final text = message.text.isEmpty ? '…' : message.text;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -194,14 +196,16 @@ class _MessageBubble extends StatelessWidget {
                   bottomRight: Radius.circular(isUser ? 2 : 12),
                 ),
               ),
-              child: SelectableText(
-                message.text.isEmpty ? '…' : message.text,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: isUser ? cs.onPrimaryContainer : cs.onSurface,
-                  fontFamily: _looksLikeCode(message.text) ? 'monospace' : null,
-                ),
-              ),
+              // User messages are plain text; AI responses are rendered Markdown.
+              child: isUser
+                  ? SelectableText(
+                      text,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: cs.onPrimaryContainer,
+                      ),
+                    )
+                  : _AiMarkdownBody(text: text),
             ),
           ),
           if (isUser) const SizedBox(width: 8),
@@ -209,12 +213,99 @@ class _MessageBubble extends StatelessWidget {
       ),
     );
   }
+}
 
-  bool _looksLikeCode(String text) =>
-      text.contains('```') ||
-      text.contains('function ') ||
-      text.contains('local ') ||
-      text.contains('\n  ');
+// ── Markdown renderer for AI responses ────────────────────────────────────────
+
+class _AiMarkdownBody extends StatelessWidget {
+  final String text;
+
+  const _AiMarkdownBody({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Code blocks always use a dark IDE-style background regardless of
+    // the app theme — matches the Monokai editor pane.
+    const codeBackground = Color(0xFF1E1E1E);
+    const codeText = Color(0xFFD4D4D4);
+
+    return MarkdownBody(
+      data: text,
+      selectable: true,
+      softLineBreak: true,
+      styleSheet: MarkdownStyleSheet(
+        // Body text
+        p: TextStyle(fontSize: 12, color: cs.onSurface, height: 1.5),
+        // Headings
+        h1: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.bold,
+          color: cs.onSurface,
+        ),
+        h2: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+          color: cs.onSurface,
+        ),
+        h3: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: cs.onSurface,
+        ),
+        // Inline code `like this`
+        code: TextStyle(
+          fontFamily: 'monospace',
+          fontSize: 11.5,
+          color: codeText,
+          backgroundColor: codeBackground,
+        ),
+        // Fenced code blocks
+        codeblockDecoration: BoxDecoration(
+          color: codeBackground,
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: isDark ? const Color(0xFF444444) : const Color(0xFF555555),
+          ),
+        ),
+        codeblockPadding: const EdgeInsets.all(10),
+        // Blockquotes
+        blockquoteDecoration: BoxDecoration(
+          border: Border(
+            left: BorderSide(
+              color: cs.primary.withValues(alpha: 0.5),
+              width: 3,
+            ),
+          ),
+        ),
+        blockquotePadding: const EdgeInsets.only(left: 10, top: 4, bottom: 4),
+        blockquote: TextStyle(
+          fontSize: 12,
+          color: cs.onSurfaceVariant,
+          fontStyle: FontStyle.italic,
+        ),
+        // Lists
+        listBullet: TextStyle(fontSize: 12, color: cs.primary),
+        // Strong / emphasis
+        strong: TextStyle(fontWeight: FontWeight.bold, color: cs.onSurface),
+        em: TextStyle(fontStyle: FontStyle.italic, color: cs.onSurfaceVariant),
+        // Tables
+        tableHead: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+          color: cs.onSurface,
+        ),
+        tableBody: TextStyle(fontSize: 11, color: cs.onSurface),
+        tableBorder: TableBorder.all(
+          color: cs.outlineVariant,
+          width: 0.8,
+          borderRadius: BorderRadius.circular(4),
+        ),
+      ),
+    );
+  }
 }
 
 // ── Empty state ───────────────────────────────────────────────────────────────
