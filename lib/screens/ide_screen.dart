@@ -31,6 +31,7 @@ class _IdeScreenState extends State<IdeScreen> {
   bool _hasUnsavedChanges = false;
   bool _isLoading = true;
   bool _dragging = false;
+  String? _hoveredNodePath;
 
   @override
   void initState() {
@@ -459,8 +460,7 @@ class _IdeScreenState extends State<IdeScreen> {
     }
   }
 
-  Future<void> _handleDrop(DropDoneDetails details) async {
-    final malApi = context.read<MalApi>();
+  Future<void> _handleSidebarDrop(DropDoneDetails details) async {
     String basePath = _drivePath;
 
     if (_selectedNode != null) {
@@ -472,6 +472,23 @@ class _IdeScreenState extends State<IdeScreen> {
         basePath = parts.join('/');
       }
     }
+
+    await _performDrop(details, basePath);
+  }
+
+  Future<void> _handleNodeDrop(DropDoneDetails details, VfsNode node) async {
+    String basePath = node.path;
+    if (!node.isDir) {
+      final parts = node.path.split('/');
+      parts.removeLast();
+      basePath = parts.join('/');
+    }
+
+    await _performDrop(details, basePath);
+  }
+
+  Future<void> _performDrop(DropDoneDetails details, String basePath) async {
+    final malApi = context.read<MalApi>();
 
     if (mounted) {
       setState(() {
@@ -500,6 +517,8 @@ class _IdeScreenState extends State<IdeScreen> {
       if (mounted) {
         setState(() {
           _isLoading = false;
+          _dragging = false;
+          _hoveredNodePath = null;
         });
       }
     }
@@ -620,7 +639,7 @@ class _IdeScreenState extends State<IdeScreen> {
                       Expanded(
                         flex: 1,
                         child: DropTarget(
-                          onDragDone: _handleDrop,
+                          onDragDone: _handleSidebarDrop,
                           onDragEntered: (details) {
                             setState(() {
                               _dragging = true;
@@ -668,50 +687,65 @@ class _IdeScreenState extends State<IdeScreen> {
                                         final depth =
                                             relativePath.split('/').length - 1;
 
-                                        return GestureDetector(
-                                          behavior: HitTestBehavior.translucent,
-                                          onSecondaryTapDown: (details) {
-                                            _showContextMenu(
-                                              context,
-                                              details.globalPosition,
-                                              entity,
-                                            );
-                                          },
-                                          child: ListTile(
-                                            leading: Padding(
-                                              padding: EdgeInsets.only(
-                                                left: depth * 12.0,
-                                              ),
-                                              child: Icon(
-                                                isFile
-                                                    ? Icons.insert_drive_file
-                                                    : Icons.folder,
-                                                size: 20,
-                                                color: isFile
-                                                    ? null
-                                                    : Theme.of(
-                                                        context,
-                                                      ).colorScheme.primary,
-                                              ),
-                                            ),
-                                            title: Text(
-                                              relativePath.split('/').last,
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight:
-                                                    (isSelected &&
-                                                        _hasUnsavedChanges)
-                                                    ? FontWeight.bold
-                                                    : FontWeight.normal,
-                                              ),
-                                            ),
-                                            selected: isSelected,
-                                            selectedTileColor: Theme.of(
-                                              context,
-                                            ).colorScheme.primaryContainer,
-                                            onTap: () {
-                                              _selectNode(entity);
+                                        return DropTarget(
+                                          onDragDone: (details) =>
+                                              _handleNodeDrop(details, entity),
+                                          onDragEntered: (details) => setState(
+                                            () =>
+                                                _hoveredNodePath = entity.path,
+                                          ),
+                                          onDragExited: (details) => setState(
+                                            () => _hoveredNodePath = null,
+                                          ),
+                                          child: GestureDetector(
+                                            behavior:
+                                                HitTestBehavior.translucent,
+                                            onSecondaryTapDown: (details) {
+                                              _showContextMenu(
+                                                context,
+                                                details.globalPosition,
+                                                entity,
+                                              );
                                             },
+                                            child: ListTile(
+                                              leading: Padding(
+                                                padding: EdgeInsets.only(
+                                                  left: depth * 12.0,
+                                                ),
+                                                child: Icon(
+                                                  isFile
+                                                      ? Icons.insert_drive_file
+                                                      : Icons.folder,
+                                                  size: 20,
+                                                  color: isFile
+                                                      ? null
+                                                      : Theme.of(
+                                                          context,
+                                                        ).colorScheme.primary,
+                                                ),
+                                              ),
+                                              title: Text(
+                                                relativePath.split('/').last,
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight:
+                                                      (isSelected &&
+                                                          _hasUnsavedChanges)
+                                                      ? FontWeight.bold
+                                                      : FontWeight.normal,
+                                                ),
+                                              ),
+                                              selected:
+                                                  isSelected ||
+                                                  _hoveredNodePath ==
+                                                      entity.path,
+                                              selectedTileColor: Theme.of(
+                                                context,
+                                              ).colorScheme.primaryContainer,
+                                              onTap: () {
+                                                _selectNode(entity);
+                                              },
+                                            ),
                                           ),
                                         );
                                       },
