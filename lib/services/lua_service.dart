@@ -94,8 +94,27 @@ class LuaService {
         LuaMalBindings.register(state, api: malApi);
 
         final result = state.doString(content);
-        if (result != 0) {
-          final errorMsg = state.toStr(-1);
+        if (kDebugMode) {
+          print(
+            '[LuaService] autoexec result: $result (type: ${result.runtimeType})',
+          );
+        }
+
+        // In some versions of lua_dardo, doString returns ThreadStatus (enum)
+        // In others it might return int or bool.
+        final bool isSuccess =
+            (result == 0 ||
+            result == true ||
+            result.toString().endsWith('LUA_OK') ||
+            result.toString().endsWith('lua_ok'));
+
+        if (!isSuccess) {
+          String? errorMsg;
+          if (state.getTop() > 0) {
+            errorMsg = state.toStr(-1);
+          }
+          errorMsg ??= 'Unknown error ($result)';
+
           appLogger.error(
             'autoexec.lua execution failed (code $result): $errorMsg',
             tag: 'LuaService',

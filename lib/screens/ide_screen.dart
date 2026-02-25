@@ -1,9 +1,12 @@
+import 'dart:io' as io;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_code_editor/flutter_code_editor.dart';
 import 'package:flutter_highlight/themes/monokai-sublime.dart';
 import 'package:highlight/languages/lua.dart' as highlight_lua;
+import 'package:desktop_drop/desktop_drop.dart';
+import 'package:cross_file/cross_file.dart';
 
 import 'package:provider/provider.dart';
 import '../services/mal/vfs/vfs.dart';
@@ -27,6 +30,7 @@ class _IdeScreenState extends State<IdeScreen> {
   String? _originalContent;
   bool _hasUnsavedChanges = false;
   bool _isLoading = true;
+  bool _dragging = false;
 
   @override
   void initState() {
@@ -455,6 +459,80 @@ class _IdeScreenState extends State<IdeScreen> {
     }
   }
 
+  Future<void> _handleDrop(DropDoneDetails details) async {
+    final malApi = context.read<MalApi>();
+    String basePath = _drivePath;
+
+    if (_selectedNode != null) {
+      if (_selectedNode!.isDir) {
+        basePath = _selectedNode!.path;
+      } else {
+        final parts = _selectedNode!.path.split('/');
+        parts.removeLast();
+        basePath = parts.join('/');
+      }
+    }
+
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
+
+    try {
+      for (final file in details.files) {
+        await _uploadItem(file, basePath, malApi);
+      }
+      await _loadFiles();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Files uploaded successfully')),
+        );
+      }
+    } catch (e) {
+      appLogger.error('Error uploading dropped files: $e', tag: 'IdeScreen');
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _uploadItem(XFile item, String targetPath, MalApi malApi) async {
+    final fileName = item.name;
+    final path = '$targetPath/$fileName';
+    if (kDebugMode) {
+      print(
+        '[IdeScreen] _uploadItem: name=$fileName path=${item.path} target=$path',
+      );
+    }
+
+    if (!kIsWeb) {
+      final fileSystemEntity = io.FileSystemEntity.typeSync(item.path);
+      if (fileSystemEntity == io.FileSystemEntityType.directory) {
+        if (kDebugMode) print('[IdeScreen] detected directory: $fileName');
+        if (!await malApi.fexists(path)) {
+          await malApi.mkdir(path);
+        }
+        final dir = io.Directory(item.path);
+        await for (final entity in dir.list(recursive: false)) {
+          await _uploadItem(XFile(entity.path), path, malApi);
+        }
+        return;
+      }
+    }
+
+    final bytes = await item.readAsBytes();
+    await malApi.fwrite(path, String.fromCharCodes(bytes));
+  }
+
   @override
   Widget build(BuildContext context) {
     return CallbackShortcuts(
@@ -541,85 +619,104 @@ class _IdeScreenState extends State<IdeScreen> {
                       // Left pane: file tree
                       Expanded(
                         flex: 1,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border(
-                              right: BorderSide(
-                                color: Colors.grey.withValues(alpha: 0.5),
+                        child: DropTarget(
+                          onDragDone: _handleDrop,
+                          onDragEntered: (details) {
+                            setState(() {
+                              _dragging = true;
+                            });
+                          },
+                          onDragExited: (details) {
+                            setState(() {
+                              _dragging = false;
+                            });
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: _dragging
+                                  ? Theme.of(context)
+                                        .colorScheme
+                                        .primaryContainer
+                                        .withValues(alpha: 0.2)
+                                  : null,
+                              border: Border(
+                                right: BorderSide(
+                                  color: Colors.grey.withValues(alpha: 0.5),
+                                ),
                               ),
                             ),
-                          ),
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.translucent,
-                            onSecondaryTapDown: (details) => _showContextMenu(
-                              context,
-                              details.globalPosition,
-                              null,
-                            ),
-                            child: _files.isEmpty
-                                ? const Center(child: Text('No files found'))
-                                : ListView.builder(
-                                    itemCount: _files.length,
-                                    itemBuilder: (context, index) {
-                                      final entity = _files[index];
-                                      final isFile = !entity.isDir;
-                                      final relativePath = entity.path
-                                          .replaceFirst('$_drivePath/', '');
-                                      final isSelected =
-                                          _selectedNode?.path == entity.path;
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.translucent,
+                              onSecondaryTapDown: (details) => _showContextMenu(
+                                context,
+                                details.globalPosition,
+                                null,
+                              ),
+                              child: _files.isEmpty
+                                  ? const Center(child: Text('No files found'))
+                                  : ListView.builder(
+                                      itemCount: _files.length,
+                                      itemBuilder: (context, index) {
+                                        final entity = _files[index];
+                                        final isFile = !entity.isDir;
+                                        final relativePath = entity.path
+                                            .replaceFirst('$_drivePath/', '');
+                                        final isSelected =
+                                            _selectedNode?.path == entity.path;
 
-                                      // Add padding to simulate folder depth
-                                      final depth =
-                                          relativePath.split('/').length - 1;
+                                        // Add padding to simulate folder depth
+                                        final depth =
+                                            relativePath.split('/').length - 1;
 
-                                      return GestureDetector(
-                                        behavior: HitTestBehavior.translucent,
-                                        onSecondaryTapDown: (details) {
-                                          _showContextMenu(
-                                            context,
-                                            details.globalPosition,
-                                            entity,
-                                          );
-                                        },
-                                        child: ListTile(
-                                          leading: Padding(
-                                            padding: EdgeInsets.only(
-                                              left: depth * 12.0,
-                                            ),
-                                            child: Icon(
-                                              isFile
-                                                  ? Icons.insert_drive_file
-                                                  : Icons.folder,
-                                              size: 20,
-                                              color: isFile
-                                                  ? null
-                                                  : Theme.of(
-                                                      context,
-                                                    ).colorScheme.primary,
-                                            ),
-                                          ),
-                                          title: Text(
-                                            relativePath.split('/').last,
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight:
-                                                  (isSelected &&
-                                                      _hasUnsavedChanges)
-                                                  ? FontWeight.bold
-                                                  : FontWeight.normal,
-                                            ),
-                                          ),
-                                          selected: isSelected,
-                                          selectedTileColor: Theme.of(
-                                            context,
-                                          ).colorScheme.primaryContainer,
-                                          onTap: () {
-                                            _selectNode(entity);
+                                        return GestureDetector(
+                                          behavior: HitTestBehavior.translucent,
+                                          onSecondaryTapDown: (details) {
+                                            _showContextMenu(
+                                              context,
+                                              details.globalPosition,
+                                              entity,
+                                            );
                                           },
-                                        ),
-                                      );
-                                    },
-                                  ),
+                                          child: ListTile(
+                                            leading: Padding(
+                                              padding: EdgeInsets.only(
+                                                left: depth * 12.0,
+                                              ),
+                                              child: Icon(
+                                                isFile
+                                                    ? Icons.insert_drive_file
+                                                    : Icons.folder,
+                                                size: 20,
+                                                color: isFile
+                                                    ? null
+                                                    : Theme.of(
+                                                        context,
+                                                      ).colorScheme.primary,
+                                              ),
+                                            ),
+                                            title: Text(
+                                              relativePath.split('/').last,
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight:
+                                                    (isSelected &&
+                                                        _hasUnsavedChanges)
+                                                    ? FontWeight.bold
+                                                    : FontWeight.normal,
+                                              ),
+                                            ),
+                                            selected: isSelected,
+                                            selectedTileColor: Theme.of(
+                                              context,
+                                            ).colorScheme.primaryContainer,
+                                            onTap: () {
+                                              _selectNode(entity);
+                                            },
+                                          ),
+                                        );
+                                      },
+                                    ),
+                            ),
                           ),
                         ),
                       ),

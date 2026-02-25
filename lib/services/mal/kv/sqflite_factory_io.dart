@@ -5,6 +5,8 @@ import '../../../utils/platform_info.dart';
 void setupSqfliteFactory() {
   if (PlatformInfo.isDesktop) {
     sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
+    if (databaseFactory != databaseFactoryFfi) {
+      databaseFactory = databaseFactoryFfi;
+    }
   }
 }

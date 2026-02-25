@@ -26,11 +26,10 @@ import 'storage/prefs_manager.dart';
 import 'utils/app_logger.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-
   // Wrap in a try-catch to log any startup errors
   runZonedGuarded(
     () async {
+      WidgetsFlutterBinding.ensureInitialized();
       // Basic sync initialization
       await PrefsManager.initialize();
 
