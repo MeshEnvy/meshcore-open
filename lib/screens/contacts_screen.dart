@@ -319,19 +319,7 @@ class _ContactsScreenState extends State<ContactsScreen>
                   ),
                   onTap: () => _disconnect(context, connector),
                 ),
-                PopupMenuItem(
-                  child: Row(
-                    children: [
-                      const Icon(Icons.code),
-                      const SizedBox(width: 8),
-                      Text(context.l10n.appSettings_ide),
-                    ],
-                  ),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const IdeScreen()),
-                  ),
-                ),
+
                 PopupMenuItem(
                   child: Row(
                     children: [
@@ -345,6 +333,19 @@ class _ContactsScreenState extends State<ContactsScreen>
                     MaterialPageRoute(
                       builder: (context) => const SettingsScreen(),
                     ),
+                  ),
+                ),
+                PopupMenuItem(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.code),
+                      const SizedBox(width: 8),
+                      Text(context.l10n.appSettings_ide),
+                    ],
+                  ),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const IdeScreen()),
                   ),
                 ),
               ],

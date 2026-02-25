@@ -357,45 +357,39 @@ class _IdeScreenState extends State<IdeScreen> {
     if (_isLoadingEnv) {
       return const Center(child: CircularProgressIndicator());
     }
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: ElevatedButton.icon(
-            onPressed: _showCreateEnvDialog,
-            icon: const Icon(Icons.add),
-            label: Text(context.l10n.appSettings_addSecret),
-          ),
-        ),
-        Expanded(
-          child: _envVars.isEmpty
-              ? Center(child: Text(context.l10n.appSettings_noSecrets))
-              : ListView.builder(
-                  itemCount: _envVars.length,
-                  itemBuilder: (context, index) {
-                    final envVar = _envVars[index];
-                    final isSelected = _selectedEnvKey == envVar.key;
-                    return ListTile(
-                      title: Text(envVar.key),
-                      selected: isSelected,
-                      selectedTileColor: Theme.of(
-                        context,
-                      ).colorScheme.primaryContainer,
-                      onTap: () {
-                        _selectEnvVar(envVar.key, envVar.value);
-                      },
-                      trailing: IconButton(
-                        icon: const Icon(
-                          Icons.delete_outline,
-                          color: Colors.red,
-                        ),
-                        onPressed: () => _deleteEnvVar(envVar.key),
-                      ),
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onSecondaryTapDown: (details) =>
+          _showEnvContextMenu(context, details.globalPosition, null),
+      child: _envVars.isEmpty
+          ? Center(child: Text(context.l10n.appSettings_noSecrets))
+          : ListView.builder(
+              itemCount: _envVars.length,
+              itemBuilder: (context, index) {
+                final envVar = _envVars[index];
+                final isSelected = _selectedEnvKey == envVar.key;
+                return GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onSecondaryTapDown: (details) {
+                    _showEnvContextMenu(
+                      context,
+                      details.globalPosition,
+                      envVar.key,
                     );
                   },
-                ),
-        ),
-      ],
+                  child: ListTile(
+                    title: Text(envVar.key),
+                    selected: isSelected,
+                    selectedTileColor: Theme.of(
+                      context,
+                    ).colorScheme.primaryContainer,
+                    onTap: () {
+                      _selectEnvVar(envVar.key, envVar.value);
+                    },
+                  ),
+                );
+              },
+            ),
     );
   }
 
@@ -557,6 +551,56 @@ class _IdeScreenState extends State<IdeScreen> {
         _showCreateDialog(isFile: false);
       } else if (value == 'delete' && entity != null) {
         _deleteEntity(entity);
+      }
+    });
+  }
+
+  void _showEnvContextMenu(
+    BuildContext context,
+    Offset position,
+    String? envKey,
+  ) {
+    showMenu<String>(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        position.dx,
+        position.dy,
+        position.dx,
+        position.dy,
+      ),
+      items: [
+        PopupMenuItem(
+          value: 'secret',
+          child: Row(
+            children: [
+              const Icon(Icons.vpn_key_outlined, size: 20),
+              const SizedBox(width: 8),
+              Text(context.l10n.appSettings_addSecret),
+            ],
+          ),
+        ),
+        if (envKey != null) ...[
+          const PopupMenuDivider(),
+          PopupMenuItem(
+            value: 'delete',
+            child: Row(
+              children: [
+                const Icon(Icons.delete_outline, size: 20, color: Colors.red),
+                const SizedBox(width: 8),
+                Text(
+                  context.l10n.common_delete,
+                  style: const TextStyle(color: Colors.red),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
+    ).then((value) {
+      if (value == 'secret') {
+        _showCreateEnvDialog();
+      } else if (value == 'delete' && envKey != null) {
+        _deleteEnvVar(envKey);
       }
     });
   }
@@ -939,6 +983,8 @@ class _IdeScreenState extends State<IdeScreen> {
                       _showCreateDialog(isFile: true);
                     } else if (action == 'dir') {
                       _showCreateDialog(isFile: false);
+                    } else if (action == 'secret') {
+                      _showCreateEnvDialog();
                     }
                   },
                   itemBuilder: (context) => [
@@ -959,6 +1005,17 @@ class _IdeScreenState extends State<IdeScreen> {
                           const Icon(Icons.folder, size: 20),
                           const SizedBox(width: 8),
                           Text(context.l10n.ide_newDirectory),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuDivider(),
+                    PopupMenuItem(
+                      value: 'secret',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.vpn_key_outlined, size: 20),
+                          const SizedBox(width: 8),
+                          Text(context.l10n.appSettings_addSecret),
                         ],
                       ),
                     ),
