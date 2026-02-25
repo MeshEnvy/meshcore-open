@@ -1239,7 +1239,8 @@ class _ContactTile extends StatelessWidget {
                 children: [
                   if (isFavorite)
                     Icon(Icons.star, size: 14, color: Colors.amber[700]),
-                  if (isFavorite && contact.hasLocation) const SizedBox(width: 2),
+                  if (isFavorite && contact.hasLocation)
+                    const SizedBox(width: 2),
                   if (contact.hasLocation)
                     Icon(Icons.location_on, size: 14, color: Colors.grey[400]),
                 ],
