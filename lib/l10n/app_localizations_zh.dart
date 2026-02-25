@@ -672,6 +672,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get appSettings_noSecrets => 'No environment variables found';
 
   @override
+  String get ide_tasksTab => '任务';
+
+  @override
+  String get ide_allProcessesLogs => '所有进程';
+
+  @override
+  String get ide_killProcess => '终止';
+
+  @override
+  String get ide_processLogs => '日志';
+
+  @override
+  String get ide_runScript => '运行脚本';
+
+  @override
   String get ide_newFile => '新建文件';
 
   @override

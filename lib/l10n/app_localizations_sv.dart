@@ -702,6 +702,21 @@ class AppLocalizationsSv extends AppLocalizations {
   String get appSettings_noSecrets => 'No environment variables found';
 
   @override
+  String get ide_tasksTab => 'Tasks';
+
+  @override
+  String get ide_allProcessesLogs => 'All Processes';
+
+  @override
+  String get ide_killProcess => 'Kill';
+
+  @override
+  String get ide_processLogs => 'Logs';
+
+  @override
+  String get ide_runScript => 'Run Script';
+
+  @override
   String get ide_newFile => 'Ny fil';
 
   @override

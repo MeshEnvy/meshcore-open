@@ -1,11 +1,16 @@
 import 'package:lua_dardo/lua.dart';
 import '../mal_api.dart';
+import '../../lua_service.dart';
 
 /// Binds the native Dart `MalApi` implementation into a `lua_dardo` state
 /// under a single global `mal` table.
 class LuaMalBindings {
   /// Injects the `mal.*` namespace into the provided [state].
-  static void register(LuaState state, {required MalApi api}) {
+  static void register(
+    LuaState state, {
+    required MalApi api,
+    LuaProcess? process,
+  }) {
     state.newTable(); // the `mal` table
 
     // --------------------------------------------------------------------------

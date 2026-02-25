@@ -1,1 +1,105 @@
-{}
+{
+  "bg": [
+    "ide_tasksTab",
+    "ide_allProcessesLogs",
+    "ide_killProcess",
+    "ide_processLogs",
+    "ide_runScript"
+  ],
+
+  "de": [
+    "ide_tasksTab",
+    "ide_allProcessesLogs",
+    "ide_killProcess",
+    "ide_processLogs",
+    "ide_runScript"
+  ],
+
+  "es": [
+    "ide_tasksTab",
+    "ide_allProcessesLogs",
+    "ide_killProcess",
+    "ide_processLogs",
+    "ide_runScript"
+  ],
+
+  "fr": [
+    "ide_tasksTab",
+    "ide_allProcessesLogs",
+    "ide_killProcess",
+    "ide_processLogs",
+    "ide_runScript"
+  ],
+
+  "it": [
+    "ide_tasksTab",
+    "ide_allProcessesLogs",
+    "ide_killProcess",
+    "ide_processLogs",
+    "ide_runScript"
+  ],
+
+  "nl": [
+    "ide_tasksTab",
+    "ide_allProcessesLogs",
+    "ide_killProcess",
+    "ide_processLogs",
+    "ide_runScript"
+  ],
+
+  "pl": [
+    "ide_tasksTab",
+    "ide_allProcessesLogs",
+    "ide_killProcess",
+    "ide_processLogs",
+    "ide_runScript"
+  ],
+
+  "pt": [
+    "ide_tasksTab",
+    "ide_allProcessesLogs",
+    "ide_killProcess",
+    "ide_processLogs",
+    "ide_runScript"
+  ],
+
+  "ru": [
+    "ide_tasksTab",
+    "ide_allProcessesLogs",
+    "ide_killProcess",
+    "ide_processLogs",
+    "ide_runScript"
+  ],
+
+  "sk": [
+    "ide_tasksTab",
+    "ide_allProcessesLogs",
+    "ide_killProcess",
+    "ide_processLogs",
+    "ide_runScript"
+  ],
+
+  "sl": [
+    "ide_tasksTab",
+    "ide_allProcessesLogs",
+    "ide_killProcess",
+    "ide_processLogs",
+    "ide_runScript"
+  ],
+
+  "sv": [
+    "ide_tasksTab",
+    "ide_allProcessesLogs",
+    "ide_killProcess",
+    "ide_processLogs",
+    "ide_runScript"
+  ],
+
+  "uk": [
+    "ide_tasksTab",
+    "ide_allProcessesLogs",
+    "ide_killProcess",
+    "ide_processLogs",
+    "ide_runScript"
+  ]
+}

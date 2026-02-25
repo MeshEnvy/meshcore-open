@@ -1402,6 +1402,36 @@ abstract class AppLocalizations {
   /// **'No environment variables found'**
   String get appSettings_noSecrets;
 
+  /// No description provided for @ide_tasksTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks'**
+  String get ide_tasksTab;
+
+  /// No description provided for @ide_allProcessesLogs.
+  ///
+  /// In en, this message translates to:
+  /// **'All Processes'**
+  String get ide_allProcessesLogs;
+
+  /// No description provided for @ide_killProcess.
+  ///
+  /// In en, this message translates to:
+  /// **'Kill'**
+  String get ide_killProcess;
+
+  /// No description provided for @ide_processLogs.
+  ///
+  /// In en, this message translates to:
+  /// **'Logs'**
+  String get ide_processLogs;
+
+  /// No description provided for @ide_runScript.
+  ///
+  /// In en, this message translates to:
+  /// **'Run Script'**
+  String get ide_runScript;
+
   /// No description provided for @ide_newFile.
   ///
   /// In en, this message translates to:

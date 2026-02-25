@@ -286,6 +286,11 @@
     }
   },
   "appSettings_noSecrets": "No environment variables found",
+  "ide_tasksTab": "Tasks",
+  "ide_allProcessesLogs": "All Processes",
+  "ide_killProcess": "Kill",
+  "ide_processLogs": "Logs",
+  "ide_runScript": "Run Script",
   "ide_newFile": "New File",
   "ide_newDirectory": "New Directory",
   "ide_deleteConfirmTitle": "Delete",
