@@ -40,80 +40,146 @@ class IdeFilePanel extends StatelessWidget {
             right: BorderSide(color: Colors.grey.withValues(alpha: 0.5)),
           ),
         ),
-        child: GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onSecondaryTapDown: (details) =>
-              _showContextMenu(context, details.globalPosition, null),
-          child: ctrl.files.isEmpty
-              ? const Center(child: Text('No files found'))
-              : ListView.builder(
-                  itemCount: ctrl.files.length,
-                  itemBuilder: (ctx, index) {
-                    final entity = ctrl.files[index];
-                    final isFile = !entity.isDir;
-                    final relativePath = entity.path.replaceFirst(
-                      '${ctrl.drivePath}/',
-                      '',
-                    );
-                    final depth = relativePath.split('/').length - 1;
-                    final isSelected = ctrl.selectedNode?.path == entity.path;
-
-                    return DropTarget(
-                      onDragDone: (details) {
-                        String basePath = entity.path;
-                        if (!entity.isDir) {
-                          basePath = (entity.path.split(
-                            '/',
-                          )..removeLast()).join('/');
-                        }
-                        ctrl.performDrop(details, basePath);
-                      },
-                      onDragEntered: (_) {
-                        ctrl.hoveredNodePath = entity.path;
-                        ctrl.notify();
-                      },
-                      onDragExited: (_) {
-                        ctrl.hoveredNodePath = null;
-                        ctrl.notify();
-                      },
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.translucent,
-                        onSecondaryTapDown: (details) => _showContextMenu(
-                          ctx,
-                          details.globalPosition,
-                          entity,
-                        ),
-                        child: ListTile(
-                          leading: Padding(
-                            padding: EdgeInsets.only(left: depth * 12.0),
-                            child: Icon(
-                              isFile ? Icons.insert_drive_file : Icons.folder,
-                              size: 20,
-                              color: isFile
-                                  ? null
-                                  : Theme.of(ctx).colorScheme.primary,
-                            ),
-                          ),
-                          title: Text(
-                            relativePath.split('/').last,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: (isSelected && ctrl.hasUnsavedChanges)
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                            ),
-                          ),
-                          selected:
-                              isSelected || ctrl.hoveredNodePath == entity.path,
-                          selectedTileColor: Theme.of(
-                            ctx,
-                          ).colorScheme.primaryContainer,
-                          onTap: () => ctrl.selectNode(entity, ctx),
+        child: Column(
+          children: [
+            // ── Toolbar ────────────────────────────────────────────────
+            SizedBox(
+              height: 36,
+              child: Row(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    child: Text(
+                      'Files',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  PopupMenuButton<String>(
+                    icon: const Icon(Icons.add, size: 18),
+                    tooltip: 'New',
+                    padding: EdgeInsets.zero,
+                    onSelected: (action) async {
+                      if (action == 'file') {
+                        await ctrl.createEntity(isFile: true, ctx: context);
+                      } else if (action == 'dir') {
+                        await ctrl.createEntity(isFile: false, ctx: context);
+                      }
+                    },
+                    itemBuilder: (_) => const [
+                      PopupMenuItem(
+                        value: 'file',
+                        child: Row(
+                          children: [
+                            Icon(Icons.insert_drive_file, size: 18),
+                            SizedBox(width: 8),
+                            Text('New File'),
+                          ],
                         ),
                       ),
-                    );
-                  },
-                ),
+                      PopupMenuItem(
+                        value: 'dir',
+                        child: Row(
+                          children: [
+                            Icon(Icons.folder, size: 18),
+                            SizedBox(width: 8),
+                            Text('New Directory'),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            // ── File tree ─────────────────────────────────────────────
+            Expanded(
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onSecondaryTapDown: (details) =>
+                    _showContextMenu(context, details.globalPosition, null),
+                child: ctrl.files.isEmpty
+                    ? const Center(child: Text('No files found'))
+                    : ListView.builder(
+                        itemCount: ctrl.files.length,
+                        itemBuilder: (ctx, index) {
+                          final entity = ctrl.files[index];
+                          final isFile = !entity.isDir;
+                          final relativePath = entity.path.replaceFirst(
+                            '${ctrl.drivePath}/',
+                            '',
+                          );
+                          final depth = relativePath.split('/').length - 1;
+                          final isSelected =
+                              ctrl.selectedNode?.path == entity.path;
+
+                          return DropTarget(
+                            onDragDone: (details) {
+                              String basePath = entity.path;
+                              if (!entity.isDir) {
+                                basePath = (entity.path.split(
+                                  '/',
+                                )..removeLast()).join('/');
+                              }
+                              ctrl.performDrop(details, basePath);
+                            },
+                            onDragEntered: (_) {
+                              ctrl.hoveredNodePath = entity.path;
+                              ctrl.notify();
+                            },
+                            onDragExited: (_) {
+                              ctrl.hoveredNodePath = null;
+                              ctrl.notify();
+                            },
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.translucent,
+                              onSecondaryTapDown: (details) => _showContextMenu(
+                                ctx,
+                                details.globalPosition,
+                                entity,
+                              ),
+                              child: ListTile(
+                                leading: Padding(
+                                  padding: EdgeInsets.only(left: depth * 12.0),
+                                  child: Icon(
+                                    isFile
+                                        ? Icons.insert_drive_file
+                                        : Icons.folder,
+                                    size: 20,
+                                    color: isFile
+                                        ? null
+                                        : Theme.of(ctx).colorScheme.primary,
+                                  ),
+                                ),
+                                title: Text(
+                                  relativePath.split('/').last,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight:
+                                        (isSelected && ctrl.hasUnsavedChanges)
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                                selected:
+                                    isSelected ||
+                                    ctrl.hoveredNodePath == entity.path,
+                                selectedTileColor: Theme.of(
+                                  ctx,
+                                ).colorScheme.primaryContainer,
+                                onTap: () => ctrl.selectNode(entity, ctx),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -88,52 +88,6 @@ class _IdeScreenState extends State<IdeScreen> {
                       : null,
                   tooltip: context.l10n.common_delete,
                 ),
-                PopupMenuButton<String>(
-                  icon: const Icon(Icons.add),
-                  tooltip: 'New',
-                  onSelected: (action) {
-                    if (action == 'file') {
-                      ctrl.createEntity(isFile: true, ctx: context);
-                    } else if (action == 'dir') {
-                      ctrl.createEntity(isFile: false, ctx: context);
-                    } else if (action == 'secret') {
-                      _showCreateEnvDialog();
-                    }
-                  },
-                  itemBuilder: (_) => [
-                    PopupMenuItem(
-                      value: 'file',
-                      child: Row(
-                        children: [
-                          const Icon(Icons.insert_drive_file, size: 20),
-                          const SizedBox(width: 8),
-                          Text(context.l10n.ide_newFile),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 'dir',
-                      child: Row(
-                        children: [
-                          const Icon(Icons.folder, size: 20),
-                          const SizedBox(width: 8),
-                          Text(context.l10n.ide_newDirectory),
-                        ],
-                      ),
-                    ),
-                    const PopupMenuDivider(),
-                    PopupMenuItem(
-                      value: 'secret',
-                      child: Row(
-                        children: [
-                          const Icon(Icons.vpn_key_outlined, size: 20),
-                          const SizedBox(width: 8),
-                          Text(context.l10n.appSettings_addSecret),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
               ],
             ),
             body: ctrl.isLoading
@@ -183,40 +137,6 @@ class _IdeScreenState extends State<IdeScreen> {
                   ),
           ),
         ),
-      ),
-    );
-  }
-
-  void _showCreateEnvDialog() {
-    final keyController = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(context.l10n.appSettings_addSecret),
-        content: TextField(
-          controller: keyController,
-          decoration: InputDecoration(
-            labelText: context.l10n.appSettings_secretKey,
-            border: const OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(context.l10n.common_cancel),
-          ),
-          TextButton(
-            onPressed: () async {
-              final key = keyController.text.trim();
-              if (key.isNotEmpty) {
-                Navigator.pop(ctx);
-                if (!mounted) return;
-                await _ctrl.createEnvVar(key, context);
-              }
-            },
-            child: Text(context.l10n.common_create),
-          ),
-        ],
       ),
     );
   }
