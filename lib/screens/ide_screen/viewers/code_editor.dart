@@ -10,6 +10,7 @@ import '../ide_controller.dart';
 import '../widgets/resize_handle.dart';
 import 'diagnostics_bar.dart';
 import 'editor_toolbar.dart';
+import 'inactive_selection_overlay.dart';
 import 'inline_log_pane.dart';
 
 /// Right-pane code editor with an optional resizable inline log pane.
@@ -188,15 +189,19 @@ class _IdeCodeEditorState extends State<IdeCodeEditor> {
 
               // ── Code editor ─────────────────────────────────────────────
               Expanded(
-                child: CodeTheme(
-                  data: CodeThemeData(styles: monokaiSublimeTheme),
-                  child: CodeField(
-                    controller: controller,
-                    focusNode: _editorFocusNode,
-                    expands: true,
-                    textStyle: const TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 14,
+                child: InactiveSelectionOverlay(
+                  controller: controller,
+                  editorFocusNode: _editorFocusNode,
+                  child: CodeTheme(
+                    data: CodeThemeData(styles: monokaiSublimeTheme),
+                    child: CodeField(
+                      controller: controller,
+                      focusNode: _editorFocusNode,
+                      expands: true,
+                      textStyle: const TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 14,
+                      ),
                     ),
                   ),
                 ),
