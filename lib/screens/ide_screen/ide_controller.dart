@@ -43,6 +43,10 @@ class IdeController extends ChangeNotifier {
   // ── Lua task manager ─────────────────────────────────────────────────────────
   LuaProcess? selectedProcess;
   bool showAllProcesses = false;
+
+  /// Process attached to the *inline* log pane inside the code editor.
+  /// Set independently of [selectedProcess] so the right pane doesn't switch.
+  LuaProcess? inlineProcess;
   final ScrollController logScrollController = ScrollController();
 
   // ── Internals ────────────────────────────────────────────────────────────────
