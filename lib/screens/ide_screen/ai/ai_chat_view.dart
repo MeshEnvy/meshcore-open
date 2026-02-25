@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 
 import 'ai_assistant_service.dart';
@@ -506,28 +507,43 @@ class _InputRow extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(8),
       child: Row(
+        // Keep the send button pinned to the bottom as the text field grows.
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Expanded(
-            child: TextField(
-              controller: controller,
-              focusNode: focusNode,
-              minLines: 1,
-              maxLines: 4,
-              style: const TextStyle(fontSize: 13),
-              decoration: const InputDecoration(
-                hintText: 'Ask about your Lua script…',
-                hintStyle: TextStyle(fontSize: 12),
-                isDense: true,
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
+            // Intercept keyboard events so Enter sends and Shift+Enter
+            // inserts a newline without submitting.
+            child: Focus(
+              onKeyEvent: (node, event) {
+                if (event is KeyDownEvent &&
+                    event.logicalKey == LogicalKeyboardKey.enter &&
+                    !HardwareKeyboard.instance.isShiftPressed) {
+                  if (!isGenerating) onSend(controller.text);
+                  return KeyEventResult.handled;
+                }
+                return KeyEventResult.ignored;
+              },
+              child: TextField(
+                controller: controller,
+                focusNode: focusNode,
+                minLines: 1,
+                maxLines: 6,
+                style: const TextStyle(fontSize: 13),
+                decoration: const InputDecoration(
+                  hintText: 'Ask… (Enter to send, Shift+Enter for new line)',
+                  hintStyle: TextStyle(fontSize: 11),
+                  isDense: true,
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                  ),
                 ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
-                ),
+                // newline action lets Shift+Enter insert \n on mobile too.
+                textInputAction: TextInputAction.newline,
               ),
-              textInputAction: TextInputAction.send,
-              onSubmitted: onSend,
             ),
           ),
           const SizedBox(width: 6),
