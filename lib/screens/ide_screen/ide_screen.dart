@@ -8,6 +8,7 @@ import 'ide_controller.dart';
 import 'panels/env_panel.dart';
 import 'panels/file_panel.dart';
 import 'panels/tasks_panel.dart';
+import 'viewers/bottom_log_pane.dart';
 import 'viewers/file_viewer.dart';
 import 'widgets/resize_handle.dart';
 
@@ -22,7 +23,13 @@ class IdeScreen extends StatefulWidget {
 
 class _IdeScreenState extends State<IdeScreen> {
   late final IdeController _ctrl;
+
+  // ── Layout ──────────────────────────────────────────────────────────────────
   double _sidePaneWidth = 260;
+  double _logPaneHeight = 180;
+
+  // ── Log pane state ──────────────────────────────────────────────────────────
+  final ScrollController _logScrollController = ScrollController();
 
   @override
   void initState() {
@@ -40,6 +47,19 @@ class _IdeScreenState extends State<IdeScreen> {
 
   void _onLuaUpdated() {
     _ctrl.onLuaServiceUpdated();
+    // Auto-scroll the bottom log pane to the newest entry if already near the
+    // bottom (same heuristic used by the inline log pane).
+    if (mounted) {
+      setState(() {});
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_logScrollController.hasClients) {
+          final pos = _logScrollController.position;
+          if (pos.pixels >= pos.maxScrollExtent - 100) {
+            _logScrollController.jumpTo(pos.maxScrollExtent);
+          }
+        }
+      });
+    }
   }
 
   @override
@@ -47,9 +67,12 @@ class _IdeScreenState extends State<IdeScreen> {
     if (kIsWeb) BrowserContextMenu.enableContextMenu();
     LuaService().removeListener(_onLuaUpdated);
     _ctrl.removeListener(_onCtrlUpdated);
+    _logScrollController.dispose();
     _ctrl.dispose();
     super.dispose();
   }
+
+  // ── Build ────────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +111,7 @@ class _IdeScreenState extends State<IdeScreen> {
                 ? const Center(child: CircularProgressIndicator())
                 : Row(
                     children: [
-                      // Left pane (resizable)
+                      // ── Left pane (resizable) ─────────────────────────────
                       SizedBox(
                         width: _sidePaneWidth,
                         child: DefaultTabController(
@@ -115,7 +138,8 @@ class _IdeScreenState extends State<IdeScreen> {
                           ),
                         ),
                       ),
-                      // Drag handle
+
+                      // ── Drag handle ───────────────────────────────────────
                       HorizontalResizeHandle(
                         onDrag: (dx) => setState(() {
                           _sidePaneWidth = (_sidePaneWidth + dx).clamp(
@@ -124,16 +148,46 @@ class _IdeScreenState extends State<IdeScreen> {
                           );
                         }),
                       ),
-                      // Right pane
+
+                      // ── Right column: editor + bottom log split ───────────
                       Expanded(
-                        child:
-                            (ctrl.selectedFile == null &&
-                                ctrl.selectedEnvKey == null &&
-                                ctrl.displayMode != FileDisplayMode.processLogs)
-                            ? const Center(
-                                child: Text('Select a file or env var to edit'),
-                              )
-                            : IdeFileViewer(ctrl: ctrl),
+                        child: Column(
+                          children: [
+                            // ── Main editor / viewer area ─────────────────
+                            Expanded(
+                              child:
+                                  (ctrl.selectedFile == null &&
+                                      ctrl.selectedEnvKey == null &&
+                                      ctrl.displayMode !=
+                                          FileDisplayMode.processLogs)
+                                  ? const Center(
+                                      child: Text(
+                                        'Select a file or env var to edit',
+                                      ),
+                                    )
+                                  : IdeFileViewer(ctrl: ctrl),
+                            ),
+
+                            // ── Resize handle between editor and log ──────
+                            VerticalResizeHandle(
+                              onDrag: (dy) => setState(() {
+                                _logPaneHeight = (_logPaneHeight - dy).clamp(
+                                  60.0,
+                                  600.0,
+                                );
+                              }),
+                            ),
+
+                            // ── Bottom log pane ───────────────────────────
+                            SizedBox(
+                              height: _logPaneHeight,
+                              child: BottomLogPane(
+                                scrollController: _logScrollController,
+                                onClear: _clearLogs,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -141,5 +195,14 @@ class _IdeScreenState extends State<IdeScreen> {
         ),
       ),
     );
+  }
+
+  // ── Actions ──────────────────────────────────────────────────────────────────
+
+  void _clearLogs() {
+    for (final p in LuaService().processes) {
+      p.logs.clear();
+    }
+    setState(() {});
   }
 }

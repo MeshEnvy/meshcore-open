@@ -3,7 +3,6 @@ import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 import '../ide_controller.dart';
 import 'code_editor.dart';
-import 'log_viewer.dart';
 
 /// Dispatches to the correct right-pane viewer based on [IdeController.displayMode].
 class IdeFileViewer extends StatelessWidget {
@@ -30,7 +29,8 @@ class IdeFileViewer extends StatelessWidget {
       case FileDisplayMode.unsupported:
         return const Center(child: Text('Unsupported file format'));
       case FileDisplayMode.processLogs:
-        return IdeLogViewer(ctrl: ctrl);
+      // Process logs are now shown in the persistent bottom pane; if this
+      // mode is somehow still active just fall through to the default.
       case FileDisplayMode.code:
         if (ctrl.codeController != null) {
           return IdeCodeEditor(ctrl: ctrl);

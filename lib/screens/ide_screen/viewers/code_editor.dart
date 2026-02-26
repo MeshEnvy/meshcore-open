@@ -11,9 +11,8 @@ import '../widgets/resize_handle.dart';
 import 'diagnostics_bar.dart';
 import 'editor_toolbar.dart';
 import 'inactive_selection_overlay.dart';
-import 'inline_log_pane.dart';
 
-/// Right-pane code editor with an optional resizable inline log pane.
+/// Right-pane code editor with an optional resizable AI assistant pane.
 class IdeCodeEditor extends StatefulWidget {
   final IdeController ctrl;
   const IdeCodeEditor({super.key, required this.ctrl});
@@ -23,11 +22,6 @@ class IdeCodeEditor extends StatefulWidget {
 }
 
 class _IdeCodeEditorState extends State<IdeCodeEditor> {
-  // ── Log pane visibility & size ────────────────────────────────────────────
-  bool _logOpen = false;
-  double _logPaneHeight = 200;
-  final ScrollController _logScrollController = ScrollController();
-
   // ── AI pane visibility & size ─────────────────────────────────────────────
   bool _aiOpen = false;
   double _aiPaneWidth = 320;
@@ -37,35 +31,14 @@ class _IdeCodeEditorState extends State<IdeCodeEditor> {
   /// therefore the selection highlight) after toolbar button presses.
   final FocusNode _editorFocusNode = FocusNode();
 
-  // ── History management ────────────────────────────────────────────────────
-  /// Lines captured from previous runs when Preserve History is on.
-  final List<String> _historicalLogs = [];
-
-  /// How many lines at the start of the current process to skip (after Clear).
-  int _logClearOffset = 0;
-
-  bool _preserveHistory = false;
-
   IdeController get ctrl => widget.ctrl;
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
 
   @override
-  void initState() {
-    super.initState();
-    ctrl.addListener(_onCtrlUpdate);
-  }
-
-  @override
   void dispose() {
-    ctrl.removeListener(_onCtrlUpdate);
-    _logScrollController.dispose();
     _editorFocusNode.dispose();
     super.dispose();
-  }
-
-  void _onCtrlUpdate() {
-    if (mounted && _logOpen) _scrollLogToBottom();
   }
 
   /// Returns focus to the code editor on the next frame so the selection
@@ -76,16 +49,6 @@ class _IdeCodeEditorState extends State<IdeCodeEditor> {
     });
   }
 
-  // ── Computed log list ─────────────────────────────────────────────────────
-
-  /// Merges historical lines with the visible slice of the current process.
-  List<String> get _effectiveLogs {
-    final rawLogs = ctrl.inlineProcess?.logs ?? [];
-    final offset = _logClearOffset.clamp(0, rawLogs.length);
-    final visibleLines = rawLogs.sublist(offset);
-    return [..._historicalLogs, ...visibleLines];
-  }
-
   // ── Actions ───────────────────────────────────────────────────────────────
 
   Future<void> _onRun() async {
@@ -94,30 +57,14 @@ class _IdeCodeEditorState extends State<IdeCodeEditor> {
     if (!mounted) return;
     final malApi = context.read<MalApi>();
 
-    // Preserve logs from the previous run before starting a new one.
-    if (_preserveHistory && ctrl.inlineProcess != null) {
-      final prevLogs = ctrl.inlineProcess!.logs;
-      final offset = _logClearOffset.clamp(0, prevLogs.length);
-      _historicalLogs.addAll(prevLogs.sublist(offset));
-      if (_historicalLogs.isNotEmpty) {
-        _historicalLogs.add('─' * 40); // visual separator between runs
-      }
-    }
-
-    final process = await LuaService().runScript(
+    await LuaService().runScript(
       malApi,
       ctrl.codeController!.text,
       name: file.path.split('/').last,
     );
 
-    // Attach the freshly-started process for this file and reset the clear offset.
-    ctrl.inlineProcess = process;
+    ctrl.inlineProcess = LuaService().processes.last;
     ctrl.notify();
-    _logClearOffset = 0;
-
-    if (!_logOpen) setState(() => _logOpen = true);
-    _scrollLogToBottom();
-    // Running a script opens the log pane which may steal focus — restore it.
     _restoreFocus();
   }
 
@@ -127,24 +74,6 @@ class _IdeCodeEditorState extends State<IdeCodeEditor> {
     process.kill();
     ctrl.notify();
     _restoreFocus();
-  }
-
-  void _onClear() {
-    setState(() {
-      _historicalLogs.clear();
-      _logClearOffset = ctrl.inlineProcess?.logs.length ?? 0;
-    });
-  }
-
-  void _scrollLogToBottom() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_logScrollController.hasClients) {
-        final pos = _logScrollController.position;
-        if (pos.pixels >= pos.maxScrollExtent - 80) {
-          _logScrollController.jumpTo(pos.maxScrollExtent);
-        }
-      }
-    });
   }
 
   // ── Build ─────────────────────────────────────────────────────────────────
@@ -165,7 +94,6 @@ class _IdeCodeEditorState extends State<IdeCodeEditor> {
               IdeEditorToolbar(
                 isLua: isLua,
                 hasUnsavedChanges: ctrl.hasUnsavedChanges,
-                logPaneOpen: _logOpen,
                 aiPaneOpen: _aiOpen,
                 isRunning:
                     ctrl.inlineProcess?.status == LuaProcessStatus.running,
@@ -177,10 +105,6 @@ class _IdeCodeEditorState extends State<IdeCodeEditor> {
                         _restoreFocus();
                       }
                     : null,
-                onToggleLog: () {
-                  setState(() => _logOpen = !_logOpen);
-                  _restoreFocus();
-                },
                 onToggleAi: () {
                   setState(() => _aiOpen = !_aiOpen);
                   _restoreFocus();
@@ -215,27 +139,6 @@ class _IdeCodeEditorState extends State<IdeCodeEditor> {
                   ),
                 ),
               ),
-
-              // ── Resizable log pane ───────────────────────────────────────
-              if (_logOpen) ...[
-                VerticalResizeHandle(
-                  onDrag: (dy) => setState(() {
-                    _logPaneHeight = (_logPaneHeight - dy).clamp(80.0, 600.0);
-                  }),
-                ),
-                SizedBox(
-                  height: _logPaneHeight,
-                  child: InlineLogPane(
-                    ctrl: ctrl,
-                    scrollController: _logScrollController,
-                    logs: _effectiveLogs,
-                    preserveHistory: _preserveHistory,
-                    onTogglePreserve: (v) =>
-                        setState(() => _preserveHistory = v ?? false),
-                    onClear: _onClear,
-                  ),
-                ),
-              ],
             ],
           ),
         ),

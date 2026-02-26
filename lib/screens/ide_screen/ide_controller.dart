@@ -41,10 +41,6 @@ class IdeController extends ChangeNotifier {
   bool isLoadingEnv = true;
   String? selectedEnvKey;
 
-  // ── Lua task manager ─────────────────────────────────────────────────────────
-  LuaProcess? selectedProcess;
-  bool showAllProcesses = false;
-
   /// Per-file processes: file path → last LuaProcess launched from that file.
   /// This keeps run/stop states independent per script.
   final Map<String, LuaProcess> _processPerFile = {};
@@ -67,8 +63,6 @@ class IdeController extends ChangeNotifier {
     }
   }
 
-  final ScrollController logScrollController = ScrollController();
-
   // ── Internals ────────────────────────────────────────────────────────────────
   final BuildContext _context;
 
@@ -78,27 +72,11 @@ class IdeController extends ChangeNotifier {
 
   // ── Lifecycle ────────────────────────────────────────────────────────────────
 
-  void onLuaServiceUpdated() {
-    notify();
-    if (displayMode == FileDisplayMode.processLogs &&
-        logScrollController.hasClients) {
-      final pos = logScrollController.position;
-      if (pos.pixels >= pos.maxScrollExtent - 100) {
-        Future.delayed(const Duration(milliseconds: 50), () {
-          if (logScrollController.hasClients) {
-            logScrollController.jumpTo(
-              logScrollController.position.maxScrollExtent,
-            );
-          }
-        });
-      }
-    }
-  }
+  void onLuaServiceUpdated() => notify();
 
   @override
   void dispose() {
     codeController?.dispose();
-    logScrollController.dispose();
     super.dispose();
   }
 
@@ -547,27 +525,6 @@ class IdeController extends ChangeNotifier {
     }
   }
 
-  // ── Lua process ───────────────────────────────────────────────────────────────
-
-  Future<void> selectProcess(
-    LuaProcess? process, {
-    bool showAll = false,
-  }) async {
-    if (hasUnsavedChanges) {
-      if (!await promptDiscardChanges(_context)) return;
-    }
-    selectedNode = null;
-    selectedFile = null;
-    selectedEnvKey = null;
-    codeController = null;
-    hasUnsavedChanges = false;
-    isLoadingFile = false;
-    selectedProcess = process;
-    showAllProcesses = showAll;
-    displayMode = FileDisplayMode.processLogs;
-    notify();
-  }
-
   // ── Drag & drop ───────────────────────────────────────────────────────────────
 
   Future<void> performDrop(DropDoneDetails details, String basePath) async {
@@ -622,7 +579,6 @@ class IdeController extends ChangeNotifier {
     final content = codeController!.text;
     final fileName = file.path.split('/').last;
     await LuaService().runScript(malApi, content, name: fileName);
-    await selectProcess(null, showAll: false);
   }
 
   Future<void> runScript(VfsNode entity, BuildContext ctx) async {

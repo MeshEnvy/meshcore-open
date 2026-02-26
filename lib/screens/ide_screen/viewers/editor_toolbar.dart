@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 class IdeEditorToolbar extends StatelessWidget {
   final bool isLua;
   final bool hasUnsavedChanges;
-  final bool logPaneOpen;
   final bool aiPaneOpen;
 
   /// True when the inline process is alive (running or resident daemon).
@@ -19,20 +18,17 @@ class IdeEditorToolbar extends StatelessWidget {
   final VoidCallback? onRun;
   final VoidCallback? onStop;
   final VoidCallback? onSave;
-  final VoidCallback onToggleLog;
   final VoidCallback onToggleAi;
 
   const IdeEditorToolbar({
     super.key,
     required this.isLua,
     required this.hasUnsavedChanges,
-    required this.logPaneOpen,
     required this.aiPaneOpen,
     this.isRunning = false,
     this.onRun,
     this.onStop,
     this.onSave,
-    required this.onToggleLog,
     required this.onToggleAi,
   });
 
@@ -74,19 +70,6 @@ class IdeEditorToolbar extends StatelessWidget {
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
             onPressed: onSave,
-          ),
-
-          // Log pane toggle
-          IconButton(
-            icon: Icon(
-              Icons.terminal,
-              size: 18,
-              color: logPaneOpen ? scheme.primary : null,
-            ),
-            tooltip: logPaneOpen ? 'Hide Log' : 'Show Log',
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-            onPressed: onToggleLog,
           ),
 
           // AI pane toggle

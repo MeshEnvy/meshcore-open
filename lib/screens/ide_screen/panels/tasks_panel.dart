@@ -24,17 +24,6 @@ class IdeTasksPanel extends StatelessWidget {
       ),
       child: Column(
         children: [
-          ListTile(
-            leading: const Icon(Icons.list_alt),
-            title: const Text(
-              'All Processes',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            selected: ctrl.showAllProcesses,
-            selectedTileColor: Theme.of(context).colorScheme.primaryContainer,
-            onTap: () => ctrl.selectProcess(null, showAll: true),
-          ),
-          const Divider(height: 1),
           Expanded(
             child: processes.isEmpty
                 ? const Center(child: Text('No tasks'))
@@ -42,9 +31,6 @@ class IdeTasksPanel extends StatelessWidget {
                     itemCount: processes.length,
                     itemBuilder: (ctx, index) {
                       final process = processes[index];
-                      final isSelected =
-                          !ctrl.showAllProcesses &&
-                          ctrl.selectedProcess?.id == process.id;
 
                       final (
                         Color statusColor,
@@ -75,11 +61,6 @@ class IdeTasksPanel extends StatelessWidget {
                           process.status.name,
                           style: TextStyle(fontSize: 10, color: statusColor),
                         ),
-                        selected: isSelected,
-                        selectedTileColor: Theme.of(
-                          ctx,
-                        ).colorScheme.primaryContainer,
-                        onTap: () => ctrl.selectProcess(process),
                         trailing: process.status == LuaProcessStatus.running
                             ? IconButton(
                                 icon: const Icon(Icons.stop, color: Colors.red),
