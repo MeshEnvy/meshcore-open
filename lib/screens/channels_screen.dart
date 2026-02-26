@@ -25,6 +25,7 @@ import '../widgets/unread_badge.dart';
 import 'channel_chat_screen.dart';
 import 'community_qr_scanner_screen.dart';
 import 'contacts_screen.dart';
+import 'ide_screen.dart';
 import 'map_screen.dart';
 import 'settings_screen.dart';
 
@@ -159,6 +160,19 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                     MaterialPageRoute(
                       builder: (context) => const SettingsScreen(),
                     ),
+                  ),
+                ),
+                PopupMenuItem(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.code),
+                      const SizedBox(width: 8),
+                      Text(context.l10n.appSettings_ide),
+                    ],
+                  ),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const IdeScreen()),
                   ),
                 ),
               ],

@@ -28,6 +28,7 @@ import '../widgets/repeater_login_dialog.dart';
 import '../widgets/room_login_dialog.dart';
 import 'repeater_hub_screen.dart';
 import 'settings_screen.dart';
+import 'ide_screen.dart';
 import 'line_of_sight_map_screen.dart';
 
 class MapScreen extends StatefulWidget {
@@ -344,6 +345,21 @@ class _MapScreenState extends State<MapScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => const SettingsScreen(),
+                        ),
+                      ),
+                    ),
+                    PopupMenuItem(
+                      child: Row(
+                        children: [
+                          const Icon(Icons.code),
+                          const SizedBox(width: 8),
+                          Text(context.l10n.appSettings_ide),
+                        ],
+                      ),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const IdeScreen(),
                         ),
                       ),
                     ),
