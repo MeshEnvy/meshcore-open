@@ -136,12 +136,23 @@ class LuaMalBindings {
         portNum = ls.toNumber(3).toInt();
       }
 
-      api.sendText(
-        text,
-        destNodeId: destNodeId,
-        channelIndex: channelIndex,
-        portNum: portNum,
-      );
+      api
+          .sendText(
+            text,
+            destNodeId: destNodeId,
+            channelIndex: channelIndex,
+            portNum: portNum,
+          )
+          .then((id) {
+            if (id == null) {
+              process?.addLog(
+                'mesh.sendText failed: not connected, contact not found, or no destination.',
+              );
+            }
+          })
+          .catchError((e) {
+            process?.addLog('mesh.sendText error: $e');
+          });
       return 0;
     });
     state.setField(-2, "sendText");

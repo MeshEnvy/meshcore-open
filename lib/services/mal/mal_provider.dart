@@ -9,6 +9,8 @@ import 'kv/sqflite_kv.dart';
 import 'kv/indexed_db_kv.dart';
 import 'vfs/vfs.dart';
 import 'package:flutter/foundation.dart';
+import '../../../connector/meshcore_protocol.dart'
+    show hexToPubKey, buildSendTextMsgFrame;
 
 /// A native Dart implementation of the `MalApi` interface that is backed
 /// by the live `MeshCoreConnector` for networking, `MeshKvStore` for variables/storage,
@@ -120,8 +122,33 @@ class ConnectorMalApi implements MalApi {
       }
 
       if (destNodeId != null) {
-        final message = await _connector.sendText(text, destNodeId);
-        return message?.messageId;
+        // First try via the contacts list (normal path).
+        final contact = _connector.contacts.cast<Contact?>().firstWhere(
+          (c) => c?.publicKeyHex == destNodeId,
+          orElse: () => null,
+        );
+
+        if (contact != null) {
+          final message = await _connector.sendText(text, destNodeId);
+          return message?.messageId;
+        }
+
+        // Fallback: the sender may not be in the synced contacts list yet
+        // (e.g. a node that messaged us but we haven't explicitly added).
+        // Build the frame directly from the hex key so the reply still works.
+        if (kDebugMode) {
+          print(
+            '[MalApi] sendText: $destNodeId not in contacts – sending via raw key.',
+          );
+        }
+        try {
+          final pubKey = hexToPubKey(destNodeId);
+          await _connector.sendFrame(buildSendTextMsgFrame(pubKey, text));
+          return 'queued_raw_$destNodeId';
+        } catch (e) {
+          if (kDebugMode) print('[MalApi] sendText raw fallback failed: $e');
+          return null;
+        }
       }
 
       if (kDebugMode) {

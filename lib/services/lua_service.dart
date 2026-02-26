@@ -159,6 +159,7 @@ local __ok, __err = xpcall(function()
 $content
 end, tostring)
 if not __ok then
+  print("[ERROR] " .. tostring(__err or "unknown error"))
   error("[$scriptName] " .. tostring(__err or "unknown error"), 0)
 end
 ''';
