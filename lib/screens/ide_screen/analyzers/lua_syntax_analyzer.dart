@@ -1,50 +1,42 @@
-import 'dart:async';
-
-import 'package:flutter_code_editor/flutter_code_editor.dart';
 // ignore: implementation_imports
 import 'package:lua_dardo/src/compiler/parser/parser.dart';
 
-/// Syntax-only Lua analyzer that reports parse errors as [Issue]s.
+/// A single diagnostic returned by [LuaSyntaxAnalyzer].
+class LuaDiagnostic {
+  final int line; // 0-based line index
+  final String message;
+
+  const LuaDiagnostic({required this.line, required this.message});
+}
+
+/// Runs a fast synchronous Lua parse and returns any [LuaDiagnostic]s.
 ///
-/// It calls [Parser.parse] from lua_dardo synchronously — the parser is
-/// pure-Dart and fast enough that the slight async wrapper is just to satisfy
-/// the [AbstractAnalyzer] contract without blocking the UI.
-///
-/// Error messages from lua_dardo follow the pattern:
-///   `<chunkName>:<line>: <message>`
-/// We strip the chunk-name prefix and extract the 1-based line number.
-class LuaSyntaxAnalyzer extends AbstractAnalyzer {
+/// Decoupled from any editor library — just plain Dart.
+class LuaSyntaxAnalyzer {
   const LuaSyntaxAnalyzer();
 
   static const _chunkName = 'script';
 
-  @override
-  Future<AnalysisResult> analyze(Code code) async {
-    final src = code.text;
-    // Empty or whitespace-only files are always valid.
-    if (src.trim().isEmpty) return const AnalysisResult(issues: []);
-
+  List<LuaDiagnostic> analyze(String src) {
+    if (src.trim().isEmpty) return const [];
     try {
       Parser.parse(src, _chunkName);
-      return const AnalysisResult(issues: []);
+      return const [];
     } catch (e) {
-      final issue = _parseError(e.toString());
-      return AnalysisResult(issues: [issue]);
+      return [_parseError(e.toString())];
     }
   }
 
-  /// Parses a lua_dardo exception string into an [Issue].
+  /// Parses a lua_dardo exception string into a [LuaDiagnostic].
   ///
   /// Expected format: `Exception: script:<line>: <message>`
-  static Issue _parseError(String raw) {
-    // Strip the leading "Exception: " wrapper Dart adds.
+  static LuaDiagnostic _parseError(String raw) {
     String msg = raw.startsWith('Exception: ') ? raw.substring(11) : raw;
 
-    // Try to match `<chunkName>:<line>: <rest>`.
     final pattern = RegExp(r'^[^:]+:(\d+):\s*(.*)$');
     final match = pattern.firstMatch(msg);
 
-    int line = 0; // 0-indexed for flutter_code_editor
+    int line = 0;
     String description = msg;
 
     if (match != null) {
@@ -53,6 +45,6 @@ class LuaSyntaxAnalyzer extends AbstractAnalyzer {
       description = match.group(2) ?? msg;
     }
 
-    return Issue(line: line, message: description, type: IssueType.error);
+    return LuaDiagnostic(line: line, message: description);
   }
 }

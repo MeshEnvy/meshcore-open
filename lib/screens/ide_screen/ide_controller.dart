@@ -4,9 +4,8 @@ import 'package:cross_file/cross_file.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_code_editor/flutter_code_editor.dart';
-import 'package:highlight/languages/lua.dart' as highlight_lua;
 import 'package:provider/provider.dart';
+import 'package:re_editor/re_editor.dart';
 
 import '../../services/lua_service.dart';
 import '../../services/mal/mal_api.dart';
@@ -29,12 +28,16 @@ class IdeController extends ChangeNotifier {
   String? hoveredNodePath;
 
   // ── Editor ──────────────────────────────────────────────────────────────────
-  CodeController? codeController;
+  CodeLineEditingController? codeController;
   String? originalContent;
   FileDisplayMode displayMode = FileDisplayMode.code;
   Uint8List? fileBytes;
   bool isLoadingFile = false;
   bool hasUnsavedChanges = false;
+
+  /// Lua parse diagnostics for the currently open file.  Updated by the
+  /// code editor widget so the AI pane can include them in its context.
+  List<LuaDiagnostic> diagnostics = const [];
 
   // ── Env vars ─────────────────────────────────────────────────────────────────
   List<MapEntry<String, String>> envVars = [];
@@ -191,14 +194,7 @@ class IdeController extends ChangeNotifier {
           try {
             final content = await malApi.fread(entity.path);
             originalContent = content;
-            final isLuaFile = entity.path.toLowerCase().endsWith('.lua');
-            final controller = CodeController(
-              text: content,
-              language: highlight_lua.lua,
-              analyzer: isLuaFile
-                  ? const LuaSyntaxAnalyzer()
-                  : const DefaultLocalAnalyzer(),
-            );
+            final controller = CodeLineEditingController.fromText(content);
             controller.addListener(() {
               final changed = controller.text != originalContent;
               if (hasUnsavedChanges != changed) {
@@ -456,7 +452,7 @@ class IdeController extends ChangeNotifier {
     hasUnsavedChanges = false;
     isLoadingFile = false;
     originalContent = value;
-    final ctrl = CodeController(text: value);
+    final ctrl = CodeLineEditingController.fromText(value);
     ctrl.addListener(() {
       final changed = ctrl.text != originalContent;
       if (hasUnsavedChanges != changed) {

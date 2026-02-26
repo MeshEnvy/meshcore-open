@@ -69,17 +69,15 @@ class _AiAssistantPaneState extends State<AiAssistantPane> {
     // Extract highlighted text (if any) so "this" references are unambiguous.
     String? selectedText;
     final sel = code?.selection;
-    if (sel != null && sel.isValid && !sel.isCollapsed) {
-      final text = code!.text;
-      final start = sel.start.clamp(0, text.length);
-      final end = sel.end.clamp(0, text.length);
-      if (end > start) selectedText = text.substring(start, end);
+    if (sel != null && !sel.isCollapsed) {
+      // re_editor selection uses CodeLinePosition; extract via selectedText.
+      selectedText = code?.selectedText;
     }
 
     return AiContextBuilder(
       fileName: file?.path.split('/').last,
       scriptContent: code?.text,
-      analysisResult: code?.analysisResult,
+      diagnostics: ctrl.diagnostics,
       logs: ctrl.inlineProcess?.logs,
       selectedText: selectedText,
     );

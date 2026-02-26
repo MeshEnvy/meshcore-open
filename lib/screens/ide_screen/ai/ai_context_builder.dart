@@ -1,4 +1,4 @@
-import 'package:flutter_code_editor/flutter_code_editor.dart';
+import '../analyzers/lua_syntax_analyzer.dart';
 
 /// Assembles a context-rich prompt from the current editor state.
 ///
@@ -8,7 +8,7 @@ import 'package:flutter_code_editor/flutter_code_editor.dart';
 class AiContextBuilder {
   final String? fileName;
   final String? scriptContent;
-  final AnalysisResult? analysisResult;
+  final List<LuaDiagnostic>? diagnostics;
 
   /// Lines from the most recent script run (stdout + errors).
   /// Capped to the last [_maxLogLines] to avoid flooding the context.
@@ -24,7 +24,7 @@ class AiContextBuilder {
   const AiContextBuilder({
     this.fileName,
     this.scriptContent,
-    this.analysisResult,
+    this.diagnostics,
     this.logs,
     this.selectedText,
   });
@@ -42,30 +42,13 @@ class AiContextBuilder {
       sb.writeln();
     }
 
-    final result = analysisResult;
-    if (result != null && result.issues.isNotEmpty) {
-      final errors = result.issues
-          .where((i) => i.type == IssueType.error)
-          .toList();
-      final warnings = result.issues
-          .where((i) => i.type == IssueType.warning)
-          .toList();
-
-      if (errors.isNotEmpty) {
-        sb.writeln('## Syntax errors');
-        for (final e in errors) {
-          sb.writeln('  - Line ${e.line + 1}: ${e.message}');
-        }
-        sb.writeln();
+    final diags = diagnostics;
+    if (diags != null && diags.isNotEmpty) {
+      sb.writeln('## Syntax errors');
+      for (final d in diags) {
+        sb.writeln('  - Line ${d.line + 1}: ${d.message}');
       }
-
-      if (warnings.isNotEmpty) {
-        sb.writeln('## Warnings');
-        for (final w in warnings) {
-          sb.writeln('  - Line ${w.line + 1}: ${w.message}');
-        }
-        sb.writeln();
-      }
+      sb.writeln();
     }
 
     final logLines = logs;
