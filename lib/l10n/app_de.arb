@@ -1791,7 +1791,7 @@
   "chat_failedToLoadImage": "Bild konnte nicht geladen werden",
   "chat_cantLoadGifTapToRetry": "GIF kann nicht geladen werden\nZum Wiederholen tippen",
   "chat_tapToLoadGif": "Zum Laden des GIFs tippen",
-  "common_done": "Fertig"
+  "common_done": "Fertig",
   "@contacts_searchFavorites": {
     "placeholders": {
       "number": {

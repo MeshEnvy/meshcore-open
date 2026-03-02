@@ -1000,7 +1000,7 @@
   "chat_failedToLoadImage": "Не удалось загрузить изображение",
   "chat_cantLoadGifTapToRetry": "Не удалось загрузить GIF\nНажмите, чтобы повторить",
   "chat_tapToLoadGif": "Нажмите, чтобы загрузить GIF",
-  "common_done": "Готово"
+  "common_done": "Готово",
   "listFilter_addToFavorites": "Добавить в избранное",
   "listFilter_favorites": "Избранное",
   "listFilter_removeFromFavorites": "Удалить из избранного",

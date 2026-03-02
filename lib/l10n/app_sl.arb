@@ -1760,7 +1760,7 @@
   "chat_failedToLoadImage": "Nalaganje slike ni uspelo",
   "chat_cantLoadGifTapToRetry": "GIF-a ni mogoče naložiti\nTapnite za ponovni poskus",
   "chat_tapToLoadGif": "Tapnite za nalaganje GIF-a",
-  "common_done": "Končano"
+  "common_done": "Končano",
   "listFilter_favorites": "Priljubljene",
   "listFilter_removeFromFavorites": "Odstrani iz priljubljenih",
   "listFilter_addToFavorites": "Dodaj v priljubljene",

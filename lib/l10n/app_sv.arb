@@ -1760,7 +1760,7 @@
   "chat_failedToLoadImage": "Misslyckades med att ladda bilden",
   "chat_cantLoadGifTapToRetry": "Kan inte ladda GIF\nTryck för att försöka igen",
   "chat_tapToLoadGif": "Tryck för att ladda GIF",
-  "common_done": "Klar"
+  "common_done": "Klar",
   "listFilter_removeFromFavorites": "Ta bort från favoriter",
   "listFilter_addToFavorites": "Lägg till i favoriter",
   "listFilter_favorites": "Favoriter",

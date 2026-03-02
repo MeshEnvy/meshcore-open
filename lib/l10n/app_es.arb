@@ -1788,7 +1788,7 @@
   "chat_failedToLoadImage": "Error al cargar la imagen",
   "chat_cantLoadGifTapToRetry": "No se puede cargar el GIF\nToca para reintentar",
   "chat_tapToLoadGif": "Toca para cargar el GIF",
-  "common_done": "Listo"
+  "common_done": "Listo",
   "listFilter_favorites": "Favoritos",
   "listFilter_removeFromFavorites": "Eliminar de las favoritas",
   "listFilter_addToFavorites": "Añadir a favoritos",
