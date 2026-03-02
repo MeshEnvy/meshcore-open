@@ -19,6 +19,9 @@ String? _extractHexPrefix(String query) {
   if (cleaned.startsWith('0x')) {
     cleaned = cleaned.substring(2);
   }
+  if (cleaned.startsWith('<')) {
+    cleaned = cleaned.substring(1).replaceAll(">", "");
+  }
   cleaned = cleaned.replaceAll(' ', '');
   if (cleaned.length < 2) return null;
   if (!RegExp(r'^[0-9a-f]+$').hasMatch(cleaned)) return null;
