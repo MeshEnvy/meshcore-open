@@ -74,6 +74,13 @@ class _UsbScreenState extends State<UsbScreen> {
   @override
   void dispose() {
     _connector.removeListener(_connectionListener);
+    if (!_navigatedToContacts &&
+        _connector.activeTransport == MeshCoreTransportType.usb &&
+        _connector.state != MeshCoreConnectionState.disconnected) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        unawaited(_connector.disconnect(manual: true));
+      });
+    }
     super.dispose();
   }
 
