@@ -21,6 +21,7 @@ class _FakeMeshCoreConnector extends MeshCoreConnector {
   int connectUsbCalls = 0;
   String? lastConnectPortName;
   String? fakeActiveUsbPort;
+  String? fakeActiveUsbPortDisplayLabel;
   bool fakeUsbTransportConnected = false;
 
   @override
@@ -28,6 +29,10 @@ class _FakeMeshCoreConnector extends MeshCoreConnector {
 
   @override
   String? get activeUsbPort => fakeActiveUsbPort;
+
+  @override
+  String? get activeUsbPortDisplayLabel =>
+      fakeActiveUsbPortDisplayLabel ?? fakeActiveUsbPort;
 
   @override
   bool get isUsbTransportConnected => fakeUsbTransportConnected;
@@ -96,6 +101,33 @@ void main() {
 
       expect(connector.connectUsbCalls, 0);
       expect(find.byType(CircularProgressIndicator), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'UsbScreen keeps raw selection while showing connector USB display label',
+    (tester) async {
+      final connector = _FakeMeshCoreConnector(
+        ports: <String>['COM6 - USB Serial Device (COM6)'],
+      );
+
+      await tester.pumpWidget(
+        _buildTestApp(connector: connector, child: const UsbScreen()),
+      );
+      await tester.pumpAndSettle();
+
+      connector.fakeActiveUsbPortDisplayLabel =
+          'COM6 - KD3CGK mesh-utility.org';
+      connector.notifyListeners();
+      await tester.pump();
+
+      expect(find.text('KD3CGK mesh-utility.org'), findsOneWidget);
+
+      await tester.tap(find.widgetWithText(FilledButton, 'Connect'));
+      await tester.pump();
+
+      expect(connector.connectUsbCalls, 1);
+      expect(connector.lastConnectPortName, 'COM6');
     },
   );
 

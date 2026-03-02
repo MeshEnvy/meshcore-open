@@ -29,7 +29,8 @@ class UsbSerialService {
   String _requestPortLabel = 'Choose USB Device';
 
   UsbSerialStatus get status => _status;
-  String? get activePortName => _connectedPortName;
+  String? get activePortKey => _connectedPortKey;
+  String? get activePortDisplayLabel => _connectedPortName ?? _connectedPortKey;
   Stream<Uint8List> get frameStream => _frameController.stream;
   bool get isConnected => _status == UsbSerialStatus.connected;
 

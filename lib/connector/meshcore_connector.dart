@@ -115,7 +115,8 @@ class MeshCoreConnector extends ChangeNotifier {
   final UsbSerialService _usbSerialService = UsbSerialService();
   StreamSubscription<Uint8List>? _usbFrameSubscription;
   MeshCoreTransportType _activeTransport = MeshCoreTransportType.bluetooth;
-  String? _activeUsbPort;
+  String? _activeUsbPortKey;
+  String? _activeUsbPortLabel;
 
   final List<ScanResult> _scanResults = [];
   final List<Contact> _contacts = [];
@@ -229,7 +230,9 @@ class MeshCoreConnector extends ChangeNotifier {
   String get deviceIdLabel => _deviceId ?? 'Unknown';
 
   MeshCoreTransportType get activeTransport => _activeTransport;
-  String? get activeUsbPort => _activeUsbPort;
+  String? get activeUsbPort => _activeUsbPortKey;
+  String? get activeUsbPortDisplayLabel =>
+      _activeUsbPortLabel ?? _activeUsbPortKey;
   bool get isUsbTransportConnected =>
       _state == MeshCoreConnectionState.connected &&
       _activeTransport == MeshCoreTransportType.usb;
@@ -778,7 +781,8 @@ class MeshCoreConnector extends ChangeNotifier {
     }
 
     _activeTransport = MeshCoreTransportType.bluetooth;
-    _activeUsbPort = null;
+    _activeUsbPortKey = null;
+    _activeUsbPortLabel = null;
 
     await stopScan();
     _setState(MeshCoreConnectionState.connecting);
@@ -955,14 +959,16 @@ class MeshCoreConnector extends ChangeNotifier {
     }
 
     _activeTransport = MeshCoreTransportType.bluetooth;
-    _activeUsbPort = null;
+    _activeUsbPortKey = null;
+    _activeUsbPortLabel = null;
 
     await stopScan();
     _cancelReconnectTimer();
     _manualDisconnect = false;
     _resetConnectionHandshakeState();
     _activeTransport = MeshCoreTransportType.usb;
-    _activeUsbPort = portName;
+    _activeUsbPortKey = portName;
+    _activeUsbPortLabel = portName;
     unawaited(_backgroundService?.start());
     _setState(MeshCoreConnectionState.connecting);
 
@@ -1178,7 +1184,8 @@ class MeshCoreConnector extends ChangeNotifier {
     _reactionSendQueueSequence = 0;
 
     _activeTransport = MeshCoreTransportType.bluetooth;
-    _activeUsbPort = null;
+    _activeUsbPortKey = null;
+    _activeUsbPortLabel = null;
 
     _setState(MeshCoreConnectionState.disconnected);
     if (!manual && transportAtDisconnect == MeshCoreTransportType.bluetooth) {
@@ -2218,7 +2225,8 @@ class MeshCoreConnector extends ChangeNotifier {
         selfName != null &&
         selfName.isNotEmpty) {
       _usbSerialService.updateConnectedLabel(selfName);
-      _activeUsbPort = _usbSerialService.activePortName ?? _activeUsbPort;
+      _activeUsbPortLabel =
+          _usbSerialService.activePortDisplayLabel ?? _activeUsbPortLabel;
     }
     _awaitingSelfInfo = false;
     _selfInfoRetryTimer?.cancel();

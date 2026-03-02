@@ -26,11 +26,14 @@ class UsbSerialService {
   StreamSubscription<dynamic>? _androidDataSubscription;
   StreamSubscription<FlSerialEventArgs>? _dataSubscription;
   UsbSerialStatus _status = UsbSerialStatus.disconnected;
-  String? _connectedPortName;
+  String? _connectedPortKey;
+  String? _connectedPortLabel;
   FlSerial? _serial;
 
   UsbSerialStatus get status => _status;
-  String? get activePortName => _connectedPortName;
+  String? get activePortKey => _connectedPortKey;
+  String? get activePortDisplayLabel =>
+      _connectedPortLabel ?? _connectedPortKey;
   Stream<Uint8List> get frameStream => _frameController.stream;
   bool get _useAndroidUsbHost =>
       !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
@@ -126,7 +129,8 @@ class UsbSerialService {
       }
     }
 
-    _connectedPortName = normalizedPortName;
+    _connectedPortKey = normalizedPortName;
+    _connectedPortLabel = normalizedPortName;
     if (_useAndroidUsbHost) {
       _androidDataSubscription = _androidEventChannel
           .receiveBroadcastStream()
@@ -168,7 +172,8 @@ class UsbSerialService {
     if (_status == UsbSerialStatus.disconnected) return;
 
     _status = UsbSerialStatus.disconnecting;
-    _connectedPortName = null;
+    _connectedPortKey = null;
+    _connectedPortLabel = null;
     await _androidDataSubscription?.cancel();
     _androidDataSubscription = null;
     await _dataSubscription?.cancel();
@@ -204,7 +209,10 @@ class UsbSerialService {
     if (trimmed.isEmpty) {
       return;
     }
-    _connectedPortName = trimmed;
+    _connectedPortLabel = buildUsbDisplayLabel(
+      basePortLabel: _connectedPortKey ?? trimmed,
+      deviceName: trimmed,
+    );
   }
 
   void dispose() {

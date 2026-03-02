@@ -23,6 +23,7 @@ class _UsbScreenState extends State<UsbScreen> {
   bool _navigatedToContacts = false;
   bool _didScheduleInitialLoad = false;
   String? _selectedPort;
+  String? _connectedPortDisplayLabel;
   String? _errorText;
   late final MeshCoreConnector _connector;
   late final VoidCallback _connectionListener;
@@ -33,21 +34,19 @@ class _UsbScreenState extends State<UsbScreen> {
     _connector = context.read<MeshCoreConnector>();
     _connectionListener = () {
       if (!mounted) return;
-      final activeUsbPort = _connector.activeUsbPort;
-      if (activeUsbPort != null &&
-          activeUsbPort.isNotEmpty &&
-          activeUsbPort != _selectedPort) {
-        setState(() {
-          _selectedPort = activeUsbPort;
-        });
-      }
+      final activeUsbPortDisplayLabel = _connector.activeUsbPortDisplayLabel;
+      final shouldUpdateDisplayLabel =
+          activeUsbPortDisplayLabel != _connectedPortDisplayLabel;
       if (_connector.state == MeshCoreConnectionState.disconnected) {
         _navigatedToContacts = false;
-        if (_isConnecting) {
-          setState(() {
-            _isConnecting = false;
-          });
-        }
+        setState(() {
+          _isConnecting = false;
+          _connectedPortDisplayLabel = activeUsbPortDisplayLabel;
+        });
+      } else if (shouldUpdateDisplayLabel) {
+        setState(() {
+          _connectedPortDisplayLabel = activeUsbPortDisplayLabel;
+        });
       }
       if (_connector.state == MeshCoreConnectionState.connected &&
           _connector.isUsbTransportConnected &&
@@ -167,7 +166,12 @@ class _UsbScreenState extends State<UsbScreen> {
                             fit: BoxFit.scaleDown,
                             child: Chip(
                               label: Text(
-                                _selectedPort == null
+                                _connectedPortDisplayLabel != null &&
+                                        _connectedPortDisplayLabel!.isNotEmpty
+                                    ? _friendlyPortName(
+                                        _connectedPortDisplayLabel!,
+                                      )
+                                    : _selectedPort == null
                                     ? l10n.usbScreenStatus
                                     : _friendlyPortName(_selectedPort!),
                                 overflow: TextOverflow.ellipsis,
