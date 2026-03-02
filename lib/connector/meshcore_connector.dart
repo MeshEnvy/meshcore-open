@@ -969,7 +969,6 @@ class MeshCoreConnector extends ChangeNotifier {
     _activeTransport = MeshCoreTransportType.usb;
     _activeUsbPortKey = portName;
     _activeUsbPortLabel = portName;
-    unawaited(_backgroundService?.start());
     _setState(MeshCoreConnectionState.connecting);
 
     try {
