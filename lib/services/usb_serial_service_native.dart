@@ -34,14 +34,6 @@ class UsbSerialService {
   FlSerial? _serial;
   AppDebugLogService? _debugLogService;
 
-  /// Holds the last-opened native serial port across hot-restart boundaries.
-  /// On hot restart the Dart isolate is torn down without running [disconnect],
-  /// leaving the native SerialThread alive. The next [connect] call reads this
-  /// field and force-closes the orphaned port before creating a new one, which
-  /// causes the old native thread to unblock its blocking read and exit
-  /// naturally—before any new Dart FFI callbacks are registered.
-  static FlSerial? _lastSerial;
-
   UsbSerialStatus get status => _status;
   String? get activePortKey => _connectedPortKey;
   String? get activePortDisplayLabel =>
@@ -151,25 +143,23 @@ class UsbSerialService {
         throw StateError(msg);
       }
     } else {
-      // Force-close any native serial port left open by the previous Dart
-      // isolate (hot-restart case). The old SerialThread blocks on read(); once
-      // the port is closed here it unblocks and exits before we register any
-      // new Dart FFI callbacks, preventing the "callback invoked after deletion"
-      // crash.
-      final orphan = _lastSerial;
-      if (orphan != null) {
-        _lastSerial = null;
-        try {
-          if (orphan.isOpen() == FlOpenStatus.open) {
-            orphan.closePort();
-          }
-        } catch (_) {}
-        try {
-          orphan.free();
-        } catch (_) {}
-        // Give the native thread a moment to observe the port closure and exit.
-        await Future<void>.delayed(const Duration(milliseconds: 100));
-      }
+      // ── Hot-restart guard ─────────────────────────────────────────────────
+      // On hot restart Dart tears down the isolate without calling dispose().
+      // The NativeCallable registered by flserial's setCallback() is
+      // isolate-local and gets freed when the isolate dies, but the native
+      // SerialThread is still alive and will call it → crash.
+      //
+      // flserial uses process-global native state. Calling fl_free() kills ALL
+      // SerialThreads for every open port across all Dart isolates (there is
+      // only one in a Flutter app). Then fl_init() re-initialises the slot
+      // table so subsequent fl_open() calls work normally.
+      //
+      // This must happen before we register any new NativeCallable, so it must
+      // be the very first thing we do in the desktop branch.
+      try {
+        bindings.fl_free();
+        bindings.fl_init(16);
+      } catch (_) {}
 
       // On macOS, flserial lists both cu.* and tty.* device nodes.
       // When a cu.* open fails with FL_ERROR_PORT_NOT_EXIST, try the tty.*
@@ -203,7 +193,6 @@ class UsbSerialService {
           serial.setRTS(false);
           serial.setDTR(true);
           _serial = serial;
-          _lastSerial = serial;
           // Update the normalized port name to whichever candidate succeeded.
           normalizedPortName = candidate;
           _debugLogService?.info(
@@ -213,9 +202,8 @@ class UsbSerialService {
           opened = true;
           break;
         } on FlSerialException catch (error) {
-          // Do NOT call fl_free() here — it destroys global native library
-          // state and makes subsequent fl_init() calls unreliable. The native
-          // fl_open() already called fl_close() on failure internally.
+          // The native fl_open() already called fl_close() on failure
+          // internally, so no extra cleanup is needed here for this candidate.
           debugPrint(
             '[USB Serial] Failed to open $candidate: ${error.msg} (code ${error.error})',
           );
@@ -314,7 +302,6 @@ class UsbSerialService {
       // crashes with "Callback invoked after it has been deleted".
       final serial = _serial;
       _serial = null;
-      _lastSerial = null;
       try {
         if (serial?.isOpen() == FlOpenStatus.open) {
           serial?.closePort();
@@ -322,9 +309,9 @@ class UsbSerialService {
       } catch (_) {
         // Ignore errors while closing.
       }
-      try {
-        serial?.free();
-      } catch (_) {}
+      // Note: we do NOT call free() here; that would globally reset native
+      // state for all ports. The global reset is done in connect() instead,
+      // before the next open, which is the safer place to do it.
 
       // Now it is safe to cancel the Dart subscription — the native thread has
       // already seen the port close and will not fire any more callbacks.
@@ -350,6 +337,25 @@ class UsbSerialService {
   }
 
   void dispose() {
+    // Synchronously close the native port so the SerialThread exits before
+    // the Dart isolate is torn down (e.g. on hot restart). The async
+    // disconnect() path via unawaited() offers no ordering guarantee — the
+    // isolate may die before the Future resolves, leaving the thread alive
+    // with a dangling NativeCallable pointer.
+    if (_useDesktopFlSerial) {
+      final serial = _serial;
+      _serial = null;
+      _status = UsbSerialStatus.disconnected;
+      _connectedPortKey = null;
+      _connectedPortLabel = null;
+      try {
+        if (serial?.isOpen() == FlOpenStatus.open) {
+          serial?.closePort(); // synchronous C call — kills the SerialThread
+        }
+      } catch (_) {}
+    }
+    // Kick off the full async teardown for anything else (subscription cancel,
+    // stream controller close). These are best-effort at dispose time.
     unawaited(disconnect().whenComplete(_closeFrameController));
   }
 
