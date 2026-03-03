@@ -137,10 +137,7 @@ void main() {
     final connector = _FakeMeshCoreConnector();
 
     await tester.pumpWidget(
-      _buildTestApp(
-        connector: connector,
-        child: const ScannerScreen(),
-      ),
+      _buildTestApp(connector: connector, child: const ScannerScreen()),
     );
     await tester.pumpAndSettle();
 

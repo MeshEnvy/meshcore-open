@@ -164,9 +164,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                       ? const SizedBox(
                           width: 20,
                           height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                          ),
+                          child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.bluetooth_searching),
                   label: Text(
