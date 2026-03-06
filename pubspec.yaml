@@ -63,6 +63,7 @@ dependencies:
   build_pipe: ^0.3.1
   material_symbols_icons: ^4.2906.0
   web: ^1.1.1
+  webcrypto: ^0.6.0
   flutter_svg: ^2.0.10+1
   image_picker: ^1.1.2
   desktop_drop: ^0.7.0

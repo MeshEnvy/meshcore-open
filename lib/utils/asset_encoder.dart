@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:pointycastle/export.dart';
+import 'package:webcrypto/webcrypto.dart';
 import '../models/protos/mas.pb.dart';
 
 class AssetEncoder {
@@ -20,6 +21,19 @@ class AssetEncoder {
     return iv;
   }
 
+  static Future<Uint8List> _encryptAesGcmAsync(
+    Uint8List key,
+    Uint8List iv,
+    Uint8List data,
+  ) async {
+    try {
+      final k = await AesGcmSecretKey.importRawKey(key);
+      return await k.encryptBytes(data, iv, tagLength: 128);
+    } catch (_) {
+      return _encryptAesGcm(key, iv, data);
+    }
+  }
+
   static Uint8List _encryptAesGcm(Uint8List key, Uint8List iv, Uint8List data) {
     final cipher = GCMBlockCipher(AESEngine());
     cipher.init(
@@ -27,6 +41,19 @@ class AssetEncoder {
       AEADParameters(KeyParameter(key), macLength * 8, iv, Uint8List(0)),
     );
     return cipher.process(data);
+  }
+
+  static Future<Uint8List> _decryptAesGcmAsync(
+    Uint8List key,
+    Uint8List iv,
+    Uint8List encryptedData,
+  ) async {
+    try {
+      final k = await AesGcmSecretKey.importRawKey(key);
+      return await k.decryptBytes(encryptedData, iv, tagLength: 128);
+    } catch (_) {
+      return _decryptAesGcm(key, iv, encryptedData);
+    }
   }
 
   static Uint8List _decryptAesGcm(
@@ -54,7 +81,7 @@ class AssetEncoder {
       'AssetEncoder.encode: type=$type, contentType=$contentType, filename=$filename, rawData.length=${rawData.length}, secretKey=${_bytesToHex(secretKey)}',
     );
     final iv = _generateIv();
-    final encryptedData = _encryptAesGcm(secretKey, iv, rawData);
+    final encryptedData = await _encryptAesGcmAsync(secretKey, iv, rawData);
 
     final blob = AssetBlob()
       ..type = type
@@ -78,12 +105,12 @@ class AssetEncoder {
     return buffer;
   }
 
-  static Uint8List decode({
+  static Future<Uint8List> decode({
     required Uint8List blobBytes,
     Uint8List? sharedPsk,
     Uint8List? myPrivateKey,
     Uint8List? myPublicKey,
-  }) {
+  }) async {
     final sw = Stopwatch()..start();
     debugPrint(
       'AssetEncoder.decode: Starting decode of ${blobBytes.length} bytes',
@@ -119,7 +146,7 @@ class AssetEncoder {
       );
 
       final decryptSw = Stopwatch()..start();
-      final result = _decryptAesGcm(key, iv, cipherText);
+      final result = await _decryptAesGcmAsync(key, iv, cipherText);
       debugPrint(
         'AssetEncoder.decode: AES-GCM decrypt took ${decryptSw.elapsedMilliseconds}ms (result: ${result.length} bytes)',
       );

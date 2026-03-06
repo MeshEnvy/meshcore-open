@@ -193,6 +193,20 @@ class ImageUploadService {
     }
   }
 
+  /// Uploads already-encoded AssetBlob bytes to the worker. Returns hash or null.
+  static Future<String?> uploadBlob(Uint8List blobBytes) async {
+    final response = await http.post(
+      Uri.parse(_baseUrl),
+      body: blobBytes,
+      headers: {'Content-Type': 'application/octet-stream'},
+    );
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      return null;
+    }
+    final data = json.decode(response.body);
+    return data['hash'] as String?;
+  }
+
   /// Returns the full image URL for a given hash.
   static String getImageUrl(String hash) {
     return '$_baseUrl/$hash';

@@ -20,8 +20,11 @@ import '../helpers/utf8_length_limiter.dart';
 import '../l10n/l10n.dart';
 import '../models/channel.dart';
 import '../models/channel_message.dart';
+import '../models/protos/mas.pb.dart';
 import '../services/app_settings_service.dart';
 import '../services/chat_text_scale_service.dart';
+import '../services/image_upload_service.dart';
+import '../utils/asset_encoder.dart';
 import '../utils/emoji_utils.dart';
 import '../widgets/chat_zoom_wrapper.dart';
 import '../widgets/emoji_picker.dart';
@@ -52,11 +55,16 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
   final bool _isImageUploading = false;
   bool _isDragging = false;
   Uint8List? _stagedImageBytes;
+  /// On web: blob URL from picker for instant preview before bytes are read.
+  String? _stagedImagePreviewUrl;
   String? _stagedImageMimeType;
+  /// 'processing' | 'encrypting' | 'uploading' while pipeline runs; null when idle or done.
+  String? _stagedImageStage;
   bool _isPreparingStagedImage = false;
   String? _stagedImageHash;
   String? _stagedImageError;
   bool _isStagedImageUploaded = false;
+  bool _stagedImageCancelRequested = false;
 
   MeshCoreConnector? _connector;
 
@@ -1014,7 +1022,27 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
       imageQuality: 85,
     );
 
-    if (image != null) {
+    if (image == null) return;
+
+    if (kIsWeb && image.path.isNotEmpty) {
+      setState(() {
+        _stagedImagePreviewUrl = image.path;
+        _stagedImageBytes = null;
+        _stagedImageMimeType = image.mimeType ?? 'image/jpeg';
+        _stagedImageStage = 'processing';
+        _isPreparingStagedImage = true;
+        _stagedImageHash = null;
+        _stagedImageError = null;
+        _isStagedImageUploaded = false;
+        _stagedImageCancelRequested = false;
+      });
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted || _stagedImageCancelRequested) return;
+        final bytes = await image.readAsBytes();
+        if (!mounted || _stagedImageCancelRequested) return;
+        _runStagedImagePipeline(bytes, image.mimeType ?? 'image/jpeg');
+      });
+    } else {
       final bytes = await image.readAsBytes();
       _prepareStagedImage(bytes, mimeType: image.mimeType);
     }
@@ -1023,12 +1051,100 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
   void _prepareStagedImage(Uint8List bytes, {String? mimeType}) {
     setState(() {
       _stagedImageBytes = bytes;
+      _stagedImagePreviewUrl = null;
       _stagedImageMimeType = mimeType ?? 'image/jpeg';
-      _isPreparingStagedImage = false;
+      _stagedImageStage = 'processing';
+      _isPreparingStagedImage = true;
       _stagedImageHash = null;
       _stagedImageError = null;
       _isStagedImageUploaded = false;
+      _stagedImageCancelRequested = false;
     });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _stagedImageCancelRequested) return;
+      _runStagedImagePipeline(bytes, mimeType ?? 'image/jpeg');
+    });
+  }
+
+  Future<void> _runStagedImagePipeline(Uint8List bytes, String mimeType) async {
+    final channel = widget.channel;
+    final secretKey = channel.psk;
+
+    Uint8List? processedBytes;
+    if (_stagedImageCancelRequested) return;
+    processedBytes = await compute(ImageUploadService.processImage, bytes);
+    if (!mounted || _stagedImageCancelRequested) return;
+    setState(() => _stagedImageStage = 'encrypting');
+    await Future.delayed(Duration.zero);
+
+    Uint8List? blobBytes;
+    if (_stagedImageCancelRequested) return;
+    blobBytes = await AssetEncoder.encode(
+      type: AssetType.CHANNEL,
+      contentType: mimeType,
+      filename: 'upload_${DateTime.now().millisecondsSinceEpoch}.jpg',
+      rawData: processedBytes!,
+      secretKey: secretKey,
+      recipientPublicKeys: [],
+    );
+    if (!mounted || _stagedImageCancelRequested) return;
+    setState(() => _stagedImageStage = 'uploading');
+    await Future.delayed(Duration.zero);
+
+    String? hash;
+    if (_stagedImageCancelRequested) return;
+    hash = await ImageUploadService.uploadBlob(blobBytes);
+    if (!mounted || _stagedImageCancelRequested) return;
+
+    setState(() {
+      _stagedImageBytes = processedBytes;
+      _stagedImagePreviewUrl = null;
+      _stagedImageStage = null;
+      _isPreparingStagedImage = false;
+      _stagedImageHash = hash;
+      _stagedImageError = hash == null ? 'Upload failed' : null;
+      _isStagedImageUploaded = hash != null;
+    });
+  }
+
+  bool _isStageAfter(String stage) {
+    const order = ['processing', 'encrypting', 'uploading'];
+    final current = _stagedImageStage;
+    if (current == null) return false;
+    final currentIdx = order.indexOf(current);
+    final stageIdx = order.indexOf(stage);
+    return currentIdx > stageIdx;
+  }
+
+  Widget _stageRow(String label, bool isActive, bool isDone) {
+    final theme = Theme.of(context);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          width: 16,
+          height: 16,
+          child: isActive
+              ? CircularProgressIndicator(strokeWidth: 2)
+              : isDone
+                  ? Icon(Icons.check, size: 14, color: theme.colorScheme.primary)
+                  : const SizedBox.shrink(),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: isActive
+                ? theme.colorScheme.primary
+                : isDone
+                    ? theme.colorScheme.primary.withValues(alpha: 0.8)
+                    : theme.colorScheme.onSurface.withValues(alpha: 0.5),
+            fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+          ),
+        ),
+      ],
+    );
   }
 
   void _showGifPicker(BuildContext context) {
@@ -1202,7 +1318,9 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                   builder: (context, value, child) {
                     final imageId = _parseImageHash(value.text);
                     final gifId = _parseGifId(value.text);
-                    if (imageId != null || _stagedImageBytes != null) {
+                    if (imageId != null ||
+                        _stagedImageBytes != null ||
+                        _stagedImagePreviewUrl != null) {
                       return Focus(
                         autofocus: true,
                         onKeyEvent: (node, event) {
@@ -1220,7 +1338,16 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                             Expanded(
                               child: Column(
                                 children: [
-                                  if (_stagedImageBytes != null)
+                                  if (_stagedImagePreviewUrl != null)
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Image.network(
+                                        _stagedImagePreviewUrl!,
+                                        height: 160,
+                                        fit: BoxFit.contain,
+                                      ),
+                                    )
+                                  else if (_stagedImageBytes != null)
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(8),
                                       child: Image.memory(
@@ -1242,12 +1369,38 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                                       maxSize: 160,
                                       channelPsk: widget.channel.psk,
                                     ),
-                                  if (_isPreparingStagedImage &&
-                                      _stagedImageHash == null)
-                                    const Padding(
-                                      padding: EdgeInsets.only(top: 8.0),
-                                      child: LinearProgressIndicator(),
+                                  if (_stagedImageStage != null) ...[
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        top: 8.0,
+                                        left: 4,
+                                        right: 4,
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          _stageRow(
+                                            'Processing',
+                                            _stagedImageStage == 'processing',
+                                            _isStageAfter('processing'),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          _stageRow(
+                                            'Encrypting',
+                                            _stagedImageStage == 'encrypting',
+                                            _isStageAfter('encrypting'),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          _stageRow(
+                                            'Uploading',
+                                            _stagedImageStage == 'uploading',
+                                            _isStageAfter('uploading'),
+                                          ),
+                                        ],
+                                      ),
                                     ),
+                                  ],
                                   if (_stagedImageError != null)
                                     Padding(
                                       padding: const EdgeInsets.only(top: 8.0),
@@ -1290,10 +1443,14 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                             IconButton(
                               icon: const Icon(Icons.close),
                               onPressed: () {
-                                if (_stagedImageBytes != null) {
+                                if (_stagedImageBytes != null ||
+                                    _stagedImagePreviewUrl != null) {
                                   setState(() {
+                                    _stagedImageCancelRequested = true;
                                     _stagedImageBytes = null;
+                                    _stagedImagePreviewUrl = null;
                                     _stagedImageMimeType = null;
+                                    _stagedImageStage = null;
                                     _isPreparingStagedImage = false;
                                     _stagedImageHash = null;
                                     _stagedImageError = null;

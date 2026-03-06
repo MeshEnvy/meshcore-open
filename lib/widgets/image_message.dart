@@ -75,16 +75,15 @@ class _ImageMessageState extends State<ImageMessage> {
         debugPrint(
           'ImageMessage._loadAndDecrypt: hash=${widget.hash}, channelPsk.present=${widget.channelPsk != null}, psk=${widget.channelPsk != null ? widget.channelPsk!.map((b) => b.toRadixString(16).padLeft(2, "0")).join() : "null"}',
         );
-        // Use AssetEncoder to decrypt in a background isolate/worker
         final decodeSw = Stopwatch()..start();
-        final decryptedData = await compute(_decodeWrapper, {
-          'blobBytes': blobBytes,
-          'sharedPsk': widget.channelPsk,
-          'myPrivateKey': connector.selfPrivateKey,
-          'myPublicKey': connector.selfPublicKey,
-        });
+        final decryptedData = await AssetEncoder.decode(
+          blobBytes: blobBytes,
+          sharedPsk: widget.channelPsk,
+          myPrivateKey: connector.selfPrivateKey,
+          myPublicKey: connector.selfPublicKey,
+        );
         debugPrint(
-          'ImageMessage._loadAndDecrypt: background decode took ${decodeSw.elapsedMilliseconds}ms',
+          'ImageMessage._loadAndDecrypt: decode took ${decodeSw.elapsedMilliseconds}ms',
         );
 
         if (mounted) {
@@ -228,13 +227,4 @@ class _ImageMessageState extends State<ImageMessage> {
       ),
     );
   }
-}
-
-Uint8List _decodeWrapper(Map<String, dynamic> args) {
-  return AssetEncoder.decode(
-    blobBytes: args['blobBytes'] as Uint8List,
-    sharedPsk: args['sharedPsk'] as Uint8List?,
-    myPrivateKey: args['myPrivateKey'] as Uint8List?,
-    myPublicKey: args['myPublicKey'] as Uint8List?,
-  );
 }

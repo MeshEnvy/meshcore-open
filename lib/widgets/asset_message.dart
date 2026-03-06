@@ -49,7 +49,7 @@ class _AssetMessageState extends State<AssetMessage> {
         debugPrint(
           'AssetMessage._downloadAndSave: hash=${widget.hash}, channelPsk.present=${widget.channelPsk != null}',
         );
-        final decryptedData = AssetEncoder.decode(
+        final decryptedData = await AssetEncoder.decode(
           blobBytes: blobBytes,
           sharedPsk: widget.channelPsk,
           myPrivateKey: connector.selfPrivateKey,
