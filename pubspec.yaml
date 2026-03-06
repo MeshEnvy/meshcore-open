@@ -70,6 +70,12 @@ dependencies:
   protobuf: ^6.0.0
   path: ^1.9.1
 
+dependency_overrides:
+  # Web: return false from setNotifyValue so Dart does not wait for CCCD write
+  # (Chrome never sends that event), avoiding 15s timeout on connect.
+  flutter_blue_plus_web:
+    path: patches/flutter_blue_plus_web
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
