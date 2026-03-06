@@ -5,7 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 import '../models/channel.dart';
 import '../utils/image_processing_stub.dart'
-    if (dart.library.html) '../utils/image_processing_web.dart' as image_processing;
+    if (dart.library.html) '../utils/image_processing_web.dart'
+    as image_processing;
 import '../models/contact.dart';
 import '../models/protos/mas.pb.dart';
 import '../utils/asset_encoder.dart';
