@@ -1085,7 +1085,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
       type: AssetType.CHANNEL,
       contentType: mimeType,
       filename: 'upload_${DateTime.now().millisecondsSinceEpoch}.jpg',
-      rawData: processedBytes!,
+      rawData: processedBytes,
       secretKey: secretKey,
       recipientPublicKeys: [],
     );

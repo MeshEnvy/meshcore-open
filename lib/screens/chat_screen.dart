@@ -724,7 +724,7 @@ class _ChatScreenState extends State<ChatScreen> {
       type: AssetType.DM,
       contentType: mimeType,
       filename: 'upload_${DateTime.now().millisecondsSinceEpoch}.jpg',
-      rawData: processedBytes!,
+      rawData: processedBytes,
       secretKey: secretKey,
       recipientPublicKeys: [
         contact.publicKey,
